@@ -1,12 +1,22 @@
-from django.shortcuts import render, redirect
 from decimal import Decimal
+
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
+
 from apps.inventory.models import Inventory, StockLog
+
+
 # Create your views here.
 def inventory(request):
     stock_items = Inventory.objects.all()
 
+    paginator = Paginator(stock_items, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "stock_items": stock_items
+        "stock_items": stock_items,
+        "page_obj":page_obj,
     }
     return render(request, "inventory/inventory.html", context)
 

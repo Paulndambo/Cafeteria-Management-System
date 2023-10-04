@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
 
 from apps.users.models import User
 
@@ -48,6 +49,54 @@ def register(request):
     
     return render(request, 'modals/new_staff.html',)
 
+
+def edit_staff(request):
+    if request.method == 'POST':
+        user_id = request.POST.get("user_id")
+
+        if user_id:
+            username = request.POST.get("username")
+            email = request.POST.get("email")
+            first_name = request.POST.get("first_name")
+            last_name = request.POST.get("last_name")
+            gender = request.POST.get("gender")
+            role = request.POST.get("role")
+            phone_number = request.POST.get("phone_number")
+            id_number = request.POST.get("id_number")
+
+
+
+            user = User.objects.get(id=user_id)
+            user.first_name = first_name if first_name else user.first_name
+            user.last_name = last_name if last_name else user.last_name
+            user.email = email if email else user.email
+            user.gender = gender if gender else user.gender
+            user.phone_number = phone_number if phone_number else user.phone_number
+            user.id_number = id_number if id_number else user.id_number
+            user.username = username if username else user.username
+            user.role = role if role else user.role
+            
+            user.save()
+            messages.success(request, f"User created successfully!!")
+
+        return redirect('staff')
+    
+    
+    return render(request, 'modals/new_staff.html',)
+
+
+def delete_staff(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        staff = User.objects.filter(id=user_id).first()
+        if staff:
+            staff.delete()
+            return redirect("staff")
+        else:
+            return messages.error(request, f"Staff with id: {user_id} does not exist on the database")
+    return render(request, "modals/staff/delete_staff.html")
+
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -65,7 +114,11 @@ def user_logout(request):
 
 def staff(request):
     staffs = User.objects.filter(role__in=["chef", "admin", "cashier"])
+    paginator = Paginator(staffs, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     context = {
-        "staffs": staffs
+        "staffs": staffs,
+        "page_obj": page_obj
     }
     return render(request, "accounts/staff.html", context)

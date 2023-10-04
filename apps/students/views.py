@@ -1,15 +1,22 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from decimal import Decimal
 
-from apps.users.models import User
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
+
 from apps.students.models import Student, StudentWallet
+from apps.users.models import User
+
 
 # Create your views here.
 def students(request):
     students = Student.objects.all().order_by("-created")
+    paginator = Paginator(students, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     context = {
-        "students": students
+        "students": students,
+        "page_obj": page_obj
     }
     return render(request, "students/students.html", context)
 

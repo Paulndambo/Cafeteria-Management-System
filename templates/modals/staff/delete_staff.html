@@ -2,7 +2,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5 text-center">Delete Student</h1>
+          <h1 class="modal-title fs-5 text-center">Delete Staff</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <form action="/users/delete-staff/" method="POST" enctype="multipart/form-data">
@@ -15,8 +15,8 @@
                     <input
                       type="text"
                       class="form-control"
-                      id="stadd_id"
-                      name="staff_id"
+                      id="user_id"
+                      name="user_id"
                       value="{{staff.id}}"
                       readonly
                       hidden
