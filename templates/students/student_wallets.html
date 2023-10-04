@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col-9">
-        <h3>student_wallet Wallets List</h3>
+        <h3>Student Wallets List</h3>
     </div>
     <div class="col-3">
         <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStudentModal">Add Wallet</a>
@@ -19,7 +19,7 @@
               <th scope="col">Daily Limit</th>
               <th scope="col">Spend Today</th>
               <th scope="col">Balance</th>
-              <th scope="col">Actions</th>
+              <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -34,9 +34,14 @@
               {% endif %}
               <td>{{student_wallet.total_spend_today}}</td>
               <td>{{student_wallet.balance}}</td>
-              <td><a href="#" class="btn btn-primary btn-sm">Recharge</a></td>
+              <td><a href="{% url 'recharge-wallet' student_wallet.student.id %}" class="btn btn-primary btn-sm">Recharge</a></td>
+              {% if student_wallet.student.student_type == "Boarder" %}
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Request</a></td>
+              {% else %}
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletModal">Mpesa</a></td>
+              {% endif %}
               <td><a href="#" class="btn btn-warning btn-sm">Delete</a></td>
-            </tr>
+            </tr> 
             {% endfor %}
 
           </tbody>

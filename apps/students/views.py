@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from decimal import Decimal
 
 from apps.users.models import User
 from apps.students.models import Student, StudentWallet
@@ -11,6 +12,18 @@ def students(request):
         "students": students
     }
     return render(request, "students/students.html", context)
+
+
+def delete_student(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        student = Student.objects.filter(id=student_id).first()
+        if student:
+            student.delete()
+            return redirect("students")
+        else:
+            return messages.error(request, f"Student with id: {student_id} does not exist on the database")
+    return render(request, "modals/students/delete_student.html")
 
 def new_student(request):
     if request.method == 'POST':
@@ -29,8 +42,8 @@ def new_student(request):
 
 
         if user_by_email:
-            messages.error(request, f"User with this email exists already, try a different email!!")
-
+            return messages.error(request, f"User with this email exists already, try a different email!!")
+            print(username, email, first_name, last_name)
         elif user_by_username:
             messages.error(request, f"User with this username exists already, try a different username!!")
 
@@ -76,3 +89,69 @@ def student_wallets(request):
         "wallets": wallets
     }
     return render(request, "students/student_wallets.html", context)
+
+
+def recharge_student_wallet(request, student_id = None):
+    student = Student.objects.get(id=student_id)
+
+    if request.method == "POST":
+        amount = Decimal(request.POST.get("amount"))
+
+        wallet = student.studentwallet
+        wallet.balance += amount
+        wallet.save()
+        return redirect("student-wallets")
+
+    context = {
+        "student": student
+    }
+    return render(request, "students/recharge_wallet.html", context)
+
+
+
+def edit_student(request):
+    if request.method == 'POST':
+        try:
+            student_id = request.POST.get("student_id")
+            user_id = request.POST.get("user_id")
+
+            if student_id and user_id:
+
+                username = request.POST.get("username")
+                email = request.POST.get("email")
+                first_name = request.POST.get("first_name")
+                last_name = request.POST.get("last_name")
+                gender = request.POST.get("gender")
+                phone_number = request.POST.get("phone_number")
+                id_number = request.POST.get("id_number")
+                registration_number = request.POST.get("reg_number")
+                student_type = request.POST.get("student_type")
+                
+
+                user = User.objects.get(id=user_id)
+                student = Student.objects.get(id=student_id)
+                
+                user.first_name = first_name if first_name else user.first_name
+                user.last_name = last_name if last_name else user.last_name
+                user.email = email if email else user.email
+                user.gender = gender if gender else user.gender
+                user.phone_number = phone_number if phone_number else user.phone_number
+                user.id_number = id_number if id_number else user.id_number
+                user.username = username if username else user.username
+                user.save()
+                
+
+                student.student_type = student_type if student_type else student.student_type
+                
+                student.registration_number = registration_number if registration_number else student.registration_number
+                
+                student.save()
+
+                    
+                messages.success(request, f"User updated successfully!!")
+
+            return redirect('students')
+        except Exception as e:
+            raise e
+
+    return render(request, "modals/students/edit_student.html")

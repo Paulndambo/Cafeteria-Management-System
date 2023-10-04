@@ -12,3 +12,11 @@ class Inventory(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+
+
+class StockLog(AbstractBaseModel):
+    inventory = models.ForeignKey(Inventory, on_delete=models.SET_NULL, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.inventory.name

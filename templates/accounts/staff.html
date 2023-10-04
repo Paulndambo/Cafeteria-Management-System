@@ -35,9 +35,11 @@
               <td>{{staff.email}}</td>
               <td>{{staff.role}}</td>
               <td><a href="#" class="btn btn-info btn-sm">View</a></td>
-              <td><a href="#" class="btn btn-primary btn-sm">Edit</a></td>
-              <td><a href="#" class="btn btn-warning btn-sm">Delete</a></td>
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStaffModal{{ staff.id }}">Edit</a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStaffModal{{ staff.id }}">Delete</a></td>
             </tr>
+            {% include "modals/staff/edit_staff.html" %}
+            {% include "modals/staff/delete_staff.html" %}
             {% endfor %}
 
           </tbody>

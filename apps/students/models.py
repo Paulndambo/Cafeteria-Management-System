@@ -27,7 +27,7 @@ class Student(AbstractBaseModel):
 
 
 class StudentWallet(AbstractBaseModel):
-    student = models.OneToOneField(Student, on_delete=models.CASCADE)
+    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name="studentwallet")
     balance = models.DecimalField(max_digits=20, decimal_places=2)
     total_spend_today = models.DecimalField(max_digits=20, decimal_places=2, default=0)
 

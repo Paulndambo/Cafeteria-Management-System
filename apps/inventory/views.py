@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from decimal import Decimal
-from apps.inventory.models import Inventory
+from apps.inventory.models import Inventory, StockLog
 # Create your views here.
 def inventory(request):
     stock_items = Inventory.objects.all()
@@ -27,7 +27,42 @@ def new_stock_item(request):
             stock=stock
         )
 
+        log = StockLog.objects.create(inventory=inventory, quantity=stock)
+
         return redirect("inventory")
 
 
     return render(request, "modals/stock_item.html")
+
+
+def re_stock(request):
+    if request.method == "POST":
+
+        amount = Decimal(request.POST.get("quantity"))
+        product = int(request.POST.get("product"))
+
+        inventory = Inventory.objects.get(id=product)
+        inventory.stock += amount
+        inventory.save()
+
+        log = StockLog.objects.create(inventory=inventory, quantity=amount)
+        
+        return redirect("inventory")
+
+    return render(request, "modals/restock.html")
+
+
+def take_out_stock(request):
+    if request.method == "POST":
+
+        amount = Decimal(request.POST.get("quantity"))
+        product = int(request.POST.get("product"))
+
+        inventory = Inventory.objects.get(id=product)
+        inventory.stock -= amount
+        inventory.save()
+
+        log = StockLog.objects.create(inventory=inventory, quantity=amount)
+        
+        return redirect("inventory")
+    return render(request, "modals/take_out_stock.html")

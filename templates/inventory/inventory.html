@@ -32,12 +32,12 @@
               <td>{{stock.unit_price}}</td>
               <td>{{stock.selling_price}}</td>
               <td>{{stock.stock}}</td>
-      
-              <td><a href="#" class="btn btn-info btn-sm">View</a></td>
-              <td><a href="#" class="btn btn-primary btn-sm">Edit</a></td>
-              <td><a href="#" class="btn btn-info btn-sm">Re-Stock</a></td>
-              <td><a href="#" class="btn btn-warning btn-sm">Delete</a></td>
+              
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#reStockModal{{ stock.id }}">Re-Stock</a></td>
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
             </tr>
+            {% include "modals/restock.html" %}
+            {% include "modals/take_out_stock.html" %}
             {% endfor %}
 
           </tbody>
