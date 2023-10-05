@@ -1,0 +1,47 @@
+<div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Place/Confirm Order</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'confirm-order' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <p>Student: {{student}}</p>
+                    <p>Order Total: {{order_value}}</p>
+                </div>
+                <div class="mb-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="student_id"
+                      name="student_id"
+                      value="{{student.id}}"
+                      readonly
+                      required
+                    />
+                  </div>
+                
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="order_value"
+                      name="order_value"
+                      value="{{order_value}}"
+                      readonly
+                      required
+                    />
+                  </div>
+                 
+                <div class="text-center mt-2">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Close</button>
+                    <button type="submit" class="btn btn-danger">Yes, Proceed</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

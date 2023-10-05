@@ -49,6 +49,7 @@ class Menu(AbstractBaseModel):
     item = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
+    added_to_cart = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return self.item

@@ -1,0 +1,65 @@
+<div class="modal fade" id="addToCartModal{{menu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Add to Cart</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'add-to-cart' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Student ID</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="student_id"
+                        name="student_id"
+                        value="{{student.id}}"
+                        readonly
+                        required
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Item ID</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="menu_id"
+                        name="menu_id"
+                        value="{{menu.id}}"
+                        readonly
+                        required
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Unit Price</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="price"
+                      name="price"
+                      value="{{menu.price}}"
+                      required
+                     
+                    />
+                  </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Quantity</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="quantity"
+                    name="quantity"
+                    required
+                  />
+                </div>
+                
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

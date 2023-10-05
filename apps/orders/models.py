@@ -26,3 +26,14 @@ class OrderItem(AbstractBaseModel):
     quantity = models.FloatField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
+
+class TemporaryOrderItem(AbstractBaseModel):
+    student = models.ForeignKey("students.Student", on_delete=models.CASCADE)
+    menu_item = models.OneToOneField("inventory.Menu", on_delete=models.CASCADE)
+    quantity = models.FloatField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.menu_item.item
+
+        

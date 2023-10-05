@@ -1,6 +1,8 @@
 from django.urls import path
 
-from apps.orders.views import delete_order, edit_order, orders, pos_home
+from apps.orders.views import (add_to_cart, confirm_order, delete_order,
+                               edit_order, orders, pos, pos_home,
+                               remove_from_cart)
 
 urlpatterns = [
     path("", orders, name="orders"),
@@ -8,4 +10,8 @@ urlpatterns = [
     path("delete-order/", delete_order, name="delete-order"),
 
     path("pos-home/", pos_home, name="pos-home"),
+    path("place-order/<int:student_id>/", pos, name="place-order"),
+    path("add-to-cart/", add_to_cart, name="add-to-cart"),
+    path("confirm-order/", confirm_order, name="confirm-order"),
+    path("remove-from-cart/<int:item_id>/", remove_from_cart, name="remove-from-cart"),
 ]

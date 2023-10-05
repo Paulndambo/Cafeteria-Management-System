@@ -48,7 +48,7 @@
               <td>{{student.registration_number}}</td>
               <td>{{student.wallet_balance}}</td>
               <td>
-                <a href="#" class="btn btn-info btn-sm">Place Order</a>
+                <a href="{% url 'place-order' student.id %}" class="btn btn-info btn-sm">Place Order</a>
               </td>
               <td>
                 <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge Wallet</a></td>
