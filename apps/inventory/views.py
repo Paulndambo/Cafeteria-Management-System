@@ -6,10 +6,65 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
-from apps.inventory.models import Inventory, StockLog, Supplier
+from apps.inventory.models import Inventory, Menu, StockLog, Supplier
 
 
 # Create your views here.
+def menus(request):
+    menus = Menu.objects.all()
+    paginator = Paginator(menus, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "menus": menus,
+        "page_obj": page_obj,
+    }
+    return render(request, "menus/menu.html", context)
+
+
+def new_menu_item(request):
+    if request.method == "POST":
+        item = request.POST.get("item")
+        price = request.POST.get("price")
+        
+        menu = Menu.objects.create(
+            item=item,
+            price=price
+        )
+
+        return redirect("menus")
+    return render(request, "menus/new_menu_item.html")
+
+
+def edit_menu_item(request):
+    if request.method == "POST":
+        menu_id = request.POST.get("menu_id")
+        item = request.POST.get("item")
+        price = request.POST.get("price")
+        available = True if request.POST.get("available") == "true" else False
+
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.item = item
+        menu_item.price = price
+        menu_item.available = available
+        menu_item.save()
+
+        return redirect("menus")
+
+    return render(request, "menus/edit_menu.html")
+
+
+def delete_menu_item(request):
+    if request.method == "POST":
+        menu_id = request.POST.get("menu_id")
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.delete()
+        return redirect("menus")
+        
+    return render(request, "menus/delete_menu.html")
+
+
 @login_required(login_url="/users/login/")
 def suppliers(request):
     suppliers = Supplier.objects.all()
@@ -27,6 +82,7 @@ def suppliers(request):
         "page_obj": page_obj,
     }
     return render(request, "suppliers/suppliers.html", context)
+
 
 @login_required(login_url="/users/login/")
 def delete_supplier(request):

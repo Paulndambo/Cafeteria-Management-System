@@ -2,35 +2,45 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5 text-center">Request Recharge</h1>
+          <h1 class="modal-title fs-5 text-center">STUDENT WALLET RECHARGE</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <form action="/students/recharge-wallet/" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                 <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">Registration Number</label>
                   <input
                     type="text"
                     class="form-control"
                     id="reg_number"
                     name="reg_number"
+                    placeholder="Registration Number ..."
                     required
                   />
                 </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Phone Number</label>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">254</span>
                     <input
                       type="text"
                       class="form-control"
                       id="phone_number"
                       name="phone_number"
+                      placeholder="Phone Number..."
                       required
                     />
                   </div>
+                
+                  <div class="mb-2">
+                    <select class="form-select" id="recharge_method" name="recharge_method">
+                        
+                        <option value="mpesa">Mpesa</option>
+                        <option value="manually">Manually</option>
+                       
+                      </select>
+                  </div>
                   
                 <div class="text-center mt-2">
-                  <button type="submit" class="btn btn-primary">Submit Request</button>
+                  <button type="submit" class="btn btn-success">Recharge Wallet</button>
                 </div>
               </div>
               </form>

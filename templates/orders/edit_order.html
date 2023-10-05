@@ -1,0 +1,66 @@
+<div class="modal fade" id="editOrderModal{{order.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Edit Order</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'edit-order' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Order ID</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="order_id"
+                        name="order_id"
+                        value="{{order.id}}"
+                        readonly
+                        required
+                    />
+                    </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Student</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="student"
+                    name="student"
+                    value="{{order.student}}"
+                    required
+                    readonly
+                  />
+                </div>
+            
+                
+                  <div class="mb-2">
+                    <label class="form-label">Order Meal Time</label>
+                    <select class="form-select" id="meal_time" name="meal_time" value="{{order.meal_time}}">
+                        
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Supper">Supper</option>
+                
+                      </select>
+                  </div>
+
+                  <div class="mb-2">
+                    <label class="form-label">Order Status</label>
+                    <select class="form-select" id="status" name="status" value="{{order.status}}">
+                        
+                        <option value="Pending">Pending</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Processed">Full-Filled/Processed</option>
+                
+                      </select>
+                  </div>
+                
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

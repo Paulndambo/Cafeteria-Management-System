@@ -25,6 +25,10 @@ class Student(AbstractBaseModel):
     def __str__(self):
         return self.registration_number
 
+    @property
+    def wallet_balance(self):
+        return self.studentwallet.balance
+
 
 class StudentWallet(AbstractBaseModel):
     student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name="studentwallet")

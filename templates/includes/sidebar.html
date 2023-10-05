@@ -33,9 +33,21 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2" href="#">
+            <a class="nav-link d-flex align-items-center gap-2" href="{% url 'pos-home' %}">
+              <svg class="bi"><use xlink:href="#cart"/></svg>
+              POS
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" href="{% url 'orders' %}">
               <svg class="bi"><use xlink:href="#cart"/></svg>
               Orders
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" href="{% url 'menus' %}">
+              <svg class="bi"><use xlink:href="#people"/></svg>
+              Menu
             </a>
           </li>
           <li class="nav-item">
