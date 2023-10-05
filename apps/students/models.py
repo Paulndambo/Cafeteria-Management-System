@@ -1,6 +1,6 @@
 from django.db import models
-from apps.core.models import AbstractBaseModel
 
+from apps.core.models import AbstractBaseModel
 
 # Create your models here.
 STUDENT_TYPES = (

@@ -20,6 +20,15 @@ def students(request):
     }
     return render(request, "students/students.html", context)
 
+def activate_deactivate_student(request, student_id=None):
+    student = Student.objects.get(id=student_id)
+    if student.status == "Active":
+        student.status = "Deactivated"
+    elif student.status == "Deactivated":
+        student.status = "Active"
+    student.save()
+    return redirect("students")
+
 
 def delete_student(request):
     if request.method == "POST":

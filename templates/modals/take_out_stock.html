@@ -11,7 +11,6 @@
                   <p>Stock Item: <b>{{stock.name}}</b></p>
 
                   <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Item ID</label>
                     <input
                       type="text"
                       class="form-control"
@@ -20,6 +19,7 @@
                       value="{{stock.id}}"
                       required
                       readonly
+                      hidden
                     />
                   </div>
               
@@ -32,6 +32,14 @@
                       name="quantity"
                       required
                     />
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">Reason</label>
+                    <select class="form-select" id="destination" name="destination">
+                        <option value="kitchen">Taken to Kitchen</option>
+                        <option value="damaged">Damaged</option>
+                  
+                      </select>
                   </div>
                   
                 <div class="text-center mt-4">

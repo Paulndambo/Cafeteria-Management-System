@@ -52,7 +52,18 @@
               <td>{{student.student_type}}</td>
               
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">Edit</a></td>
-              <td><a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">Delete</a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">Delete</a></td>
+              
+              {% if student.status == "Active" %}
+              <td>
+                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-warning btn-sm">Deactivate</a>
+              </td>
+              
+              {% else %}
+              <td>
+                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-success btn-sm">Activate</a>
+              </td>
+              {% endif %}
             </tr>
             {% include "modals/students/delete_student.html" %}
             {% include "modals/students/edit_student.html" %}

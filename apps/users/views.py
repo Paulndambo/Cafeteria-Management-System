@@ -114,6 +114,11 @@ def user_logout(request):
 
 def staff(request):
     staffs = User.objects.filter(role__in=["chef", "admin", "cashier"])
+
+    if request.method == "POST":
+        id_number = request.POST.get("id_number")
+        staffs = User.objects.filter(id_number=id_number)
+
     paginator = Paginator(staffs, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)

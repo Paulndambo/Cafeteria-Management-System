@@ -9,11 +9,12 @@
         <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStaffModal">Add Staff</a>
     </div>
     <div class="col-4">
-      <form>
+      <form method="POST">
+        {% csrf_token %}
         <div class="input-group mb-3">
           <div class="row">
             <div class="col-8">
-              <input type="text" class="form-control" placeholder="Reg. Number" >
+              <input type="text" class="form-control" name="id_number" id="id_number" placeholder="ID Number" >
             </div>
             <div class="col-4">
               <button class="btn btn-success">Search</button>
@@ -37,7 +38,7 @@
               <th scope="col">Phone Number</th>
               <th scope="col">Email</th>
               <th scope="col">Role</th>
-              <th scope="col">Actions</th>
+              <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -50,7 +51,6 @@
               <td>{{staff.phone_number}}</td>
               <td>{{staff.email}}</td>
               <td>{{staff.role}}</td>
-              <td><a href="#" class="btn btn-info btn-sm">View</a></td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStaffModal{{ staff.id }}">Edit</a></td>
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStaffModal{{ staff.id }}">Delete</a></td>
             </tr>
