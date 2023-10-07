@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import redirect, render
 
 from apps.students.models import Student, StudentWallet
@@ -107,10 +108,12 @@ def student_wallets(request):
     return render(request, "students/student_wallets.html", context)
 
 
-def recharge_student_wallet(request, student_id = None):
-    student = Student.objects.get(id=student_id)
-
+def recharge_student_wallet(request):
     if request.method == "POST":
+        reg_number = request.POST.get("reg_number")
+
+        student = Student.objects.filter(Q(registration_number=reg_number) | Q(user__id_number=reg_number)).first()
+
         amount = Decimal(request.POST.get("amount"))
 
         wallet = student.studentwallet
@@ -118,10 +121,7 @@ def recharge_student_wallet(request, student_id = None):
         wallet.save()
         return redirect("student-wallets")
 
-    context = {
-        "student": student
-    }
-    return render(request, "students/recharge_wallet.html", context)
+    return render(request, "modals/request_recharge.html")
 
 
 

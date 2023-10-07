@@ -1,0 +1,56 @@
+<div class="modal fade" id="editOrderItemModal{{order_item.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Edit Order Item</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'edit-order-item' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Student ID</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="student_id"
+                        name="student_id"
+                        value="{{student.id}}"
+                        readonly
+                        required
+                    />
+                    </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Order Item ID</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="order_item_id"
+                        name="order_item_id"
+                        value="{{order_item.id}}"
+                        readonly
+                        required
+                    />
+                    </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Quantity</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="quantity"
+                    name="quantity"
+                    value="{{order_item.quantity}}"
+                    required
+                    
+                  />
+                </div>
+            
+            
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

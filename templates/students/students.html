@@ -33,9 +33,7 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Reg. Number</th>
-              <th scope="col">Gender</th>
-              <th scope="col">Phone Number</th>
-              <th scope="col">Email</th>
+              <th scope="col">ID Number</th>
               <th scope="col">Student Type</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
@@ -46,9 +44,7 @@
               <td>{{student.id}}</td>
               <td>{{student.user.first_name}} {{student.user.last_name}}</td>
               <td>{{student.registration_number}}</td>
-              <td>{{student.user.gender}}</td>
-              <td>{{student.user.phone_number}}</td>
-              <td>{{student.user.email}}</td>
+              <td>{{student.user.id_number}}</td>
               <td>{{student.student_type}}</td>
               
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">Edit</a></td>

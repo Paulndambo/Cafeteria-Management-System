@@ -8,8 +8,20 @@
             <form action="{% url 'add-to-cart' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Item</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="item"
+                        name="item"
+                        value="{{menu.item}}"
+                        readonly
+                        required
+                    />
+                </div>
                 <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Student ID</label>
+                    
                     <input
                         type="number"
                         class="form-control"
@@ -17,11 +29,11 @@
                         name="student_id"
                         value="{{student.id}}"
                         readonly
+                        hidden
                         required
                     />
                 </div>
                 <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Item ID</label>
                     <input
                         type="number"
                         class="form-control"
@@ -29,6 +41,7 @@
                         name="menu_id"
                         value="{{menu.id}}"
                         readonly
+                        hidden
                         required
                     />
                 </div>
@@ -41,7 +54,7 @@
                       name="price"
                       value="{{menu.price}}"
                       required
-                     
+                      readonly
                     />
                   </div>
                 <div class="mb-2">

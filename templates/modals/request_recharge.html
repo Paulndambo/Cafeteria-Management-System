@@ -5,10 +5,11 @@
           <h1 class="modal-title fs-5 text-center">STUDENT WALLET RECHARGE</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="/students/recharge-wallet/" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'recharge-wallet' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                 <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Reg. Number</label>
                   <input
                     type="text"
                     class="form-control"
@@ -18,8 +19,8 @@
                     required
                   />
                 </div>
-                <div class="input-group mb-2">
-                    <span class="input-group-text">254</span>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                     <input
                       type="text"
                       class="form-control"
@@ -29,8 +30,21 @@
                       required
                     />
                   </div>
+
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Amount</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      placeholder="Amount..."
+                      required
+                    />
+                  </div>
                 
                   <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Payment Method</label>
                     <select class="form-select" id="recharge_method" name="recharge_method">
                         
                         <option value="mpesa">Mpesa</option>
@@ -38,8 +52,8 @@
                        
                       </select>
                   </div>
-                  
-                <div class="text-center mt-2">
+                  <br>
+                <div class="text-center">
                   <button type="submit" class="btn btn-success">Recharge Wallet</button>
                 </div>
               </div>

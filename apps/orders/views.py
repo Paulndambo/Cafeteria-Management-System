@@ -67,10 +67,14 @@ def pos_home(request):
 
 def pos(request, student_id=None):
     student = Student.objects.get(id=student_id)
-    menus = Menu.objects.filter(added_to_cart=False)
+    menus = Menu.objects.all()#filter(added_to_cart=False)
 
-    items = TemporaryOrderItem.objects.all()
-    order_value = sum(TemporaryOrderItem.objects.values_list("price", flat=True))
+    items = TemporaryOrderItem.objects.filter(student=student)
+    order_value = sum(TemporaryOrderItem.objects.filter(student=student).values_list("price", flat=True))
+
+    menus = Menu.objects.exclude(
+        id__in=list(TemporaryOrderItem.objects.filter(student=student).values_list('menu_item_id', flat=True))
+    )
 
     paginator = Paginator(menus, 10)
     page_number = request.GET.get("page")
@@ -134,12 +138,23 @@ def add_to_cart(request):
             quantity=quantity,
             price=total_price
         )
-        menu_item.added_to_cart = True
-        menu_item.save()
         return redirect(f"/orders/place-order/{student_id}/")
 
     return render(request, "orders/add_to_cart.html")
 
+
+def edit_order_item(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        order_item_id = request.POST.get("order_item_id")
+        quantity = Decimal(request.POST.get("quantity"))
+
+        item = TemporaryOrderItem.objects.get(id=order_item_id)
+        item.quantity = quantity
+        item.price = quantity * item.menu_item.price
+        item.save()
+        return redirect(f"/orders/place-order/{student_id}/")
+    return render(request, "orders/edit_order_item.html")
 
 def remove_from_cart(request, item_id=None):
     item = TemporaryOrderItem.objects.get(id=item_id)

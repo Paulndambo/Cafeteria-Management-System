@@ -12,5 +12,5 @@ urlpatterns = [
     path("delete-student/", delete_student, name="delete-student"),
     path("edit-student/", edit_student, name="edit-student"),
     path("student-wallets/", student_wallets, name="student-wallets"),
-    path("recharge-wallet/<int:student_id>/", recharge_student_wallet, name="recharge-wallet"),
+    path("recharge-wallet/", recharge_student_wallet, name="recharge-wallet"),
 ]

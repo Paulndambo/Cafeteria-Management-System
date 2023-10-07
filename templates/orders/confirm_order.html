@@ -9,10 +9,11 @@
                 {% csrf_token %}
                 <div class="modal-body">
                 <div class="mb-2">
-                    <p>Student: {{student}}</p>
-                    <p>Order Total: {{order_value}}</p>
+                    <p>Student Name: <b>{{student.user.name}}</b></p>
+                    <p>Reg. Number: <b>{{student.registration_number}}</b></p>
                 </div>
-                <div class="mb-2">
+                <div class="input-group mb-2">
+                  <span class="input-group-text">Student ID: </span>
                     <input
                       type="text"
                       class="form-control"
@@ -24,7 +25,9 @@
                     />
                   </div>
                 
-                  <div class="mb-2">
+                  <div class="input-group mb-2">
+                    <span class="input-group-text">Order Total: </span>
+
                     <input
                       type="number"
                       class="form-control"

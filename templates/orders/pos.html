@@ -25,7 +25,7 @@
                   <td>{{order_item.quantity}}</td>
                   <td>{{order_item.price}}</td>
                   <td>
-                    <a href="#" class="btn btn-warning btn-sm">
+                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editOrderItemModal{{order_item.id}}">
                         <i class="bi bi-pencil-square"></i>
                     </a>
                 </td>
@@ -38,6 +38,7 @@
                     
                 </td>
                 </tr>
+                {% include "orders/edit_order_item.html" %}
                 {% endfor %}
             
               </tbody>
@@ -50,7 +51,7 @@
                 
                 <div class="col">
                     {% if order_value > student.wallet_balance %}
-                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#confirmOrderModal">
+                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">
                         Recharge
                     </a>
                     {% elif order_value > 0 %}
