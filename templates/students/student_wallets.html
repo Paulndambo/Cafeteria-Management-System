@@ -15,8 +15,6 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Created</th>
-              <th scope="col">Modified</th>
               <th scope="col">Student</th>
               <th scope="col">Daily Limit</th>
               <th scope="col">Spend Today</th>
@@ -28,8 +26,6 @@
             {% for student_wallet in wallets %}
             <tr>
               <td>{{student_wallet.id}}</td>
-              <td>{{student_wallet.created}}</td>
-              <td>{{student_wallet.modified}}</td>
               <td>{{student_wallet.student}}</td>
               {% if student_wallet.student.student_type == "Boarder" %}
               <td>Kes. 300</td>
