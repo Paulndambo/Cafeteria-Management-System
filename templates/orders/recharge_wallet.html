@@ -1,0 +1,71 @@
+<div class="modal fade" id="rechargeStudentWalletModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">STUDENT WALLET RECHARGE</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'recharge-wallet' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="">
+                   <p>Student: {{student.user.name}}</p>
+                   <p>Reg. Number: {{student.registration_number}}</p>
+                </div>
+                <hr>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label"></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="reg_number"
+                    name="reg_number"
+                    value="{{student.registration_number}}"
+                    required
+                    hidden
+                    readonly
+                  />
+                </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Phone Number</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="phone_number"
+                      name="phone_number"
+                      placeholder="Phone Number..."
+                      required
+                    />
+                  </div>
+
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Amount</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      value="{{extra_amount}}"
+                      required
+                      readonly
+                    />
+                  </div>
+                
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Payment Method</label>
+                    <select class="form-select" id="recharge_method" name="recharge_method">
+                        
+                        <option value="mpesa">Mpesa</option>
+                        <option value="manually">Manually</option>
+                       
+                      </select>
+                  </div>
+                  <br>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-success">Recharge Wallet</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

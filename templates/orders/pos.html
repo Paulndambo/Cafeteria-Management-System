@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>Hello, {{student.registration_number}}</p>
-
+<p class="text-center"><b>Name:</b> {{student.user.name}} <b>Reg. Number:</b> {{student.registration_number}}</p>
+<hr/>
 <div class="row">
     <div class="col">
         <h3 class="text-center">Cart Items</h3>
@@ -47,11 +47,12 @@
                 <div class="col">
                     <p>Grand Total: <b>{{order_value}}</b></p>
                     <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
+
                 </div>
                 
                 <div class="col">
                     {% if order_value > student.wallet_balance %}
-                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">
+                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeStudentWalletModal">
                         Recharge
                     </a>
                     {% elif order_value > 0 %}
@@ -63,9 +64,11 @@
 
             </div>
             {% include "orders/confirm_order.html" %}
+            {% include "orders/recharge_wallet.html" %}
           </div>
     
     </div>
+    
     <div class="col">
         <h3 class="text-center">Menu Today</h3>
         <hr/>
@@ -79,10 +82,10 @@
                             <input type="text" class="form-control" name="name" id="name" placeholder="Name ...">
                           </div>
                         <div class="col">
-                          <select class="form-select">
-                            <option>Drinks</option>
-                            <option>Fruits</option>
-                            <option>Food</option>
+                          <select class="form-select" name="category" id="category">
+                            <option value="drinks">Drinks</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="food">Food</option>
                           </select>
                         </div>
                         <div class="col">

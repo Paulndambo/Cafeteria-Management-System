@@ -11,9 +11,12 @@
                 <div class="mb-2">
                     <p>Student Name: <b>{{student.user.name}}</b></p>
                     <p>Reg. Number: <b>{{student.registration_number}}</b></p>
+                    <p>Current Bal: <b>{{student.wallet_balance}}</b></p>
+                    
+                      <span id="result"></span>
+                    </b></p>
                 </div>
                 <div class="input-group mb-2">
-                  <span class="input-group-text">Student ID: </span>
                     <input
                       type="text"
                       class="form-control"
@@ -22,6 +25,7 @@
                       value="{{student.id}}"
                       readonly
                       required
+                      hidden
                     />
                   </div>
                 
@@ -38,6 +42,17 @@
                       required
                     />
                   </div>
+
+                  <div class="mb-2">
+                    <label class="form-label">Order Meal Time</label>
+                    <select class="form-select" id="meal_time" name="meal_time">
+                        
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Supper">Supper</option>
+                
+                      </select>
+                  </div>
                  
                 <div class="text-center mt-2">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Close</button>
@@ -48,3 +63,6 @@
       </div>
     </div>
   </div>
+
+<script>
+</script>

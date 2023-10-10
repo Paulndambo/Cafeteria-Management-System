@@ -11,7 +11,7 @@ ORDER_STATUS_CHOICES = (
 
 
 class Order(AbstractBaseModel):
-    student = models.ForeignKey("students.Student", on_delete=models.CASCADE)
+    student = models.ForeignKey("students.Student", on_delete=models.CASCADE, related_name="studentorders")
     total_cost = models.DecimalField(max_digits=20, decimal_places=2)
     meal_time = models.CharField(max_length=255, null=True)
     status = models.CharField(max_length=255, choices=ORDER_STATUS_CHOICES)

@@ -34,7 +34,7 @@
               <th scope="col">Cost</th>
               <th scope="col">Meal Time</th>
               <th scope="col">Status</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -48,6 +48,7 @@
               
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editOrderModal{{ order.id }}">Edit</a></td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#deleteOrderModal{{ order.id }}">Delete</a></td>
+              <td><a href="{% url 'print-order' order.id %}" class="btn btn-info btn-sm">Print Receipt</a></td>
             </tr>
             
             {% include "orders/delete_order.html" %}

@@ -43,9 +43,15 @@ class StockLog(AbstractBaseModel):
     def __str__(self):
         return self.inventory.name
 
+MENU_CATEGOGIES = (
+    ("drinks", "Drinks"),
+    ("food", "Food"),
+    ("fruits", "Fruits"),
+)
 
 class Menu(AbstractBaseModel):
     #item = models.OneToOneField(Inventory, on_delete=models.CASCADE)
+    category = models.CharField(max_length=255, choices=MENU_CATEGOGIES, null=True)
     item = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)

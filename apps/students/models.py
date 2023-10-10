@@ -1,6 +1,9 @@
 from django.db import models
 
 from apps.core.models import AbstractBaseModel
+from datetime import datetime
+
+date_today = datetime.now().date()
 
 # Create your models here.
 STUDENT_TYPES = (
@@ -37,3 +40,8 @@ class StudentWallet(AbstractBaseModel):
 
     def __str__(self):
         return self.student.registration_number
+
+
+    def spend_today(self):
+        student_oders = sum(self.student.studentorders.filter(status="Processed", created__date=date_today).values_list("total_cost", flat=True))
+        return student_oders

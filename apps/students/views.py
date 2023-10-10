@@ -1,5 +1,5 @@
 from decimal import Decimal
-
+from datetime import datetime
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 from apps.students.models import Student, StudentWallet
 from apps.users.models import User
 
-
+date_today = datetime.now().date()
 # Create your views here.
 def students(request):
     students = Student.objects.all().order_by("-created")
@@ -171,3 +171,19 @@ def edit_student(request):
             raise e
 
     return render(request, "modals/students/edit_student.html")
+
+
+def generate_daily_quota(request):
+    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder").exclude(modified__date=date_today)
+
+    if not student_wallets:
+        print("Quotas for all students for today have been generated!!!")
+        return redirect("student-wallets")
+        
+
+    for student_wallet in student_wallets:
+        student_wallet.total_spend_today = 0
+        student_wallet.balance = 350
+    StudentWallet.objects.bulk_update(student_wallets, ["total_spend_today", "balance"])
+
+    return redirect("student-wallets")

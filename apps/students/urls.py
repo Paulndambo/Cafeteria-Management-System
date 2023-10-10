@@ -3,7 +3,7 @@ from django.urls import path
 from apps.students.views import (activate_deactivate_student, delete_student,
                                  edit_student, new_student,
                                  recharge_student_wallet, student_wallets,
-                                 students)
+                                 students, generate_daily_quota)
 
 urlpatterns = [
     path("", students, name="students"),
@@ -13,4 +13,5 @@ urlpatterns = [
     path("edit-student/", edit_student, name="edit-student"),
     path("student-wallets/", student_wallets, name="student-wallets"),
     path("recharge-wallet/", recharge_student_wallet, name="recharge-wallet"),
+    path("generate-daily-quotas/", generate_daily_quota, name="generate-daily-quotas"),
 ]

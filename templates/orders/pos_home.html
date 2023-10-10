@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if quotas_generated %}
 <div class="row">
     <div class="col"></div>
     <div class="col">
@@ -62,4 +64,7 @@
       
       </div>
 </div>
+{% else %}
+<a href="{% url 'generate-daily-quotas' %}" class="btn btn-info">Generate Quotas for Boarding Students</a>
+{% endif %}
 {% endblock content %}

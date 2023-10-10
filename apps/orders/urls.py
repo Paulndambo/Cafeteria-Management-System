@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.orders.views import (add_to_cart, confirm_order, delete_order,
                                edit_order, edit_order_item, orders, pos,
-                               pos_home, remove_from_cart)
+                               pos_home, remove_from_cart,print_order_receipt)
 
 urlpatterns = [
     path("", orders, name="orders"),
@@ -15,4 +15,5 @@ urlpatterns = [
     path("confirm-order/", confirm_order, name="confirm-order"),
     path("remove-from-cart/<int:item_id>/", remove_from_cart, name="remove-from-cart"),
     path("edit-order-item/", edit_order_item, name="edit-order-item"),
+    path("print-order/<int:order_id>/", print_order_receipt, name="print-order"),
 ]

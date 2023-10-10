@@ -8,8 +8,12 @@
             <form action="{% url 'edit-order-item' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
+                  <div class="mb-2">
+                    <p>Item: <b>{{order_item.menu_item}}</b></p>
+                    <p>Price: <b>{{order_item.menu_item.price}}</b></p>
+                    </div>
                 <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Student ID</label>
+
                     <input
                         type="number"
                         class="form-control"
@@ -18,10 +22,10 @@
                         value="{{student.id}}"
                         readonly
                         required
+                        hidden
                     />
                     </div>
                 <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Order Item ID</label>
                     <input
                         type="number"
                         class="form-control"
@@ -30,6 +34,7 @@
                         value="{{order_item.id}}"
                         readonly
                         required
+                        hidden
                     />
                     </div>
                 <div class="mb-2">

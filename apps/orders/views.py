@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.core.paginator import Paginator
@@ -8,9 +9,9 @@ from django.urls import reverse
 
 from apps.inventory.models import Menu
 from apps.orders.models import Order, OrderItem, TemporaryOrderItem
-from apps.students.models import Student
+from apps.students.models import Student, StudentWallet
 
-
+date_today = datetime.now().date()
 # Create your views here.
 def orders(request):
     orders = Order.objects.all()
@@ -53,13 +54,20 @@ def delete_order(request):
 
 def pos_home(request):
     students = Student.objects.none()
+    quotas_generated = True
+
+    boarding_student_wallets = StudentWallet.objects.filter(student__student_type="Boarder").exclude(modified__date=date_today)
+
+    if boarding_student_wallets.count() >= 1:
+        quotas_generated = False
 
     if request.method == "POST":
         id_number = request.POST.get("id_number")
-        students = Student.objects.filter(Q(user__id_number=id_number) | Q(registration_number=id_number))
+        students = Student.objects.filter(Q(user__id_number__icontains=id_number) | Q(registration_number__icontains=id_number))
 
     context = {
-        "students": students
+        "students": students,
+        "quotas_generated": quotas_generated
     }
 
     return render(request, "orders/pos_home.html", context)
@@ -69,12 +77,27 @@ def pos(request, student_id=None):
     student = Student.objects.get(id=student_id)
     menus = Menu.objects.all()#filter(added_to_cart=False)
 
+    if request.method == "POST":
+        name = request.POST.get("name")
+        category = request.POST.get("category")
+
+        print(f"Name: {name}, Category: {category}")
+
+        if name and category:
+            menus = Menu.objects.filter(Q(item__icontains=name) | Q(category__icontains=category))
+        elif name:
+            menus = Menu.objects.filter(Q(item__icontains=name))
+        elif category:
+            menus = Menu.objects.filter(Q(category__icontains=category))
+
     items = TemporaryOrderItem.objects.filter(student=student)
     order_value = sum(TemporaryOrderItem.objects.filter(student=student).values_list("price", flat=True))
 
     menus = Menu.objects.exclude(
         id__in=list(TemporaryOrderItem.objects.filter(student=student).values_list('menu_item_id', flat=True))
     )
+
+    extra_amount = order_value - student.studentwallet.balance 
 
     paginator = Paginator(menus, 10)
     page_number = request.GET.get("page")
@@ -84,7 +107,8 @@ def pos(request, student_id=None):
         "menus": menus,
         "items": items,
         "page_obj": page_obj,
-        "order_value": order_value
+        "order_value": order_value,
+        "extra_amount": extra_amount
     }
     return render(request, "orders/pos.html", context)
 
@@ -94,12 +118,13 @@ def confirm_order(request):
         student_id = request.POST.get("student_id")
         order_value = Decimal(request.POST.get("order_value"))
         student = Student.objects.get(id=student_id)
+        meal_time = request.POST.get("meal_time")
 
         order = Order.objects.create(
             student=student,
             status="Processed",
             total_cost=order_value,
-            meal_time="Lunch"
+            meal_time=meal_time
         )
 
         items = TemporaryOrderItem.objects.all()
@@ -165,3 +190,14 @@ def remove_from_cart(request, item_id=None):
     student_id = item.student.id
     item.delete()
     return redirect(f"/orders/place-order/{student_id}/")
+
+
+def print_order_receipt(request, order_id = None):
+    order = Order.objects.get(id=order_id)
+    order_items = order.orderitems.all()
+    
+    context = {
+        "order": order,
+        "order_items": order_items
+    }
+    return render(request, "orders/order_receipt.html", context)
