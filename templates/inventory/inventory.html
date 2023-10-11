@@ -51,8 +51,18 @@
               <td>{{stock.selling_price}}</td>
               <td>{{stock.stock}}</td>
               
+              {% if request.user.role == "admin" %}
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#reStockModal{{ stock.id }}">Re-Stock</a></td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
+              <td><a href="{% url 'delete-inventory' stock.id %}" class="btn btn-danger btn-sm">Delete</a></td>
+              {% elif request.user.role == "cashier" %}
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#reStockModal{{ stock.id }}">Re-Stock</a></td>
+              {% elif request.user.role == "chef" %}
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
+              {% endif %}
+
+              
             </tr>
             {% include "modals/restock.html" %}
             {% include "modals/take_out_stock.html" %}

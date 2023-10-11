@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from django.db import models
 
 from apps.core.models import AbstractBaseModel
-from datetime import datetime
 
 date_today = datetime.now().date()
 

@@ -1,5 +1,6 @@
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
+
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -174,7 +175,7 @@ def edit_student(request):
 
 
 def generate_daily_quota(request):
-    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder").exclude(modified__date=date_today)
+    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder", student__status="active").exclude(modified__date=date_today)
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")
@@ -184,6 +185,6 @@ def generate_daily_quota(request):
     for student_wallet in student_wallets:
         student_wallet.total_spend_today = 0
         student_wallet.balance = 350
-    StudentWallet.objects.bulk_update(student_wallets, ["total_spend_today", "balance"])
+        student_wallet.save()
 
     return redirect("student-wallets")

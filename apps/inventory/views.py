@@ -163,6 +163,12 @@ def inventory(request):
     return render(request, "inventory/inventory.html", context)
 
 
+def delete_inventory_item(request, id=None):
+    item = Inventory.objects.get(id=id)
+    item.delete()
+    return redirect("inventory")
+
+
 @login_required(login_url="/users/login/")
 def new_stock_item(request):
     if request.method == "POST":

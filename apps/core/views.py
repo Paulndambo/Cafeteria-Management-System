@@ -10,7 +10,7 @@ date_today = datetime.now().date()
 # Create your views here.
 def home(request):
     students = Student.objects.count()
-    staffs = User.objects.filter(role="admin").count()
+    staffs = User.objects.filter(role__in=["chef", "admin", "cashier"]).count()
     orders_today = Order.objects.filter(created__date=date_today).count()
 
     context = {
