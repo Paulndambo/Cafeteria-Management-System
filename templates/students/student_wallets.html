@@ -15,17 +15,19 @@
           <thead>
             <tr>
               <th scope="col">#</th>
+              <th scope="col">Modified</th>
               <th scope="col">Student</th>
               <th scope="col">Daily Limit</th>
               <th scope="col">Spend Today</th>
               <th scope="col">Balance</th>
-              <th scope="col">Actions</th>
+              <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {% for student_wallet in wallets %}
+            {% for student_wallet in page_obj %}
             <tr>
               <td>{{student_wallet.id}}</td>
+              <td>{{student_wallet.modified}}</td>
               <td>{{student_wallet.student}}</td>
               {% if student_wallet.student.student_type == "Boarder" %}
               <td>Kes. 350</td>
@@ -34,6 +36,9 @@
               {% endif %}
               <td>{{student_wallet.total_spend_today}}</td>
               <td>{{student_wallet.balance}}</td>
+              <td>
+                {{student_wallet.today_quota_generated}}
+              </td>
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge Wallet</a></td>
               
             </tr> 
@@ -41,5 +46,18 @@
 
           </tbody>
         </table>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}   
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+              {% if page_obj.has_next %}    
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}   
+            </ul>
+          </nav>
+        </div>
       </div>
 {% endblock content %}

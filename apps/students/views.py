@@ -103,8 +103,12 @@ def new_student(request):
 
 def student_wallets(request):
     wallets = StudentWallet.objects.all()
+    paginator = Paginator(wallets, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     context = {
-        "wallets": wallets
+        "wallets": wallets,
+        "page_obj": page_obj
     }
     return render(request, "students/student_wallets.html", context)
 
@@ -175,7 +179,7 @@ def edit_student(request):
 
 
 def generate_daily_quota(request):
-    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder", student__status="active").exclude(modified__date=date_today)
+    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")
@@ -183,8 +187,9 @@ def generate_daily_quota(request):
         
 
     for student_wallet in student_wallets:
+        print(f"Student: {student_wallet.student}, Status: {student_wallet.student.status}, Student Type: {student_wallet.student.student_type}")
         student_wallet.total_spend_today = 0
         student_wallet.balance = 350
         student_wallet.save()
-
+    #print(student_wallets)
     return redirect("student-wallets")

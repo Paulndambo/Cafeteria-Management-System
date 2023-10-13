@@ -42,6 +42,9 @@ class StudentWallet(AbstractBaseModel):
     def __str__(self):
         return self.student.registration_number
 
+    def today_quota_generated(self):
+        return True if self.modified.date() == date_today else False
+
 
     def spend_today(self):
         student_oders = sum(self.student.studentorders.filter(status="Processed", created__date=date_today).values_list("total_cost", flat=True))

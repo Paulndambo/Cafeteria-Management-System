@@ -1,9 +1,9 @@
 from django.urls import path
 
 from apps.students.views import (activate_deactivate_student, delete_student,
-                                 edit_student, new_student,
-                                 recharge_student_wallet, student_wallets,
-                                 students, generate_daily_quota)
+                                 edit_student, generate_daily_quota,
+                                 new_student, recharge_student_wallet,
+                                 student_wallets, students)
 
 urlpatterns = [
     path("", students, name="students"),

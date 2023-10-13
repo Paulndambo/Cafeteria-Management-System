@@ -56,7 +56,9 @@ def pos_home(request):
     students = Student.objects.none()
     quotas_generated = True
 
-    boarding_student_wallets = StudentWallet.objects.filter(student__student_type="Boarder").exclude(modified__date=date_today)
+    boarding_student_wallets = StudentWallet.objects.filter(student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+
+    print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
 
     if boarding_student_wallets.count() >= 1:
         quotas_generated = False
