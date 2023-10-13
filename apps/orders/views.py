@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -15,6 +16,11 @@ date_today = datetime.now().date()
 # Create your views here.
 def orders(request):
     orders = Order.objects.all()
+
+    if request.method == "POST":
+        registration_number = request.POST.get("reg_number")
+        orders = Order.objects.filter(Q(student__registration_number__icontains=registration_number))
+
     paginator = Paginator(orders, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -114,8 +120,10 @@ def pos(request, student_id=None):
     }
     return render(request, "orders/pos.html", context)
 
+@login_required(login_url="/users/login/")
 @transaction.atomic
 def confirm_order(request):
+    user = request.user
     if request.method == "POST":
         student_id = request.POST.get("student_id")
         order_value = Decimal(request.POST.get("order_value"))
@@ -126,7 +134,8 @@ def confirm_order(request):
             student=student,
             status="Processed",
             total_cost=order_value,
-            meal_time=meal_time
+            meal_time=meal_time,
+            served_by=user
         )
 
         items = TemporaryOrderItem.objects.all()

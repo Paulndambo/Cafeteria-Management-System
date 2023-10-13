@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.orders.views import (add_to_cart, confirm_order, delete_order,
                                edit_order, edit_order_item, orders, pos,
-                               pos_home, remove_from_cart,print_order_receipt)
+                               pos_home, print_order_receipt, remove_from_cart)
 
 urlpatterns = [
     path("", orders, name="orders"),

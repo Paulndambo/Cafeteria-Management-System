@@ -27,7 +27,7 @@ def new_menu_item(request):
     if request.method == "POST":
         item = request.POST.get("item")
         price = request.POST.get("price")
-        
+
         menu = Menu.objects.create(
             item=item,
             price=price
@@ -61,7 +61,7 @@ def delete_menu_item(request):
         menu_item = Menu.objects.get(id=menu_id)
         menu_item.delete()
         return redirect("menus")
-        
+
     return render(request, "menus/delete_menu.html")
 
 
@@ -97,6 +97,7 @@ def delete_supplier(request):
     return render(request, "modals/students/delete_student.html")
 
 
+@login_required(login_url="/users/login/")
 def new_supplier(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -120,6 +121,7 @@ def new_supplier(request):
     return render(request, "suppliers/edit_supplier.html")
 
 
+@login_required(login_url="/users/login/")
 def edit_supplier(request):
     if request.method == "POST":
         supplier_id = request.POST.get("supplier_id")
@@ -147,6 +149,7 @@ def edit_supplier(request):
 @login_required(login_url="/users/login/")
 def inventory(request):
     stock_items = Inventory.objects.all()
+    suppliers = Supplier.objects.all()
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -159,10 +162,12 @@ def inventory(request):
     context = {
         "stock_items": stock_items,
         "page_obj": page_obj,
+        "suppliers": suppliers
     }
     return render(request, "inventory/inventory.html", context)
 
 
+@login_required(login_url="/users/login/")
 def delete_inventory_item(request, id=None):
     item = Inventory.objects.get(id=id)
     item.delete()
@@ -177,8 +182,12 @@ def new_stock_item(request):
         unit_price = Decimal(request.POST.get("unit_price"))
         selling_price = Decimal(request.POST.get("selling_price"))
         stock = Decimal(request.POST.get("stock"))
+        supplier_id = int(request.POST.get("supplier_id"))
+
+        supplier = Supplier.objects.get(id=supplier_id)
 
         inventory = Inventory.objects.create(
+            supplier=supplier,
             name=name,
             unit_price=unit_price,
             selling_price=selling_price,
