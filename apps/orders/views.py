@@ -211,4 +211,4 @@ def print_order_receipt(request, order_id = None):
         "order": order,
         "order_items": order_items
     }
-    return render(request, "orders/order_receipt.html", context)
+    return render(request, "orders/receipt.html", context)

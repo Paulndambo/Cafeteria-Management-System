@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jawaka Cafeteria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://az813057.vo.msecnd.net/testdrive/var-fonts/font-declarations.css">
+  <link rel="stylesheet" href="{% static 'receipt.css' %}">
+</head>
+
+<body>
+  <!-- partial:index.partial.html -->
+  <div class="l-col-right ticket-wrap" aria-label="A fake boat ticket demonstrating mixing font weights and widths">
+    <div class="ticket" aria-hidden="true">
+      <div class="ticket__header">
+        <a href="/">
+          <div class="ticket__co">
+            <span class="ticket__co-name">School Cafeteria</span>
+          </div>
+        </a>
+      </div>
+      <div class="ticket__body">
+        <p class="ticket__route"><strong>Staff:</strong> {{checkin.staff.name}}</p>
+        <p class="ticket__description">{{checkin.staff.department}}</p>
+        <div class="table-responsive small">
+            <table class="table table-sm" style="border: None!important;">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order_item in order_items %}
+                <tr>
+                    <td>{{order_item.id}}</td>
+                    <td>{{order_item.item}}</td>
+                    <td>{{order_item.quantity}}</td>
+                    <td>{{order_item.price}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+            </div>
+        <div class="text-left">
+            <p>Order Total: {{order.total_cost}}</p>
+            <p>Student: {{order.student.user.name}}</p>
+            <p>Wallet Balance: {{order.student.wallet_balance}}</p>
+            <p>Served By: {{order.served_by.name}}</p>
+        </div>
+            
+        <br>
+        <p class="ticket__fine-print">This ticket is <strong>NOT</strong> transferable</p>
+        <!-- <p class="u-upper ticket__admit">Admit one</p> -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function () {
+      window.print();
+    };
+    window.onafterprint((ev) => {
+      console.log({ev})
+    })
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
