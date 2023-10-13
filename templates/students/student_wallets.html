@@ -15,19 +15,18 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Modified</th>
               <th scope="col">Student</th>
               <th scope="col">Daily Limit</th>
               <th scope="col">Spend Today</th>
               <th scope="col">Balance</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col">Quota Generated?</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for student_wallet in page_obj %}
             <tr>
               <td>{{student_wallet.id}}</td>
-              <td>{{student_wallet.modified}}</td>
               <td>{{student_wallet.student}}</td>
               {% if student_wallet.student.student_type == "Boarder" %}
               <td>Kes. 350</td>
@@ -39,7 +38,7 @@
               <td>
                 {{student_wallet.today_quota_generated}}
               </td>
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge Wallet</a></td>
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge</a></td>
               
             </tr> 
             {% endfor %}
