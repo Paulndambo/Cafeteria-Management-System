@@ -154,7 +154,7 @@ def confirm_order(request):
         student.studentwallet.save()
         Menu.objects.update(added_to_cart=False)
         TemporaryOrderItem.objects.all().delete()
-        return redirect("orders")
+        return redirect(f"/orders/print-order/{order.id}/")
     return render(request, "orders/confirm_order.html")
 
 

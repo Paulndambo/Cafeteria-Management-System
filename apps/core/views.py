@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from apps.orders.models import Order
@@ -8,6 +8,8 @@ from apps.users.models import User
 
 date_today = datetime.now().date()
 # Create your views here.
+
+@login_required(login_url="/users/login/")
 def home(request):
     students = Student.objects.count()
     staffs = User.objects.filter(role__in=["chef", "admin", "cashier"]).count()
