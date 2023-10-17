@@ -146,8 +146,8 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Item</th>
+                  <th scope="col">Quantity</th>
                   <th scope="col">Price</th>
-
                 </tr>
               </thead>
               <tbody>
@@ -155,11 +155,15 @@
                 <tr>
                   <td>{{menu.id}}</td>
                   <td>{{menu.item}}</td>
+                  <td>{{menu.quantity}}</td>
                   <td>{{menu.price}}</td>
+                 
                 <td>
+                  {% if menu.quantity > 2 %}
                     <a href="{% url 'add-cart-items' menu.id %}" class="btn btn-success btn-sm">
                         <i class="bi bi-cart-plus"></i>
                     </a>
+                  {% endif %}
                 </td>
                 </tr>
                 

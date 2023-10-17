@@ -51,6 +51,7 @@ MENU_CATEGOGIES = (
 
 class Menu(AbstractBaseModel):
     #item = models.OneToOneField(Inventory, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="menu_images", null=True)
     category = models.CharField(max_length=255, choices=MENU_CATEGOGIES, null=True)
     item = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)

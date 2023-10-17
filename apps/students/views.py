@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
@@ -11,9 +12,12 @@ from apps.users.models import User
 
 date_today = datetime.now().date()
 # Create your views here.
+
+
+@login_required(login_url="/users/login/")
 def students(request):
     students = Student.objects.all().order_by("-created")
-    paginator = Paginator(students, 10)
+    paginator = Paginator(students, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
@@ -22,6 +26,8 @@ def students(request):
     }
     return render(request, "students/students.html", context)
 
+
+@login_required(login_url="/users/login/")
 def activate_deactivate_student(request, student_id=None):
     student = Student.objects.get(id=student_id)
     if student.status == "Active":
@@ -32,6 +38,7 @@ def activate_deactivate_student(request, student_id=None):
     return redirect("students")
 
 
+@login_required(login_url="/users/login/")
 def delete_student(request):
     if request.method == "POST":
         student_id = request.POST.get("student_id")
@@ -43,6 +50,8 @@ def delete_student(request):
             return messages.error(request, f"Student with id: {student_id} does not exist on the database")
     return render(request, "modals/students/delete_student.html")
 
+
+@login_required(login_url="/users/login/")
 def new_student(request):
     if request.method == 'POST':
         username = request.POST.get("id_number")
@@ -58,18 +67,18 @@ def new_student(request):
         user_by_email = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
 
-
         if user_by_email:
             return messages.error(request, f"User with this email exists already, try a different email!!")
             print(username, email, first_name, last_name)
         elif user_by_username:
-            messages.error(request, f"User with this username exists already, try a different username!!")
+            messages.error(
+                request, f"User with this username exists already, try a different username!!")
 
             print(username, email, first_name, last_name)
         else:
             user = User.objects.create(
-                first_name=first_name, 
-                last_name=last_name, 
+                first_name=first_name,
+                last_name=last_name,
                 username=username,
                 email=email,
                 role="student",
@@ -93,7 +102,6 @@ def new_student(request):
                 total_spend_today=0
             )
 
-
             messages.success(request, f"User created successfully!!")
 
             return redirect('students')
@@ -101,6 +109,7 @@ def new_student(request):
     return render(request, "modals/new_student.html")
 
 
+@login_required(login_url="/users/login/")
 def student_wallets(request):
     wallets = StudentWallet.objects.all()
     paginator = Paginator(wallets, 10)
@@ -113,11 +122,13 @@ def student_wallets(request):
     return render(request, "students/student_wallets.html", context)
 
 
+@login_required(login_url="/users/login/")
 def recharge_student_wallet(request):
     if request.method == "POST":
         reg_number = request.POST.get("reg_number")
 
-        student = Student.objects.filter(Q(registration_number=reg_number) | Q(user__id_number=reg_number)).first()
+        student = Student.objects.filter(
+            Q(registration_number=reg_number) | Q(user__id_number=reg_number)).first()
 
         amount = Decimal(request.POST.get("amount"))
 
@@ -129,7 +140,7 @@ def recharge_student_wallet(request):
     return render(request, "modals/request_recharge.html")
 
 
-
+@login_required(login_url="/users/login/")
 def edit_student(request):
     if request.method == 'POST':
         try:
@@ -147,11 +158,10 @@ def edit_student(request):
                 id_number = request.POST.get("id_number")
                 registration_number = request.POST.get("reg_number")
                 student_type = request.POST.get("student_type")
-                
 
                 user = User.objects.get(id=user_id)
                 student = Student.objects.get(id=student_id)
-                
+
                 user.first_name = first_name if first_name else user.first_name
                 user.last_name = last_name if last_name else user.last_name
                 user.email = email if email else user.email
@@ -160,15 +170,13 @@ def edit_student(request):
                 user.id_number = id_number if id_number else user.id_number
                 user.username = username if username else user.username
                 user.save()
-                
 
                 student.student_type = student_type if student_type else student.student_type
-                
+
                 student.registration_number = registration_number if registration_number else student.registration_number
-                
+
                 student.save()
 
-                    
                 messages.success(request, f"User updated successfully!!")
 
             return redirect('students')
@@ -178,18 +186,19 @@ def edit_student(request):
     return render(request, "modals/students/edit_student.html")
 
 
+@login_required(login_url="/users/login/")
 def generate_daily_quota(request):
-    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+    student_wallets = StudentWallet.objects.filter(
+        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")
         return redirect("student-wallets")
-        
 
     for student_wallet in student_wallets:
         print(f"Student: {student_wallet.student}, Status: {student_wallet.student.status}, Student Type: {student_wallet.student.student_type}")
         student_wallet.total_spend_today = 0
         student_wallet.balance = 350
         student_wallet.save()
-    #print(student_wallets)
+    # print(student_wallets)
     return redirect("student-wallets")
