@@ -11,7 +11,7 @@ ORDER_STATUS_CHOICES = (
 
 
 class Order(AbstractBaseModel):
-    student = models.ForeignKey("students.Student", on_delete=models.CASCADE, related_name="studentorders")
+    student = models.ForeignKey("students.Student", on_delete=models.SET_NULL, null=True, related_name="studentorders")
     total_cost = models.DecimalField(max_digits=20, decimal_places=2)
     meal_time = models.CharField(max_length=255, null=True)
     status = models.CharField(max_length=255, choices=ORDER_STATUS_CHOICES)
@@ -37,4 +37,11 @@ class TemporaryOrderItem(AbstractBaseModel):
     def __str__(self):
         return self.menu_item.item
 
-        
+class TemporaryCustomerOrderItem(AbstractBaseModel):
+    #student = models.ForeignKey("students.Student", on_delete=models.CASCADE)
+    menu_item = models.OneToOneField("inventory.Menu", on_delete=models.CASCADE)
+    quantity = models.FloatField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.menu_item.item       

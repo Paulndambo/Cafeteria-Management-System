@@ -27,10 +27,12 @@ def new_menu_item(request):
     if request.method == "POST":
         item = request.POST.get("item")
         price = request.POST.get("price")
+        quantity = request.POST.get("quantity")
 
         menu = Menu.objects.create(
             item=item,
-            price=price
+            price=price,
+            quantity=quantity
         )
 
         return redirect("menus")
@@ -42,11 +44,13 @@ def edit_menu_item(request):
         menu_id = request.POST.get("menu_id")
         item = request.POST.get("item")
         price = request.POST.get("price")
+        quantity = request.POST.get("quantity")
         available = True if request.POST.get("available") == "true" else False
 
         menu_item = Menu.objects.get(id=menu_id)
         menu_item.item = item
         menu_item.price = price
+        menu_item.quantity = quantity
         menu_item.available = available
         menu_item.save()
 

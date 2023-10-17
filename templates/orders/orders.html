@@ -30,6 +30,7 @@
           <thead>
             <tr>
               <th scope="col">#</th>
+              <th scope="col">Created</th>
               <th scope="col">Served By</th>
               <th scope="col">Student</th>
               <th scope="col">Cost</th>
@@ -42,6 +43,7 @@
             {% for order in page_obj %}
             <tr>
               <td>{{order.id}}</td>
+              <td>{{order.created}}</td>
               <td>{{order.served_by}}</td>
               <td>{{order.student}}</td>
               <td>{{order.total_cost}}</td>

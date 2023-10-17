@@ -4,31 +4,39 @@
 
 {% if quotas_generated %}
 <div class="row">
-    <div class="col"></div>
     <div class="col">
         <h5 class="text-center">Find Student</h5>
         <hr>
         <form action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="modal-body">
-            <div class="mb-2">
-                <label for="exampleInputPassword1" class="form-label">Student ID/Reg. Number</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="id_number"
-                  name="id_number"
-                  required
-                />
+              <div class="row">
+                <div class="col">
+                  <div class="mb-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="id_number"
+                      name="id_number"
+                      required
+                      placeholder="ID Number ..."
+                    />
+                  </div>
+                </div>
+                <div class="col text-center">
+                  <label></label>
+                  <input type="submit" class="btn btn-primary">
+                </div>
               </div>
-              
-            <div class="text-center mt-2">
-              <button type="submit" class="btn btn-primary">Search!</button>
-            </div>
+
           </div>
           </form>
     </div>
-    <div class="col"></div>
+    <div class="col text-center">
+      <h5 class="text-center">Walk In Customer</h5>
+        <hr>
+      <a href="{% url 'customer-order' %}" class="btn btn-info">Place Order</a>
+    </div>
 </div>
 <div class="row">
     <div class="table-responsive small">
@@ -39,7 +47,7 @@
               <th scope="col">Name</th>
               <th scope="col">Reg. Number</th>
               <th scope="col">Wallet Balance</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
@@ -51,9 +59,6 @@
               <td>{{student.wallet_balance}}</td>
               <td>
                 <a href="{% url 'place-order' student.id %}" class="btn btn-info btn-sm">Place Order</a>
-              </td>
-              <td>
-                <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge Wallet</a></td>
               </td>
             </tr>
     

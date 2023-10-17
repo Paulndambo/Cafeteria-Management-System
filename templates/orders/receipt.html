@@ -53,8 +53,11 @@
             </div>
         <div class="text-left">
             <p>Order Total: {{order.total_cost}}</p>
+
+            {% if order.student %}
             <p>Student: {{order.student.user.name}}</p>
             <p>Wallet Balance: {{order.student.wallet_balance}}</p>
+            {% endif %}
             <p>Served By: {{order.served_by.name}}</p>
         </div>
             

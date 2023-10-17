@@ -1,7 +1,45 @@
-{% extends "base.html" %}
-
-{% block content %}
-<p class="text-center"><b>Name:</b> {{student.user.name}} <b>Reg. Number:</b> {{student.registration_number}}</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head><script src="{% static 'assets/js/color-modes.js' %}"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORDER</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="{%  static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+     <!-- Custom styles for this template -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+     <!-- Custom styles for this template -->
+     <link href="{% static 'dashboard.css' %}" rel="stylesheet">
+</head>
+<body>
+  <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="{% url 'pos-home' %}">JAWAKA</a>
+  
+    <ul class="navbar-nav flex-row d-md-none">
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
+          <svg class="bi"><use xlink:href="#search"/></svg>
+        </button>
+      </li>
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <svg class="bi"><use xlink:href="#list"/></svg>
+        </button>
+      </li>
+      
+    </ul>
+  
+    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+  
+    
+  </header>
+<div class="container">
+  <div class="row mt-2">
+      <p class="text-center"><b>Name:</b> {{student.user.name}} <b>Reg. Number:</b> {{student.registration_number}}</p>
+</div>
 <hr/>
 <div class="row">
     <div class="col">
@@ -13,8 +51,10 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Item</th>
+                  <th scope="col"></th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col"></th>
                   <th scope="col">Price</th>
-                  <th scope="col" colspan="2">Price</th>
                 </tr>
               </thead>
               <tbody>
@@ -22,13 +62,18 @@
                 <tr>
                   <td>{{order_item.id}}</td>
                   <td>{{order_item.menu_item}}</td>
-                  <td>{{order_item.quantity}}</td>
-                  <td>{{order_item.price}}</td>
                   <td>
-                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editOrderItemModal{{order_item.id}}">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                </td>
+                    <a href="{% url 'decrease-order-item-quantity' order_item.id student.id %}" class="btn btn-secondary btn-sm">
+                      <i class="bi bi-dash"></i>
+                  </a>
+                  </td>
+                  <td>{{order_item.quantity}}</td>
+                  <td>
+                    <a href="{% url 'increase-order-item-quantity' order_item.id student.id %}" class="btn btn-secondary btn-sm">
+                      <i class="bi bi-plus"></i>
+                  </a>
+                  </td>
+                  <td>{{order_item.price}}</td>
                 <td>
                     <a href="{% url 'remove-from-cart' order_item.id %}" class="btn btn-danger btn-sm">
                         <i class="bi bi-trash"></i>
@@ -56,7 +101,7 @@
                         Recharge
                     </a>
                     {% elif order_value > 0 %}
-                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#confirmOrderModal">
+                    <a href="{% url 'confirm-order' student.id %}" class="btn btn-success btn-sm">
                         Place Order
                     </a>
                     {% endif %}
@@ -81,13 +126,6 @@
                         <div class="col">
                             <input type="text" class="form-control" name="name" id="name" placeholder="Name ...">
                           </div>
-                        <div class="col">
-                          <select class="form-select" name="category" id="category">
-                            <option value="drinks">Drinks</option>
-                            <option value="fruits">Fruits</option>
-                            <option value="food">Food</option>
-                          </select>
-                        </div>
                         <div class="col">
                           <button class="btn btn-success">Search</button>
                         </div>
@@ -116,9 +154,9 @@
                   <td>{{menu.item}}</td>
                   <td>{{menu.price}}</td>
                 <td>
-                    <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addToCartModal{{ menu.id }}">
+                    <a href="{% url 'add-to-cart' menu.id student.id %}" class="btn btn-success btn-sm">
                         <i class="bi bi-cart-plus"></i>
-                    </a></td>
+                    </a>
                 </td>
                 </tr>
                 {% include "orders/add_to_cart.html" %}
@@ -142,5 +180,9 @@
           </div>
     </div>
 </div>
+</div>
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
 
-{% endblock content %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" integrity="sha384-gdQErvCNWvHQZj6XZM0dNsAoY4v+j5P1XDpNkcM3HJG1Yx04ecqIHk7+4VBOCHOG" crossorigin="anonymous"></script><script src="dashboard.js"></script>
+</body>
+</html>
