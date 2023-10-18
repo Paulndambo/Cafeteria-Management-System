@@ -97,9 +97,12 @@
                 </div>
                 <div class="col">
                   {% if items_added == True %}
-                    <a href="{% url 'place-customer-order' %}" class="btn btn-success btn-sm">
-                        Place Order
+                    <a href="{% url 'place-customer-mpesa-order' %}" class="btn btn-success btn-sm">
+                        MPESA
                     </a>
+                    <a href="{% url 'place-customer-cash-order' %}" class="btn btn-warning btn-sm">
+                      CASH
+                  </a>
                     
                     <a href="{% url 'clear-shopping-cart' %}" class="btn btn-danger btn-sm">
                         Clear
@@ -145,6 +148,7 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
+                  <th scope="col">Photo</th>
                   <th scope="col">Item</th>
                   <th scope="col">Quantity</th>
                   <th scope="col">Price</th>
@@ -154,6 +158,9 @@
                 {% for menu in page_obj %}
                 <tr>
                   <td>{{menu.id}}</td>
+                  <td>
+                    <img src="{{menu.image}}">
+                  </td>
                   <td>{{menu.item}}</td>
                   <td>{{menu.quantity}}</td>
                   <td>{{menu.price}}</td>

@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
-from apps.students.models import Student, StudentWallet
+from apps.students.models import Student, StudentWallet, WalletRechargeLog
 from apps.users.models import User
 
 date_today = datetime.now().date()
@@ -126,6 +126,7 @@ def student_wallets(request):
 def recharge_student_wallet(request):
     if request.method == "POST":
         reg_number = request.POST.get("reg_number")
+        recharge_method = request.POST.get("recharge_method")
 
         student = Student.objects.filter(
             Q(registration_number=reg_number) | Q(user__id_number=reg_number)).first()
@@ -135,6 +136,13 @@ def recharge_student_wallet(request):
         wallet = student.studentwallet
         wallet.balance += amount
         wallet.save()
+
+        recharge_log = WalletRechargeLog.objects.create(
+            student=student,
+            wallet=wallet,
+            recharge_method=recharge_method,
+            amount_recharged=amount
+        )
         return redirect("student-wallets")
 
     return render(request, "modals/request_recharge.html")

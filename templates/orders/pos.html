@@ -89,27 +89,37 @@
               </tbody>
             </table>
             <div class="row">
-                <div class="col">
-                    <p>Grand Total: <b>{{order_value}}</b></p>
-                    <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
+              <div class="col">
+                <p>Grand Total: <b>{{order_value}}</b></p>
+            </div>
+            <div class="col">
+              <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
 
-                </div>
-                
+          </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     {% if order_value > student.wallet_balance %}
-                    <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeStudentWalletModal">
-                        Recharge
+                    <a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
+                        Pay With Cash/Mpesa
                     </a>
+                    <a href="{% url 'clear-order-items' student.id %}" class="btn btn-danger btn-sm">
+                      Clear Items
+                  </a>
                     {% elif order_value > 0 %}
-                    <a href="{% url 'confirm-order' student.id %}" class="btn btn-success btn-sm">
-                        Place Order
-                    </a>
+                    <a href="{% url 'confirm-order' student.id %}" class="btn btn-primary btn-sm">
+                      Place Order
+                  </a>
+                   
+                  <a href="{% url 'clear-order-items' student.id %}" class="btn btn-danger btn-sm">
+                    Clear Items
+                </a>
                     {% endif %}
                 </div>
 
             </div>
             {% include "orders/confirm_order.html" %}
-            {% include "orders/recharge_wallet.html" %}
+            {% include "orders/recharge_wallet_at_order.html" %}
           </div>
     
     </div>
@@ -154,9 +164,11 @@
                   <td>{{menu.item}}</td>
                   <td>{{menu.price}}</td>
                 <td>
+                  {% if menu.quantity > 2 %}
                     <a href="{% url 'add-to-cart' menu.id student.id %}" class="btn btn-success btn-sm">
                         <i class="bi bi-cart-plus"></i>
                     </a>
+                  {% endif %}
                 </td>
                 </tr>
                 {% include "orders/add_to_cart.html" %}

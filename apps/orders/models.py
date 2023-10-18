@@ -10,15 +10,22 @@ ORDER_STATUS_CHOICES = (
 )
 
 
+PAYMENT_METHODS = (
+    ("Mpesa", "Mpesa"),
+    ("Cash", "Cash"),
+    ("Wallet", "Wallet"),
+)
+
 class Order(AbstractBaseModel):
     student = models.ForeignKey("students.Student", on_delete=models.SET_NULL, null=True, related_name="studentorders")
     total_cost = models.DecimalField(max_digits=20, decimal_places=2)
     meal_time = models.CharField(max_length=255, null=True)
     status = models.CharField(max_length=255, choices=ORDER_STATUS_CHOICES)
     served_by = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
+    payment_method = models.CharField(max_length=255, null=True, choices=PAYMENT_METHODS)
 
     def __str__(self):
-        return self.student.registration_number
+        return str(self.id)
 
 
 class OrderItem(AbstractBaseModel):

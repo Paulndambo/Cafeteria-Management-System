@@ -49,3 +49,17 @@ class StudentWallet(AbstractBaseModel):
     def spend_today(self):
         student_oders = sum(self.student.studentorders.filter(status="Processed", created__date=date_today).values_list("total_cost", flat=True))
         return student_oders
+
+RECHARGE_METHODS = (
+    ("Mpesa", "Mpesa"),
+    ("Cash", "Cash"),
+)
+
+class WalletRechargeLog(AbstractBaseModel):
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
+    wallet = models.ForeignKey(StudentWallet, on_delete=models.SET_NULL, null=True)
+    recharge_method = models.CharField(max_length=255, choices=RECHARGE_METHODS)
+    amount_recharged = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.student.registration_number
