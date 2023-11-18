@@ -31,3 +31,11 @@ class TenantPremiums(models.Model):
 
 class Payment(models.Model):
     pass
+
+class Expense(AbstractBaseModel):
+    title = models.CharField(max_length=255)
+    purpose = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def __str__(self):
+        return self.title

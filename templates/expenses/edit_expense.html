@@ -1,0 +1,66 @@
+<div class="modal fade" id="editExpenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Edit Expense</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'edit-expense' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                  <div class="mb-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="expense_id"
+                      name="expense_id"
+                      value="{{expense.id}}"
+                      required
+                      readonly
+                      hidden
+                    />
+                  </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Title</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="title"
+                    name="title"
+                    value="{{expense.title}}"
+                    required
+                  />
+                </div>
+
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Purpose</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="purpose"
+                    name="purpose"
+                    value="{{expense.purpose}}"
+                    required
+                  />
+                </div>
+             
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Amount</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      value="{{expense.amount}}"
+                      required
+                    />
+                  </div>
+                
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

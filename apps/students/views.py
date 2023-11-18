@@ -1,3 +1,6 @@
+import csv
+import io  # Import the io module
+import json
 from datetime import datetime
 from decimal import Decimal
 
@@ -210,3 +213,50 @@ def generate_daily_quota(request):
         student_wallet.save()
     # print(student_wallets)
     return redirect("student-wallets")
+
+
+def handle_uploaded_file(file):
+    # Process the uploaded file (example: read CSV data)
+    decoded_file = file.read().decode('utf-8')
+    io_string = io.StringIO(decoded_file)
+    reader = csv.reader(io_string)
+    
+    data = [row for row in reader]
+
+    keys = data[0]
+
+    # Create a list of dictionaries using the remaining sub-lists as values
+    return [dict(zip(keys, values)) for values in data[1:]]
+   
+
+def upload_students(request):
+    if request.method == "POST":
+        
+        res = handle_uploaded_file(request.FILES['student_file'])
+
+
+        students_list = []
+        for x in res:
+            user = User.objects.create(
+                first_name=x.get("first_name"),
+                last_name=x.get("last_name"),
+                email=x.get("email"),
+                username=x.get("id_number"),
+                id_number=x.get("id_number"),
+                role="student",
+                phone_number=x.get("phone_number"),
+                gender=x.get("gender")
+            )
+
+            student = Student.objects.create(
+                user=user,
+                student_type=x.get("student_type"),
+                registration_number=x.get("reg_number"),
+                status=x.get("status")
+            )
+            print("Student Created Successfully!!!!")
+
+        return redirect("students")
+
+        
+    return render(request, "students/upload_students.html")

@@ -3,10 +3,10 @@
 {% block content %}
 <div class="row">
     <div class="col">
-        <h3>Menu Today</h3>
+        <h3>Expenses</h3>
     </div>
     <div class="col">
-        <a class="btn btn-success" data-bs-toggle="modal" id="newMenuButton" data-bs-target="#newMenuItemModal">New Menu Item</a>
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newExpenseModal">New Expense</a>
     </div>
 </div>
 
@@ -16,29 +16,27 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Item</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Price</th>
-              <th scope="col">Available</th>
+              <th scope="col">Title</th>
+              <th scope="col">Purpose</th>
+              <th scope="col">Amount</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {% for menu in page_obj %}
+            {% for expense in page_obj %}
             <tr>
-              <td>{{menu.id}}</td>
-              <td>{{menu.item}}</td>
-              <td>{{menu.quantity}}</td>
-              <td>{{menu.price}}</td>
-              <td>{{menu.available}}</td>
+              <td>{{expense.id}}</td>
+              <td>{{expense.title}}</td>
+              <td>{{expense.purpose}}</td>
+              <td>{{expense.amount}}</td>
               
-              
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}">Edit</a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMenuItemModal{{ menu.id }}">Delete</a></td>
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editExpenseModal{{ expense.id }}">Edit</a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteExpenseModal{{ expense.id }}">Delete</a></td>
             </tr>
+
+            {% include "expenses/edit_expense.html" %}
+            {% include "expenses/delete_expense.html" %}
             
-            {% include "menus/delete_menu.html" %}
-            {% include "menus/edit_menu.html" %}
             {% endfor %}
 
           </tbody>
