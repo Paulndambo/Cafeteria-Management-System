@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
 from apps.core.models import Expense
 from apps.orders.models import Order
@@ -74,6 +75,9 @@ def delete_expense(request):
 
 @login_required(login_url="/users/login/")
 def home(request):
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=6)
+
     students = Student.objects.count()
     staffs = User.objects.filter(role__in=["chef", "admin", "cashier"]).count()
     orders_today = Order.objects.filter(created__date=date_today).count()
@@ -94,7 +98,21 @@ def home(request):
         payment_method="Wallet"
     ).values_list("amount", flat=True)))
 
-    ### Data This Week
+    ### Data this week
+    mpesa_sales_this_week = sum(list(SalesReport.objects.filter(
+        created__range=[start_date, end_date], payment_method="Mpesa"
+    ).values_list("amount", flat=True)))
+    wallet_sales_this_week = sum(list(SalesReport.objects.filter(
+        created__range=[start_date, end_date], payment_method="Wallet"
+    ).values_list("amount", flat=True)))
+    cash_sales_this_week = sum(list(SalesReport.objects.filter(
+        created__range=[start_date, end_date], payment_method="Cash"
+    ).values_list("amount", flat=True)))
+
+    print("Mpesa: ", mpesa_sales_this_week)
+    print("Cash: ", cash_sales_this_week)
+    print("Wallet: ", wallet_sales_this_week)
+    ### Data This Month
     mpesa_sales_this_month = sum(list(SalesReport.objects.filter(
         created__month=date_today.month, 
         payment_method="Mpesa"
@@ -119,6 +137,9 @@ def home(request):
         "cash_sales_today": cash_sales_today,
         "mpesa_sales_this_month": mpesa_sales_this_month,
         "cash_sales_this_month": cash_sales_this_month,
-        "wallet_sales_this_month": wallet_sales_this_month
+        "wallet_sales_this_month": wallet_sales_this_month,
+        "wallet_sales_this_week": wallet_sales_this_week,
+        "cash_sales_this_week": cash_sales_this_week,
+        "mpesa_sales_this_week": mpesa_sales_this_week
     }
     return render(request, "home.html", context)
