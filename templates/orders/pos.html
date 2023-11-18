@@ -152,6 +152,7 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
+                  <th scope="col"></th>
                   <th scope="col">Item</th>
                   <th scope="col">Price</th>
                  
@@ -161,6 +162,9 @@
                 {% for menu in page_obj %}
                 <tr>
                   <td>{{menu.id}}</td>
+                  <td>
+                    <img src="{{menu.image.url}}" height="35" />
+                  </td>
                   <td>{{menu.item}}</td>
                   <td>{{menu.price}}</td>
                 <td>

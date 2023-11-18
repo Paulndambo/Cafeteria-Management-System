@@ -254,6 +254,10 @@ def upload_students(request):
                 registration_number=x.get("reg_number"),
                 status=x.get("status")
             )
+            wallet = StudentWallet.objects.create(
+                student=student,
+                balance = 350 if x.get("student_type") == "Boarder" else 0
+            )
             print("Student Created Successfully!!!!")
 
         return redirect("students")
