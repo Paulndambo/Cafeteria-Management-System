@@ -10,11 +10,12 @@
         <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#uploadStudentsModal">Upload</a>
     </div>
     <div class="col-4">
-      <form>
+      <form method="POST">
+        {% csrf_token %}
         <div class="input-group mb-3">
           <div class="row">
             <div class="col-8">
-              <input type="text" class="form-control" placeholder="Reg. Number" >
+              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Reg. Number" >
             </div>
             <div class="col-4">
               <button class="btn btn-success">Search</button>
@@ -34,8 +35,8 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Reg. Number</th>
-              <th scope="col">ID Number</th>
               <th scope="col">Student Type</th>
+              <th scope="col">Status</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
@@ -45,11 +46,14 @@
               <td>{{student.id}}</td>
               <td>{{student.user.first_name}} {{student.user.last_name}}</td>
               <td>{{student.registration_number}}</td>
-              <td>{{student.user.id_number}}</td>
               <td>{{student.student_type}}</td>
-              
-              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">Edit</a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">Delete</a></td>
+              <td>{{student.status}}</td>
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">
+                <i class="bi bi-trash"></i>
+              </a></td>
               
               {% if student.status == "Active" %}
               <td>

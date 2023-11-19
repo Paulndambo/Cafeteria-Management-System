@@ -28,11 +28,13 @@ def new_menu_item(request):
         item = request.POST.get("item")
         price = request.POST.get("price")
         quantity = request.POST.get("quantity")
+        image = request.FILES["image"]
 
         menu = Menu.objects.create(
             item=item,
             price=price,
-            quantity=quantity
+            quantity=quantity,
+            image=image
         )
 
         return redirect("menus")

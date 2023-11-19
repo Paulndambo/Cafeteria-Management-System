@@ -20,6 +20,17 @@ date_today = datetime.now().date()
 @login_required(login_url="/users/login/")
 def students(request):
     students = Student.objects.all().order_by("-created")
+
+    if request.method == "POST":
+        registration_number = request.POST.get("reg_number")
+
+        students = Student.objects.filter(
+            Q(registration_number__icontains=registration_number) | 
+            Q(user__id_number__icontains=registration_number) |
+            Q(user__first_name__icontains=registration_number) |
+            Q(user__last_name__icontains=registration_number) 
+        ).order_by("-created")
+    
     paginator = Paginator(students, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -250,13 +261,14 @@ def upload_students(request):
 
             student = Student.objects.create(
                 user=user,
-                student_type=x.get("student_type"),
+                student_type=x.get("student_type").capitalize(),
                 registration_number=x.get("reg_number"),
-                status=x.get("status")
+                status=x.get("status"),
+                credit_limit=x.get("credit_limit")
             )
             wallet = StudentWallet.objects.create(
                 student=student,
-                balance = 350 if x.get("student_type") == "Boarder" else 0
+                balance = x.get("credit_limit")
             )
             print("Student Created Successfully!!!!")
 
