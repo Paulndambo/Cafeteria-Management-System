@@ -41,12 +41,13 @@
                   <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Amount</label>
                     <input
-                      type="text"
+                      type="number"
                       class="form-control"
                       id="amount"
                       name="amount"
                       value="{{extra_amount}}"
                       required
+                      min="1"
                       readonly
                     />
                   </div>

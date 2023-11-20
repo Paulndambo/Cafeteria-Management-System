@@ -7,6 +7,7 @@ ORDER_STATUS_CHOICES = (
     ("Cancelled", "Cancelled"),
     ("Processed", "Processed"),
     ("Pending", "Pending"),
+    ("Nullified", "Nullified"),
 )
 
 

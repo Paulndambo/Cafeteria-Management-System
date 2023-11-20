@@ -15,7 +15,9 @@ from apps.users.models import User
 
 date_today = datetime.now().date()
 # Create your views here.
-
+def students_finder(request):
+    students = Student.objects.all().order_by("-created")
+    return render(request, "students_finder.html", {"students": students})
 
 @login_required(login_url="/users/login/")
 def students(request):

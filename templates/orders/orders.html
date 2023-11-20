@@ -49,7 +49,7 @@
               <td>{{order.total_cost}}</td>
               <td>{{order.meal_time}}</td>
               <td>{{order.status}}</td>
-              
+              <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editOrderModal{{ order.id }}">Edit</a></td>
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteOrderModal{{ order.id }}">Delete</a></td>
               <td><a href="{% url 'print-order' order.id %}" class="btn btn-info btn-sm">Print</a></td>
@@ -57,6 +57,7 @@
             
             {% include "orders/delete_order.html" %}
             {% include "orders/edit_order.html" %}
+            {% include "orders/void_order.html" %}
             {% endfor %}
 
           </tbody>

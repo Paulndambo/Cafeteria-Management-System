@@ -22,7 +22,11 @@ date_today = datetime.now().date()
 
 @login_required(login_url="/users/login/")
 def orders(request):
+    user = request.user
     orders = Order.objects.all().order_by("-created")
+
+    if not user.is_superuser:
+        orders = Order.objects.filter(served_by=user).order_by("-created")
 
     if request.method == "POST":
         registration_number = request.POST.get("reg_number")
@@ -70,6 +74,7 @@ def delete_order(request):
 @login_required(login_url="/users/login/")
 def pos_home(request):
     students = Student.objects.none()
+    students_list = Student.objects.all()
     quotas_generated = True
 
     boarding_student_wallets = StudentWallet.objects.filter(
@@ -92,7 +97,8 @@ def pos_home(request):
 
     context = {
         "students": students,
-        "quotas_generated": quotas_generated
+        "quotas_generated": quotas_generated,
+        "students_list": students_list
     }
 
     return render(request, "orders/pos_home.html", context)
@@ -181,6 +187,13 @@ def confirm_order(request, student_id=None, *args, **kwargs):
     student.studentwallet.balance -= order_value
     student.studentwallet.total_spend_today += order_value
     student.studentwallet.save()
+
+    wallet_payment = SalesReport.objects.create(
+        order=order,
+        payment_method="Wallet",
+        amount=order_value
+    )
+
     Menu.objects.update(added_to_cart=False)
     TemporaryOrderItem.objects.all().delete()
     return redirect(f"/orders/print-order/{order.id}/")
@@ -338,9 +351,13 @@ def increase_order_item_quantity(request, item_id=None, student_id=None):
 @login_required(login_url="/users/login/")
 def decrease_order_item_quantity(request, item_id=None, student_id=None):
     item = TemporaryOrderItem.objects.get(id=item_id)
-    item.quantity -= 1
-    item.price -= item.menu_item.price
-    item.save()
+    if item.quantity == 0:
+        item.quantity = 0
+        item.save()
+    else:
+        item.quantity -= 1
+        item.price -= item.menu_item.price
+        item.save()
     return redirect(f"/orders/place-order/{student_id}/")
 
 
@@ -380,7 +397,7 @@ def delete_cart_item(request, item_id=None):
     item.delete()
     return redirect("customer-order")
 
-
+"""
 @login_required(login_url="/users/login/")
 def customer_order(request):
 
@@ -513,11 +530,15 @@ def increase_item_quantity(request, item_id=None):
 @login_required(login_url="/users/login/")
 def decrease_item_quantity(request, item_id=None):
     item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-    item.quantity -= 1
-    item.price -= item.menu_item.price
-    item.save()
-    return redirect("customer-order")
 
+    if item.quantity == 0:
+        item.quantity = 0
+    else:
+        item.quantity -= 1
+        item.price -= item.menu_item.price
+        item.save()
+    return redirect("customer-order")
+"""
 
 
 @login_required(login_url="/users/login/")
@@ -545,3 +566,15 @@ def recharge_student_wallet_at_order(request):
         return redirect(f"/orders/place-order/{student.id}")
 
     return render(request, "modals/request_recharge.html")
+
+
+def void_customer_order(request):
+    if request.method == "POST":
+        order_id = int(request.POST.get("order_id"))
+
+        order = Order.objects.get(id=order_id)
+        order.status = "Nullified"
+        order.save()
+
+        return redirect("orders")
+    return render(request, "orders/void_order.html")

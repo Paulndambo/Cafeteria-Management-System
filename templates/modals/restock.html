@@ -11,13 +11,13 @@
                   <p>Stock Item: <b>{{stock.name}}</b></p>
 
                   <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Item ID</label>
                     <input
                       type="text"
                       class="form-control"
                       id="product"
                       name="product"
                       value="{{stock.id}}"
+                      hidden
                       required
                       readonly
                     />
@@ -26,10 +26,11 @@
                   <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Quantity</label>
                     <input
-                      type="text"
+                      type="number"
                       class="form-control"
                       id="quantity"
                       name="quantity"
+                      min="1"
                       required
                     />
                   </div>
