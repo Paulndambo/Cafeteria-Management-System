@@ -33,7 +33,7 @@ def students(request):
             Q(user__last_name__icontains=registration_number) 
         ).order_by("-created")
     
-    paginator = Paginator(students, 12)
+    paginator = Paginator(students, 8)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
@@ -114,7 +114,7 @@ def new_student(request):
 
             wallet = StudentWallet.objects.create(
                 student=student,
-                balance=300 if student_type == "Boarder" else 0,
+                balance=350 if student_type == "Boarder" else 0,
                 total_spend_today=0
             )
 
@@ -128,6 +128,16 @@ def new_student(request):
 @login_required(login_url="/users/login/")
 def student_wallets(request):
     wallets = StudentWallet.objects.all()
+
+    if request.method == "POST":
+        reg_number = request.POST.get("reg_number")
+        wallets = StudentWallet.objects.filter(
+            Q(student__registration_number__icontains=reg_number) |
+            Q(student__user__id_number__icontains=reg_number) |
+            Q(student__user__first_name__icontains=reg_number) |
+            Q(student__user__last_name__icontains=reg_number)
+        )
+
     paginator = Paginator(wallets, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -222,8 +232,13 @@ def generate_daily_quota(request):
     for student_wallet in student_wallets:
         print(f"Student: {student_wallet.student}, Status: {student_wallet.student.status}, Student Type: {student_wallet.student.student_type}")
         student_wallet.total_spend_today = 0
-        student_wallet.balance = 350
-        student_wallet.save()
+
+        if student_wallet.student.status == "Deactivated":
+            student_wallet.balance = 0
+            student_wallet.save()
+        else:
+            student_wallet.balance = 350
+            student_wallet.save()
     # print(student_wallets)
     return redirect("student-wallets")
 
@@ -270,7 +285,7 @@ def upload_students(request):
             )
             wallet = StudentWallet.objects.create(
                 student=student,
-                balance = x.get("credit_limit")
+                balance = x.get("credit_limit") if x.get("status") == "Active" else 0
             )
             print("Student Created Successfully!!!!")
 
@@ -278,3 +293,19 @@ def upload_students(request):
 
         
     return render(request, "students/upload_students.html")
+
+
+def student_details(request, student_id=None):
+    student = Student.objects.get(id=student_id)
+    orders = student.studentorders.all()
+
+    paginator = Paginator(orders, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "student": student,
+        "orders": orders,
+        "page_obj": page_obj
+    }
+    return render(request, "students/student_details.html", context)

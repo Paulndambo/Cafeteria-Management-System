@@ -93,6 +93,12 @@
           
           {% elif request.user.role == "cashier" %}
           <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2 active" aria-current="page" href="{% url 'home' %}">
+              <svg class="bi"><use xlink:href="#house-fill"/></svg>
+              Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-2" href="{% url 'students' %}">
               <svg class="bi"><use xlink:href="#people"/></svg>
               Students

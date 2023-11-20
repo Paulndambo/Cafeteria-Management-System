@@ -2,31 +2,25 @@
 
 {% block content %}
 <div class="row">
+    <h3>Student Details</h3>
+    <hr/>
     <div class="col">
-        <h3>Orders</h3>
+        <p>Name: {{student.user.name}}</p>
+        <p>Reg. Number: {{student.registration_number}}</p>
     </div>
     <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-7">
-              <input type="text" class="form-control" name="reg_number" id="reg_number" placeholder="Reg. Number ...">
-            </div>
-            <div class="col-5">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
-        </div>
-        
-      </form>
+        <p>Wallet Balance: {{student.wallet_balance}}</p>
+        <p>Total Orders: {{student.total_orders}}</p>
     </div>
+</div>
+<hr/>
+<div class="row">
+    <h3>Student Orders</h3>
 </div>
 
 <hr/>
       <div class="table-responsive small">
-        <table class="table table-sm">
+        <table class="table table-striped table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -49,15 +43,9 @@
               <td>{{order.total_cost}}</td>
               <td>{{order.meal_time}}</td>
               <td>{{order.status}}</td>
-              <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editOrderModal{{ order.id }}">Edit</a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteOrderModal{{ order.id }}">Delete</a></td>
               <td><a href="{% url 'print-order' order.id %}" class="btn btn-info btn-sm">Print</a></td>
             </tr>
             
-            {% include "orders/delete_order.html" %}
-            {% include "orders/edit_order.html" %}
-            {% include "orders/void_order.html" %}
             {% endfor %}
 
           </tbody>

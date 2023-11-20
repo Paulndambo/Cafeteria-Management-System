@@ -33,7 +33,7 @@ def orders(request):
         orders = Order.objects.filter(
             Q(student__registration_number__icontains=registration_number))
 
-    paginator = Paginator(orders, 10)
+    paginator = Paginator(orders, 15)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -574,6 +574,25 @@ def void_customer_order(request):
 
         order = Order.objects.get(id=order_id)
         order.status = "Nullified"
+
+        sales_reports = SalesReport.objects.filter(order=order)
+
+        for sale_report in sales_reports:
+            if sale_report.payment_method in ["Mpesa", "Cash"]:
+                sale_report.amount = 0
+                sale_report.save()
+
+            elif sale_report.payment_method == "Wallet":
+                sale_report_amount = sale_report.amount
+                student = sale_report.order.student
+                student_wallet = student.studentwallet
+                student_wallet.balance += sale_report_amount
+                student_wallet.total_spend_today -= sale_report_amount
+                student_wallet.save()
+
+                sale_report.amount = 0
+                sale_report.save()
+
         order.save()
 
         return redirect("orders")

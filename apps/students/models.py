@@ -35,6 +35,10 @@ class Student(AbstractBaseModel):
     def wallet_balance(self):
         return self.studentwallet.balance
 
+    @property
+    def total_orders(self):
+        return self.studentorders.count()
+
 
 class StudentWallet(AbstractBaseModel):
     student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name="studentwallet")
