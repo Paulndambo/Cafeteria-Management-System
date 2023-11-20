@@ -102,7 +102,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h3 class="text-center"><u>School Cafeteria Order</u></h3>
+            <h3 class="text-center"><u>Jawaka Cafeteria Order</u></h3>
         </div>
     </div>
     <br>
@@ -135,7 +135,7 @@
     <p>Order Total: {{order.total_cost}}</p>
     <p>Student: {{order.student.user.name}}</p>
     <p>Wallet Balance: {{order.student.wallet_balance}}</p>
-    <p>Served By: Jawaka CEO</p>
+    <p>Served By: {{order.served_by}}</p>
     <p class="text-center"><code>-- Thank you, see you again for the next meal!--</code></p>
 
     <div class="row text-center">

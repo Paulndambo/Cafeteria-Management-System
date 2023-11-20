@@ -107,7 +107,7 @@ def pos_home(request):
 @login_required(login_url="/users/login/")
 def pos(request, student_id=None):
     student = Student.objects.get(id=student_id)
-    menus = Menu.objects.all()  # filter(added_to_cart=False)
+    menus = Menu.objects.filter(quantity__gt=0)  # filter(added_to_cart=False)
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -130,11 +130,11 @@ def pos(request, student_id=None):
     menus = Menu.objects.exclude(
         id__in=list(TemporaryOrderItem.objects.filter(
             student=student).values_list('menu_item_id', flat=True))
-    )
+    ).filter(quantity__gt=0)
 
     extra_amount = order_value - student.studentwallet.balance
 
-    paginator = Paginator(menus, 10)
+    paginator = Paginator(menus, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
