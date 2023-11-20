@@ -220,6 +220,10 @@
     </li>
     
   </ul>
+  <p>Hello</p>
+  <a href="{% url 'pos-home' %}"><button class="btn btn-primary">POS</button></a>
+  <a href="{% url 'students' %}"><button class="btn btn-success">Students</button></a>
+  <a href="{% url 'orders' %}"><button class="btn btn-primary">Orders</button></a>
   <button class="btn btn-light">Hello, {{request.user.username}}</button>
   <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
 
