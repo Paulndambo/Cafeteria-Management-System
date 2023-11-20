@@ -21,6 +21,11 @@ PAYMENTS_STATUS_CHOICES = (
     ("disputed", "Disputed"),
 )
 
+PAYMENT_CHOICES = (
+    ("Mpesa", "Mpesa"),
+    ("Cash", "Cash"),
+)
+
 class TenantPremiums(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name="payments")
     month = models.CharField(max_length=255)
@@ -36,6 +41,7 @@ class Expense(AbstractBaseModel):
     title = models.CharField(max_length=255)
     purpose = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=255, choices=PAYMENT_CHOICES, null=True)
     
     def __str__(self):
         return self.title

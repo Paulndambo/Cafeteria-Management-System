@@ -31,13 +31,15 @@ def expenses(request):
 def new_expense(request):
     if request.method == "POST":
         title = request.POST.get("title")
+        payment_method = request.POST.get("payment_method")
         purpose = request.POST.get("purpose")
         amount = Decimal(request.POST.get("amount"))
 
         expense = Expense.objects.create(
             title=title,
             purpose=purpose,
-            amount=amount
+            amount=amount,
+            payment_method=payment_method
         )
         return redirect("expenses")
 
@@ -48,6 +50,7 @@ def edit_expense(request):
     if request.method == "POST":
         expense_id = int(request.POST.get("expense_id"))
         title = request.POST.get("title")
+        payment_method = request.POST.get("payment_method")
         purpose = request.POST.get("purpose")
         amount = Decimal(request.POST.get("amount"))
 
@@ -55,6 +58,7 @@ def edit_expense(request):
         expense.title = title
         expense.purpose = purpose
         expense.amount = amount
+        expense.payment_method = payment_method
         expense.save()
         
 

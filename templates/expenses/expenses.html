@@ -19,6 +19,7 @@
               <th scope="col">Title</th>
               <th scope="col">Purpose</th>
               <th scope="col">Amount</th>
+              <th scope="col">Payment Method</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
@@ -29,6 +30,7 @@
               <td>{{expense.title}}</td>
               <td>{{expense.purpose}}</td>
               <td>{{expense.amount}}</td>
+              <td>{{expense.payment_method}}</td>
               
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editExpenseModal{{ expense.id }}">Edit</a></td>
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteExpenseModal{{ expense.id }}">Delete</a></td>
