@@ -27,9 +27,10 @@ def generate_receipt_pdf(request, order_id=None):
     # Fetch order data and generate receipt data
 
     order = Order.objects.get(id=order_id)
+    order_items = order.orderitems.all()
 
-    template = get_template('receipt_template.html')
-    html_content = template.render({'order': order})
+    template = get_template('orders/receipt.html')
+    html_content = template.render({'order': order, 'order_items': order_items})
 
     pdf_file = HTML(string=html_content).write_pdf()
 
@@ -131,30 +132,25 @@ def pos(request):
     selected_student = request.session.get('selected_student')
 
     if request.method == "POST":
-            reg_number = request.POST.get('reg_number')
-            print(f"Student Reg. Number: {reg_number}")
+        reg_number = request.POST.get('reg_number')
+        print(f"Student Reg. Number: {reg_number}")
 
-            try:
-                student = Student.objects.get(registration_number=reg_number)
-                request.session['selected_student'] = {
-                    'id': student.id,
-                    'name': f'{student.user.first_name} {student.user.last_name}',
-                    'registration_number': student.registration_number,
-                    'wallet_balance': str(student.wallet_balance),
-                }
-                
-                print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
-                return redirect('place-order')
-            except Student.DoesNotExist:
-                # Handle the case when the student is not found
-                pass
+        try:
+            student = Student.objects.get(registration_number=reg_number)
+            request.session['selected_student'] = {
+                'id': student.id,
+                'name': f'{student.user.first_name} {student.user.last_name}',
+                'registration_number': student.registration_number,
+                'wallet_balance': str(student.wallet_balance),
+            }
+            
+            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
+            return redirect('place-order')
+        except Student.DoesNotExist:
+            # Handle the case when the student is not found
+            pass
 
-    if request.method == "POST":
-        item = request.POST.get("item")
-        print(f"Searched Item: {item}")
-        menus = Menu.objects.filter(Q(item__icontains=item)).filter(quantity__gt=0)
-        print(f"Found Menu Items: {menus}")
-
+    
     print(f"Select Student: {selected_student}")
 
     context = {
@@ -181,15 +177,21 @@ def pos(request):
 
         extra_amount = order_value - student.studentwallet.balance
 
-        paginator = Paginator(menus, 12)
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
+        if request.method == "POST":
+            item = request.POST.get("item")
+            print(f"Searched Item: {item}")
+            menus = Menu.objects.filter(Q(item__icontains=item)).filter(quantity__gt=0)
+            print(f"Found Menu Items: {menus}")
+
+        #paginator = Paginator(menus, 12)
+        #page_number = request.GET.get("page")
+        #page_obj = paginator.get_page(page_number)
 
         context = {
             "student": student,
             "menus": menus,
             "items": items,
-            "page_obj": page_obj,
+            #"page_obj": page_obj,
             "order_value": order_value,
             "extra_amount": extra_amount,
             "students": students,
