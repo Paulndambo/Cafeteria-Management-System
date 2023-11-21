@@ -19,13 +19,13 @@
   <div class="l-col-right ticket-wrap" aria-label="A fake boat ticket demonstrating mixing font weights and widths">
     <div class="ticket" aria-hidden="true">
       <div class="ticket__header">
-        <a href="{% url 'pos-home' %}">
-          <div class="ticket__co">
-            <h5>Jawaka Cafeteria</h5>
-          </div>
-        </a>
+        
       </div>
       <div class="ticket__body">
+        <h3>Jawaka Cafeteria</h3>
+        <hr/>
+        <p class=""><strong>Till No:</strong>8200958</p>
+        <p class=""><strong>Phone No:</strong>0202037035/0715837426</p>
         <p class=""><strong>Order:</strong>#JWS-{{order.id}}</p>
         <!-- <p class="ticket__description">{{checkin.staff.department}}</p> -->
         <div class="table-responsive small">
@@ -56,9 +56,10 @@
 
             {% if order.student %}
             <p>Student: {{order.student.user.name}}</p>
-            <p>Wallet Balance: {{order.student.wallet_balance}}</p>
+            <p><b>Wallet Balance: {{order.student.wallet_balance}}</b></p>
             {% endif %}
             <p>Served By: {{order.served_by.name}}</p>
+            <p>{{order.created}}</p>
         </div>
             
         <br>

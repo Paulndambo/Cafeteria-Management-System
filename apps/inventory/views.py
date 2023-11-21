@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
+from apps.core.models import Expense
 from apps.inventory.models import (Inventory, Menu, StockLog, Supplier,
                                    SupplyLog)
 
@@ -142,6 +143,7 @@ def new_supplier(request):
             country=country
         )
 
+
         return redirect("suppliers")
 
     return render(request, "suppliers/edit_supplier.html")
@@ -213,11 +215,19 @@ def new_stock_item(request):
 
         supplier = Supplier.objects.get(id=supplier_id)
         supply_cost = unit_price * Decimal(stock)
+
+        print(f"Type of Total Supplies Cost: {type(supplier.total_supplies_cost)}")
+        print(f"Type of Supply Cost: {type(supply_cost)}")
+
+
         if payment_method == "Credit":
             supplier.amount_owed += supply_cost
         elif payment_method in ["Mpesa", "Cash"]:
-            supplier.total_paid += supply_cost,
+
+            supplier.total_paid += supply_cost
         supplier.total_supplies_cost += supply_cost
+
+
         supplier.save()
 
         inventory = Inventory.objects.create(
@@ -236,7 +246,8 @@ def new_stock_item(request):
             unit_price=unit_price,
             payment_method=payment_method,
             total_cost = supply_cost,
-            supply_unit=unit
+            supply_unit=unit,
+            amount_due=supply_cost
         )
 
         log = StockLog.objects.create(inventory=inventory, quantity=stock)
@@ -280,7 +291,8 @@ def re_stock(request):
             unit_price=inventory.unit_price,
             payment_method=payment_method,
             total_cost = total_cost,
-            supply_unit=inventory.unit
+            supply_unit=inventory.unit,
+            amount_due=amount
         )
 
         log = StockLog.objects.create(
@@ -338,3 +350,31 @@ def stock_logs(request):
         "page_obj": page_obj,
     }
     return render(request, "inventory/inventory_logs.html", context)
+
+
+def pay_supplier(request):
+    if request.method == "POST":
+        supply_id = int(request.POST.get("supply_id"))
+        amount = Decimal(request.POST.get("amount"))
+        payment_method = request.POST.get("payment_method")
+
+        supply = SupplyLog.objects.get(id=supply_id)
+
+        supply.amount_due -= amount
+        supply.amount_paid += amount
+        supply.save()
+
+        Expense.objects.create(
+            title="Supply payment",
+            purpose=f"Supply payment to {supply.supplier.name}",
+            amount=amount,
+            payment_method=payment_method
+        )
+
+        supply.supplier.total_paid += amount
+        supply.supplier.amount_owed -= amount
+        supply.supplier.save()
+
+        return redirect("suppliers")
+
+    return render(request, "suppliers/pay_supplier.html")

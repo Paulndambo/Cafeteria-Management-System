@@ -31,6 +31,8 @@ class SupplyLog(AbstractBaseModel):
     payment_method = models.CharField(max_length=255, null=True)
     total_cost = models.DecimalField(max_digits=100, decimal_places=2)
     supply_unit = models.CharField(max_length=255, null=True)
+    amount_paid = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    amount_due = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
 
     def __str__(self):

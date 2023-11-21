@@ -1,0 +1,62 @@
+<div class="modal fade" id="paySupplierModal{{supply.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Pay Supplier</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'pay-supplier' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <label>Supplier ID</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="supply_id"
+                        name="supply_id"
+                        value="{{supply.id}}"
+                        readonly
+                        required
+                    />
+                    </div>
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    value="{{supply.supplier.name}}"
+                    readonly
+                    required
+                  />
+                </div>
+             
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Amount</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      value="{{supply.amount_due}}"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Payment Method</label>
+                    <select class="form-select" id="payment_method" name="payment_method">
+                      <option value="Cash">Cash</option>
+                      <option value="Mpesa">Mpesa</option>
+                    </select>
+                  </div>
+                 
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>
