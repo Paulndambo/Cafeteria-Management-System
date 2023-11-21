@@ -19,7 +19,8 @@ urlpatterns = [
     path("recharge-wallet-at-order/", recharge_student_wallet_at_order, name="recharge-wallet-order"),
 
     path("pos-home/", pos_home, name="pos-home"),
-    path("place-order/<int:student_id>/", pos, name="place-order"),
+    path("place-order/", pos, name="place-order"),
+    #path("place-order/<int:student_id>/", pos, name="place-order"),
     path("add-to-cart/<int:menu_id>/<int:student_id>/", add_to_cart, name="add-to-cart"),
     path("confirm-order/<int:student_id>/", confirm_order, name="confirm-order"),
     path("confirm-manual-order/", confirm_overpaid_order, name="confirm-manual-order"),

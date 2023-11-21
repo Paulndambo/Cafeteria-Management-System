@@ -124,46 +124,77 @@ def pos_home(request):
 
 
 @login_required(login_url="/users/login/")
-def pos(request, student_id=None):
-    student = Student.objects.get(id=student_id)
-    menus = Menu.objects.filter(quantity__gt=0)  # filter(added_to_cart=False)
+def pos(request):
+    
+    students = Student.objects.all()
+    menus = Menu.objects.none()  # filter(added_to_cart=False)
+    selected_student = request.session.get('selected_student')
 
     if request.method == "POST":
-        name = request.POST.get("name")
-        category = request.POST.get("category")
+            reg_number = request.POST.get('reg_number')
+            print(f"Student Reg. Number: {reg_number}")
 
-        print(f"Name: {name}, Category: {category}")
+            try:
+                student = Student.objects.get(registration_number=reg_number)
+                request.session['selected_student'] = {
+                    'id': student.id,
+                    'name': f'{student.user.first_name} {student.user.last_name}',
+                    'registration_number': student.registration_number,
+                    'wallet_balance': str(student.wallet_balance),
+                }
+                
+                print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
+                return redirect('place-order')
+            except Student.DoesNotExist:
+                # Handle the case when the student is not found
+                pass
 
-        if name and category:
-            menus = Menu.objects.filter(
-                Q(item__icontains=name) | Q(category__icontains=category))
-        elif name:
-            menus = Menu.objects.filter(Q(item__icontains=name))
-        elif category:
-            menus = Menu.objects.filter(Q(category__icontains=category))
+    if request.method == "POST":
+        item = request.POST.get("item")
+        print(f"Searched Item: {item}")
+        menus = Menu.objects.filter(Q(item__icontains=item)).filter(quantity__gt=0)
+        print(f"Found Menu Items: {menus}")
 
-    items = TemporaryOrderItem.objects.filter(student=student)
-    order_value = sum(TemporaryOrderItem.objects.filter(
-        student=student).values_list("price", flat=True))
+    print(f"Select Student: {selected_student}")
 
-    menus = Menu.objects.exclude(
-        id__in=list(TemporaryOrderItem.objects.filter(
-            student=student).values_list('menu_item_id', flat=True))
-    ).filter(quantity__gt=0)
-
-    extra_amount = order_value - student.studentwallet.balance
-
-    paginator = Paginator(menus, 12)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
     context = {
-        "student": student,
+        "selected_student": selected_student,
+        "student": None,
         "menus": menus,
-        "items": items,
-        "page_obj": page_obj,
-        "order_value": order_value,
-        "extra_amount": extra_amount
+        "students": students
     }
+
+    
+    if selected_student:
+        student = Student.objects.filter(
+            id=selected_student['id']
+        ).first()
+
+        items = TemporaryOrderItem.objects.filter(student=student)
+        order_value = sum(TemporaryOrderItem.objects.filter(
+            student=student).values_list("price", flat=True))
+
+        menus = Menu.objects.exclude(
+            id__in=list(TemporaryOrderItem.objects.filter(
+                student=student).values_list('menu_item_id', flat=True))
+        ).filter(quantity__gt=0)
+
+        extra_amount = order_value - student.studentwallet.balance
+
+        paginator = Paginator(menus, 12)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
+        context = {
+            "student": student,
+            "menus": menus,
+            "items": items,
+            "page_obj": page_obj,
+            "order_value": order_value,
+            "extra_amount": extra_amount,
+            "students": students,
+            "selected_student": selected_student
+        }
     return render(request, "orders/pos.html", context)
 
 
@@ -215,6 +246,7 @@ def confirm_order(request, student_id=None, *args, **kwargs):
 
     Menu.objects.update(added_to_cart=False)
     TemporaryOrderItem.objects.all().delete()
+    del request.session['selected_student']
     return redirect(f"/orders/print-order/{order.id}/")
 
 
@@ -315,7 +347,7 @@ def add_to_cart(request, menu_id=None, student_id=None):
         quantity=1,
         price=total_price
     )
-    return redirect(f"/orders/place-order/{student_id}/")
+    return redirect(f"/orders/place-order/")
 
 
 @login_required(login_url="/users/login/")
@@ -342,7 +374,7 @@ def remove_from_cart(request, item_id=None):
 
     student_id = item.student.id
     item.delete()
-    return redirect(f"/orders/place-order/{student_id}/")
+    return redirect(f"/orders/place-order/")
 
 
 @login_required(login_url="/users/login/")
@@ -354,6 +386,8 @@ def print_order_receipt(request, order_id=None):
         "order": order,
         "order_items": order_items
     }
+    if request.session.get('selected_student'):
+        del request.session['selected_student']
     return render(request, "orders/receipt.html", context)
 
 
@@ -364,7 +398,7 @@ def increase_order_item_quantity(request, item_id=None, student_id=None):
     item.price += item.menu_item.price
     item.save()
     print(f"Student ID: {student_id}")
-    return redirect(f"/orders/place-order/{student_id}/")
+    return redirect(f"/orders/place-order/")
 
 
 @login_required(login_url="/users/login/")
@@ -377,7 +411,7 @@ def decrease_order_item_quantity(request, item_id=None, student_id=None):
         item.quantity -= 1
         item.price -= item.menu_item.price
         item.save()
-    return redirect(f"/orders/place-order/{student_id}/")
+    return redirect(f"/orders/place-order/")
 
 
 @login_required(login_url="/users/login/")
@@ -386,11 +420,11 @@ def clear_order_items(request, student_id=None):
     if items:
         items.delete()
         print(items)
-    return redirect(f"/orders/place-order/{student_id}/")
+    return redirect(f"/orders/place-order/")
 
 ########################## Walk In Customer Logic ######################
 
-
+"""
 @login_required(login_url="/users/login/")
 def clear_shopping_cart(request):
     items = TemporaryCustomerOrderItem.objects.all().delete()
@@ -416,11 +450,35 @@ def delete_cart_item(request, item_id=None):
     item.delete()
     return redirect("customer-order")
 
-"""
+
 @login_required(login_url="/users/login/")
 def customer_order(request):
-
+    students = Student.objects.all()
     cart_items = TemporaryCustomerOrderItem.objects.all()
+
+    selected_student = request.session.get('selected_student')
+
+    print("This view was reached!!")
+    print(f"Request Method: {request.method}")
+
+    if request.method == 'POST':
+        reg_number = request.POST.get('reg_number')
+        print(f"Student Reg. Number: {reg_number}")
+
+        try:
+            student = Student.objects.get(registration_number=reg_number)
+            request.session['selected_student'] = {
+                'id': student.id,
+                'name': f'{student.user.first_name} {student.user.last_name}',
+                'registration_number': student.registration_number,
+                'wallet_balance': str(student.wallet_balance),
+            }
+            selected_student = request.session.get('selected_student')
+            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
+            return redirect('customer-order')
+        except Student.DoesNotExist:
+            # Handle the case when the student is not found
+            pass
 
     items_added = False
     if cart_items.count() >= 1:
@@ -443,7 +501,9 @@ def customer_order(request):
         "page_obj": page_obj,
         "cart_items": cart_items,
         "order_value": order_value,
-        "items_added": items_added
+        "items_added": items_added,
+        "students": students,
+        "selected_student": selected_student
     }
     return render(request, "orders/customer_order.html", context)
 
@@ -489,7 +549,7 @@ def place_customer_mpesa_order(request):
     )
 
     TemporaryCustomerOrderItem.objects.all().delete()
-
+    request.session.flush()
     return redirect(f"/orders/print-order/{order.id}/")
 
 
@@ -581,7 +641,7 @@ def recharge_student_wallet_at_order(request):
             recharge_method=recharge_method,
             amount_recharged=amount
         )
-
+        del request.session['selected_student']
         return redirect(f"/orders/place-order/{student.id}")
 
     return render(request, "modals/request_recharge.html")

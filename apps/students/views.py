@@ -309,3 +309,25 @@ def student_details(request, student_id=None):
         "page_obj": page_obj
     }
     return render(request, "students/student_details.html", context)
+
+
+
+def search_student(request):
+    if request.method == 'POST':
+        reg_number = request.POST.get('reg_number')
+        print(f"Student Reg. Number: {reg_number}")
+        try:
+            student = Student.objects.get(registration_number=reg_number)
+            request.session['selected_student'] = {
+                'id': student.id,
+                'name': student.user.first_name,
+                'wallet_balance': str(student.wallet_balance),
+            }
+            selected_student = request.session.get('selected_student')
+            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
+            return redirect('customer-order')
+        except Student.DoesNotExist:
+            # Handle the case when the student is not found
+            pass
+
+    return redirect("customer-order")
