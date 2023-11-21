@@ -48,7 +48,7 @@
               <td>{{order.total_cost}}</td>
               <td>{{order.status}}</td>
               <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
-              <td><a href="{% url 'test-receipt' order.id %}" class="btn btn-warning btn-sm">
+              <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">
                 <i class="bi bi-printer"></i>
               </a></td>
             </tr>

@@ -21,12 +21,12 @@
       <div class="ticket__header">
         <a href="{% url 'pos-home' %}">
           <div class="ticket__co">
-            <span class="ticket__co-name">School Cafeteria</span>
+            <h5>Jawaka Cafeteria</h5>
           </div>
         </a>
       </div>
       <div class="ticket__body">
-        <p class="ticket__route"><strong>Order:</strong>#JWS-{{order.id}}</p>
+        <p class=""><strong>Order:</strong>#JWS-{{order.id}}</p>
         <!-- <p class="ticket__description">{{checkin.staff.department}}</p> -->
         <div class="table-responsive small">
             <table class="table table-sm" style="border: None!important;">
@@ -62,7 +62,7 @@
         </div>
             
         <br>
-        <p class="ticket__fine-print">This ticket is <strong>NOT</strong> transferable</p>
+        <p>This ticket is <strong>NOT</strong> transferable</p>
         <div class="row text-center">
           <a href="{% url 'place-order' %}" class="btn btn-primary">Back to Orders</a>
       </div>
