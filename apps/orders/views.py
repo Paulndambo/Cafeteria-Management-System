@@ -131,26 +131,16 @@ def pos(request):
     menus = Menu.objects.none()  # filter(added_to_cart=False)
     selected_student = request.session.get('selected_student')
 
-    if request.method == "POST":
-        reg_number = request.POST.get('reg_number')
-        print(f"Student Reg. Number: {reg_number}")
-
-        try:
-            student = Student.objects.get(registration_number=reg_number)
-            request.session['selected_student'] = {
-                'id': student.id,
-                'name': f'{student.user.first_name} {student.user.last_name}',
-                'registration_number': student.registration_number,
-                'wallet_balance': str(student.wallet_balance),
-            }
+    student = Student.objects.get(user__first_name='Walk-In')
+    if not selected_student:
+        request.session['selected_student'] = {
+            'id': student.id,
+            'last_name': student.user.last_name,
+            'first_name': student.user.first_name,
+            'registration_number': student.registration_number,
+            'wallet_balance': str(student.wallet_balance),
+        }
             
-            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
-            return redirect('place-order')
-        except Student.DoesNotExist:
-            # Handle the case when the student is not found
-            pass
-
-    
     print(f"Select Student: {selected_student}")
 
     context = {
@@ -160,7 +150,6 @@ def pos(request):
         "students": students
     }
 
-    
     if selected_student:
         student = Student.objects.filter(
             id=selected_student['id']
@@ -198,6 +187,7 @@ def pos(request):
             "selected_student": selected_student
         }
     return render(request, "orders/pos.html", context)
+
 
 
 @login_required(login_url="/users/login/")
@@ -342,13 +332,19 @@ def confirm_overpaid_order(request):
 def add_to_cart(request, menu_id=None, student_id=None):
     menu_item = Menu.objects.get(id=menu_id)
 
+    item_check = TemporaryOrderItem.objects.filter(student_id=student_id, menu_item=menu_item).first()
     total_price = menu_item.price * 1
-    TemporaryOrderItem.objects.create(
-        student_id=student_id,
-        menu_item=menu_item,
-        quantity=1,
-        price=total_price
-    )
+    if item_check:
+        item_check.quantity += 1
+        item_check.price += total_price
+        item_check.save()
+    else:
+        TemporaryOrderItem.objects.create(
+            student_id=student_id,
+            menu_item=menu_item,
+            quantity=1,
+            price=total_price
+        )
     return redirect(f"/orders/place-order/")
 
 
@@ -678,3 +674,8 @@ def void_customer_order(request):
 
         return redirect("orders")
     return render(request, "orders/void_order.html")
+
+
+def clear_student_from_pos(request):
+    del request.session['selected_student']
+    return redirect("place-order")

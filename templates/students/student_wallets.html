@@ -41,7 +41,13 @@
             {% for student_wallet in page_obj %}
             <tr>
               <td>{{student_wallet.id}}</td>
-              <td>{{student_wallet.student}}</td>
+              <td>{{student_wallet.student.user.name}}
+                {% if student_wallet.student.status == "Active" %}
+                <span class="badge text-bg-success">Active</span>
+                {% else %}
+                <span class="badge text-bg-danger">Inactive</span>
+                {% endif %}
+              </td>
               {% if student_wallet.student.student_type == "Boarder" %}
               <td>Kes. 350</td>
               {% else %}
