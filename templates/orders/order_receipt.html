@@ -144,7 +144,18 @@
 </div>
 
 <script>
-    window.print()
+  $(document).ready(function() {
+    // Listen for the beforeprint event
+    window.addEventListener('beforeprint', function() {
+      // Code to execute before printing (if needed)
+    });
+
+    // Listen for the afterprint event
+    window.addEventListener('afterprint', function() {
+      // Redirect to the home page after printing
+      window.location.href = "{% url 'home' %}";
+    });
+  });
 </script>
 <script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
 

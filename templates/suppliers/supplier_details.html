@@ -2,25 +2,29 @@
 
 {% block content %}
 <div class="row">
+    <h3>Supplier Details</h3>
+    <hr/>
     <div class="col">
-        <h3>Stock</h3>
+        <p>Name: {{supplier.name}}</p>
+        <p>Phone Number: {{supplier.phone_number}}</p>
     </div>
     <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col">
-              <input type="text" class="form-control" name="name" id="name" placeholder="Item Name">
-            </div>
-            <div class="col">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
-        </div>
-        
-      </form>
+        <p>Email: {{supplier.email}}</p>
+        <p>Address: {{supplier.postal_address}}, {{supplier.town}}-{{supplier.country}}</p>
+    </div>
+    <div class="col">
+        <p>Amount Paid: {{supplier.total_paid}}</p>
+        <p>Amount Owed: {{supplier.amount_owed}}</p>
+
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col">
+        <h3>Items Supplied</h3>
+    </div>
+    <div class="col">
+        <h3>Total Supplies Cost: {{supplier.total_supplies_cost}}</h3>
     </div>
 </div>
 
@@ -30,25 +34,24 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Actioned By</th>
-              <th scope="col">Item</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Action</th>
-              <th scope="col">Destination</th>
+              <th scope="col">Supply Name</th>
+              <th scope="col">Quantity Supplied</th>
+              <th scope="col">Unit Price</th>
+              <th scope="col">Total Cost</th>
+              <th scope="col">Payment Method</th>
+              
             </tr>
           </thead>
           <tbody>
             {% for stock in page_obj %}
             <tr>
               <td>{{stock.id}}</td>
-              <td>{{stock.actioned_by}}</td>
-              <td>{{stock.inventory}}</td>
-              <td>{{stock.quantity}}</td>
-              <td>{{stock.action}}</td>
-              <td>{{stock.destination}}</td>
-              
+              <td>{{stock.item}}</td>
+              <td>{{stock.quantity_supplied}} {{stock.supply_unit}}</td>
+              <td>{{stock.unit_price}}</td>
+              <td>{{stock.total_cost}}</td>
+              <td>{{stock.payment_method}}</td>
             </tr>
-            
             {% endfor %}
 
           </tbody>

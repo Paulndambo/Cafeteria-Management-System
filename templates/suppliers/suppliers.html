@@ -27,7 +27,7 @@
 </div>
 <hr/>
       <div class="table-responsive small">
-        <table class="table table-striped table-sm">
+        <table class="table table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -46,9 +46,18 @@
               <td>{{supplier.phone_number}}</td>
               <td>{{supplier.email}}</td>
               <td>{{supplier.address}}</td>
-              
-              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editSupplierModal{{ supplier.id }}">Edit</a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSupplierModal{{ supplier.id }}">Delete</a></td>
+
+              <td>
+                <a href="{% url 'supplier-details' supplier.id %}" class="btn btn-info btn-sm">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editSupplierModal{{ supplier.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSupplierModal{{ supplier.id }}">
+                <i class="bi bi-trash"></i>
+              </a></td>
               
             </tr>
             {% include "suppliers/edit_supplier.html" %}

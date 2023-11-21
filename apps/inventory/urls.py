@@ -4,8 +4,8 @@ from apps.inventory.views import (delete_inventory_item, delete_menu_item,
                                   delete_supplier, edit_menu_item,
                                   edit_supplier, inventory, menus,
                                   new_menu_item, new_stock_item, new_supplier,
-                                  re_stock, stock_logs, suppliers,
-                                  take_out_stock)
+                                  re_stock, stock_logs, supplier_details,
+                                  suppliers, take_out_stock)
 
 urlpatterns = [
     path("", inventory, name="inventory"),
@@ -16,6 +16,7 @@ urlpatterns = [
     path("take-out/", take_out_stock, name="take-out"),
 
     path("suppliers/", suppliers, name="suppliers"),
+    path("suppliers/<int:supplier_id>/", supplier_details, name="supplier-details"),
     path("new-supplier/", new_supplier, name="new-supplier"),
     path("edit-supplier/", edit_supplier, name="edit-supplier"),
     path("delete-supplier/", delete_supplier, name="delete-supplier"),

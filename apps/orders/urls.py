@@ -4,6 +4,7 @@ from apps.orders.views import (add_to_cart, clear_order_items, confirm_order,
                                confirm_overpaid_order,
                                decrease_order_item_quantity, delete_order,
                                edit_order, edit_order_item,
+                               generate_receipt_pdf,
                                increase_order_item_quantity, orders, pos,
                                pos_home, print_order_receipt,
                                recharge_student_wallet_at_order,
@@ -13,6 +14,7 @@ urlpatterns = [
     path("", orders, name="orders"),
     path("edit-order/", edit_order, name="edit-order"),
     path("delete-order/", delete_order, name="delete-order"),
+    path("test-receipt/<int:order_id>/", generate_receipt_pdf, name="test-receipt"),
 
     path("recharge-wallet-at-order/", recharge_student_wallet_at_order, name="recharge-wallet-order"),
 

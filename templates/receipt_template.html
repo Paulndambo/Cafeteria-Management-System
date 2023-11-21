@@ -1,0 +1,77 @@
+<!-- pos_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Include Bootstrap CSS and other necessary scripts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Add other stylesheets and scripts as needed -->
+    <title>Your POS</title>
+</head>
+<body>
+
+<!-- Your POS content goes here -->
+
+<!-- Button to manually trigger the receipt generation -->
+<button id="generateReceipt" class="btn btn-primary">Generate Receipt</button>
+
+<!-- The Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receiptModalLabel">Receipt</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Content of the receipt goes here -->
+                <iframe id="receiptIframe" style="width: 100%; height: 400px;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <!-- Button to trigger the print functionality -->
+                <button id="printReceipt" class="btn btn-secondary">Print Receipt</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<script>
+    // Use jQuery to add a click event listener to the "Generate Receipt" button
+    $(document).ready(function () {
+        $('#generateReceipt').click(function () {
+            // Make an AJAX request to fetch the PDF
+            fetch('/generate_receipt_pdf/{{ order.id }}/')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+
+                    // Set the PDF source in the iframe
+                    document.getElementById('receiptIframe').src = url;
+
+                    // Open the modal
+                    $('#receiptModal').modal('show');
+
+                    // Clean up
+                    window.URL.revokeObjectURL(url);
+                });
+        });
+
+        // Use jQuery to add a click event listener to the "Print Receipt" button in the modal
+        $('#printReceipt').click(function () {
+            // Trigger the print dialog
+            window.print();
+
+            // Redirect to the home page after printing
+            window.location.href = "{% url 'pos-home' %}";
+        });
+    });
+</script>
+
+</body>
+</html>

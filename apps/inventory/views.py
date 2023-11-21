@@ -6,7 +6,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
-from apps.inventory.models import Inventory, Menu, StockLog, Supplier
+from apps.inventory.models import (Inventory, Menu, StockLog, Supplier,
+                                   SupplyLog)
 
 
 # Create your views here.
@@ -26,6 +27,7 @@ def menus(request):
 def new_menu_item(request):
     if request.method == "POST":
         item = request.POST.get("item")
+        starting_stock = float(request.POST.get("starting_stock"))
         price = request.POST.get("price")
         quantity = request.POST.get("quantity")
         image = request.FILES["image"]
@@ -34,7 +36,8 @@ def new_menu_item(request):
             item=item,
             price=price,
             quantity=quantity,
-            image=image
+            image=image,
+            starting_stock=starting_stock
         )
 
         return redirect("menus")
@@ -46,6 +49,7 @@ def edit_menu_item(request):
         menu_id = request.POST.get("menu_id")
         item = request.POST.get("item")
         price = request.POST.get("price")
+        starting_stock = float(request.POST.get("starting_stock"))
         quantity = request.POST.get("quantity")
         available = True if request.POST.get("available") == "true" else False
 
@@ -54,6 +58,7 @@ def edit_menu_item(request):
         menu_item.price = price
         menu_item.quantity = quantity
         menu_item.available = available
+        menu_item.starting_stock =starting_stock
         menu_item.save()
 
         return redirect("menus")
@@ -89,6 +94,21 @@ def suppliers(request):
     }
     return render(request, "suppliers/suppliers.html", context)
 
+
+def supplier_details(request, supplier_id=None):
+    supplier = Supplier.objects.get(id=supplier_id)
+    supplies = supplier.mysupplies.all()
+
+    paginator = Paginator(supplies, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "supplier": supplier,
+        "supplies": supplies,
+        "page_obj": page_obj
+    }
+    return render(request, "suppliers/supplier_details.html", context)
 
 @login_required(login_url="/users/login/")
 def delete_supplier(request):
@@ -184,21 +204,39 @@ def delete_inventory_item(request, id=None):
 def new_stock_item(request):
     if request.method == "POST":
         name = request.POST.get("name")
+        payment_method = request.POST.get("payment_method")
         unit = request.POST.get("unit")
         unit_price = Decimal(request.POST.get("unit_price"))
-        selling_price = Decimal(request.POST.get("selling_price"))
+        #selling_price = Decimal(request.POST.get("selling_price"))
         stock = Decimal(request.POST.get("stock"))
         supplier_id = int(request.POST.get("supplier_id"))
 
         supplier = Supplier.objects.get(id=supplier_id)
+        supply_cost = unit_price * Decimal(stock)
+        if payment_method == "Credit":
+            supplier.amount_owed += supply_cost
+        elif payment_method in ["Mpesa", "Cash"]:
+            supplier.total_paid += supply_cost,
+        supplier.total_supplies_cost += supply_cost
+        supplier.save()
 
         inventory = Inventory.objects.create(
             supplier=supplier,
             name=name,
             unit_price=unit_price,
-            selling_price=selling_price,
             unit=unit,
-            stock=stock
+            stock=stock,
+            payment_method=payment_method,
+        )
+
+        supply_log = SupplyLog.objects.create(
+            supplier=supplier,
+            item=name,
+            quantity_supplied=stock,
+            unit_price=unit_price,
+            payment_method=payment_method,
+            total_cost = supply_cost,
+            supply_unit=unit
         )
 
         log = StockLog.objects.create(inventory=inventory, quantity=stock)
@@ -215,10 +253,35 @@ def re_stock(request):
 
         amount = Decimal(request.POST.get("quantity"))
         product = int(request.POST.get("product"))
+        payment_method = request.POST.get("payment_method")
 
         inventory = Inventory.objects.get(id=product)
+        total_cost = inventory.unit_price * amount
         inventory.stock += amount
+
+        if payment_method == "Credit":
+            inventory.supplier.amount_owed += total_cost
+            inventory.supplier.total_paid += 0
+            inventory.supplier.total_supplies_cost += total_cost
+            inventory.supplier.save()
+
+        elif payment_method in ["Mpesa", "Cash"]:
+            inventory.supplier.total_paid += total_cost
+            inventory.supplier.amount_owed += 0
+            inventory.supplier.total_supplies_cost += total_cost
+            inventory.supplier.save()
+
         inventory.save()
+
+        supply_log = SupplyLog.objects.create(
+            supplier=inventory.supplier,
+            item=inventory.name,
+            quantity_supplied=amount,
+            unit_price=inventory.unit_price,
+            payment_method=payment_method,
+            total_cost = total_cost,
+            supply_unit=inventory.unit
+        )
 
         log = StockLog.objects.create(
             inventory=inventory,

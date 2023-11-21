@@ -29,16 +29,15 @@
 
 <hr/>
       <div class="table-responsive small">
-        <table class="table table-striped table-sm">
+        <table class="table table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
               <th scope="col">Supplier</th>
               <th scope="col">Name</th>
-              <th scope="col">Unit</th>
+              <th scope="col">Quantity</th>
               <th scope="col">Buying Price</th>
-              <th scope="col">Selling Price</th>
-              <th scope="col">Stock</th>
+              <th scope="col">Payment Method</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
           </thead>
@@ -48,15 +47,15 @@
               <td>{{stock.id}}</td>
               <td>{{stock.supplier}}</td>
               <td>{{stock.name}}</td>
-              <td>{{stock.unit}}</td>
+              <td>{{stock.stock}} {{stock.unit}}</td>
               <td>{{stock.unit_price}}</td>
-              <td>{{stock.selling_price}}</td>
-              <td>{{stock.stock}}</td>
-              
+              <td>{{stock.payment_method}}</td>
               {% if request.user.role == "admin" %}
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#reStockModal{{ stock.id }}">Re-Stock</a></td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
-              <td><a href="{% url 'delete-inventory' stock.id %}" class="btn btn-danger btn-sm">Delete</a></td>
+              <td><a href="{% url 'delete-inventory' stock.id %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i>
+              </a></td>
               {% elif request.user.role == "cashier" %}
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#takeOutStockModal{{ stock.id }}">Take Out Stock</a></td>
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#reStockModal{{ stock.id }}">Re-Stock</a></td>
