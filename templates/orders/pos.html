@@ -268,7 +268,7 @@ const recordSelection = async() => {
       "registration_number": selectedValue
     });
 
-    let response = await fetch("http://127.0.0.1:8000/orders/create-session/", { 
+    let response = await fetch("/orders/create-session/", { 
       method: "POST",
       body: bodyContent,
       headers: headersList
