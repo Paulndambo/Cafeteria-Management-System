@@ -244,7 +244,6 @@ def new_stock_item(request):
             supplier.total_paid += supply_cost
         supplier.total_supplies_cost += supply_cost
 
-
         supplier.save()
 
         inventory = Inventory.objects.create(
@@ -256,16 +255,30 @@ def new_stock_item(request):
             payment_method=payment_method,
         )
 
-        supply_log = SupplyLog.objects.create(
-            supplier=supplier,
-            item=name,
-            quantity_supplied=stock,
-            unit_price=unit_price,
-            payment_method=payment_method,
-            total_cost = supply_cost,
-            supply_unit=unit,
-            amount_due=supply_cost
-        )
+        if payment_method == "Credit":
+            supply_log = SupplyLog.objects.create(
+                supplier=supplier,
+                item=name,
+                quantity_supplied=stock,
+                unit_price=unit_price,
+                payment_method=payment_method,
+                total_cost = supply_cost,
+                supply_unit=unit,
+                amount_due=supply_cost,
+                amount_paid=0
+            )
+        elif payment_method in ["Cash", "Mpesa"]:
+            supply_log = SupplyLog.objects.create(
+                supplier=supplier,
+                item=name,
+                quantity_supplied=stock,
+                unit_price=unit_price,
+                payment_method=payment_method,
+                total_cost = supply_cost,
+                supply_unit=unit,
+                amount_due=0,
+                amount_paid=supply_cost
+            )
 
         log = StockLog.objects.create(inventory=inventory, quantity=stock)
 

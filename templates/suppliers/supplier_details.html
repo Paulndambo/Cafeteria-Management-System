@@ -55,9 +55,11 @@
               <td>{{supply.amount_paid}}</td>
               <td>{{supply.amount_due}}</td>
               <td>{{supply.payment_method}}</td>
+              {% if supply.payment_method == "Credit" and supply.amount_due >= 1 %}
               <td><a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#paySupplierModal{{ supply.id }}">
                 Make Payment
               </a></td>
+              {% endif %}
             </tr>
             {% include "suppliers/pay_supplier.html" %}
             {% endfor %}
