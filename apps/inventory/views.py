@@ -314,7 +314,21 @@ def re_stock(request):
 
         inventory.save()
 
-        supply_log = SupplyLog.objects.create(
+        
+        if payment_method == "Credit":
+            supply_log = SupplyLog.objects.create(
+                supplier=inventory.supplier,
+                item=inventory.name,
+                quantity_supplied=amount,
+                unit_price=inventory.unit_price,
+                payment_method=payment_method,
+                total_cost = total_cost,
+                supply_unit=inventory.unit,
+                amount_due=total_cost,
+                amount_paid=0
+            )
+        elif payment_method in ["Mpesa", "Cash"]:
+            supply_log = SupplyLog.objects.create(
             supplier=inventory.supplier,
             item=inventory.name,
             quantity_supplied=amount,
@@ -322,7 +336,8 @@ def re_stock(request):
             payment_method=payment_method,
             total_cost = total_cost,
             supply_unit=inventory.unit,
-            amount_due=amount
+            amount_due=0,
+            amount_paid=total_cost
         )
 
         log = StockLog.objects.create(
