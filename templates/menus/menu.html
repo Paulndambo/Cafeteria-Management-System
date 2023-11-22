@@ -8,6 +8,23 @@
     <div class="col">
         <a class="btn btn-success" data-bs-toggle="modal" id="newMenuButton" data-bs-target="#newMenuItemModal">New Menu Item</a>
     </div>
+    <div class="col">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+          <div class="row">
+            <div class="col-8">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Type Name ..." >
+            </div>
+            <div class="col-4">
+              <button class="btn btn-success">Search</button>
+            </div>
+          </div>
+          
+        </div>
+        
+      </form>
+    </div>
 </div>
 
 <hr/>
@@ -37,15 +54,15 @@
               <td>{{menu.starting_stock}}</td>
               <td>{{menu.quantity}}</td>
               <td>{{menu.price}}</td>
-              {% if menu.updated_today == date_today %}
+              
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemAmountModal{{ menu.id }}">
                 <i class="bi bi-plus-lg"></i>
               </a></td>
-              {% else %}
+            
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
-              {% endif %}
+              
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMenuItemModal{{ menu.id }}">
                 <i class="bi bi-trash"></i>
               </a></td>

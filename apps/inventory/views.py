@@ -15,6 +15,12 @@ date_today = datetime.now().date()
 # Create your views here.
 def menus(request):
     menus = Menu.objects.all()
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+
+        menus = Menu.objects.filter(Q(item__icontains=name))
+
     paginator = Paginator(menus, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -51,7 +57,7 @@ def edit_menu_item(request):
         menu_id = int(request.POST.get("menu_id"))
         item = request.POST.get("item")
         price = Decimal(request.POST.get("price"))
-        image = request.FILES["image"]
+        image = request.FILES.get("image")
     
         quantity = float(request.POST.get("quantity"))
         
@@ -61,7 +67,7 @@ def edit_menu_item(request):
         menu_item.price = price
         menu_item.quantity = quantity
         menu_item.starting_stock = quantity
-        menu_item.image = image
+        menu_item.image = image if image else menu_item.image
         menu_item.updated_today = date_today
         menu_item.save()
 
