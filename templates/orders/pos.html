@@ -7,13 +7,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORDER</title>
+    <link href="{%  static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/dist/css/select2.min.css' %}" rel="stylesheet">
+    
+    <link href="{% static 'assets/dist/css/bootstrap-icons.css' %}" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
     <link href="{%  static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
-     <!-- Custom styles for this template -->
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
-     <!-- Custom styles for this template -->
+     
+     
+     <link href="{% static 'selectcss/bootstrap-icons.css' %}" rel="stylesheet">
+    
      <link href="{% static 'dashboard.css' %}" rel="stylesheet">
+     <link href="{% static 'selectcss/select2.min.css' %}" rel="stylesheet">
+    
+     
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+     
 </head>
 <body>
   <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
@@ -42,7 +53,7 @@
     
   </header>
 <div class="container-fluid">
-
+{% if quotas_generated %}
 <div class="row mt-3">
     <div class="col-5">
       <form method="post" action="{% url 'place-order' %}">
@@ -62,7 +73,6 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Student</th>
                   <th scope="col">Item</th>
                   <th scope="col"></th>
                   <th scope="col">Quantity</th>
@@ -74,7 +84,6 @@
                 {% for order_item in items %}
                 <tr>
                   <td>{{order_item.id}}</td>
-                  <td>{{order_item.student.id}}</td>
                   <td>{{order_item.menu_item}}</td>
                   <td>
                     <a href="{% url 'decrease-order-item-quantity' order_item.id selected_student.id %}" class="btn btn-secondary btn-sm">
@@ -229,17 +238,28 @@
         
     </div>
 </div>
+{% else %}
+<div class="text-center mt-3">
+  <a href="{% url 'generate-daily-quotas' %}" class="btn btn-info">Generate Quotas for Boarding Students</a>
 </div>
+
+{% endif %}
+</div>
+<script src="{% static 'selectcss/jquery-3.3.1.slim.min.js' %}"></script>
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'selectcss/select2.min.js' %}"></script>
+<script src="{% static 'selectcss/bootstrap.min.js' %}"></script>
+<script src="{% static 'selectcss/jquery-3.3.1.slim.min.js' %}" ></script>
+<script src="{% static 'selectcss/select2.min.js' %}"></script>
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'selectcss/chart.umd.min.js' %}"></script>
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-    <!-- Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" integrity="sha384-gdQErvCNWvHQZj6XZM0dNsAoY4v+j5P1XDpNkcM3HJG1Yx04ecqIHk7+4VBOCHOG" crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" integrity="sha384-gdQErvCNWvHQZj6XZM0dNsAoY4v+j5P1XDpNkcM3HJG1Yx04ecqIHk7+4VBOCHOG" crossorigin="anonymous"></script><script src="dashboard.js"></script>
 <script>
 // Initialize Select2
 function getCSRFToken() {

@@ -131,6 +131,16 @@ def pos(request):
     menus = Menu.objects.none()  # filter(added_to_cart=False)
     selected_student = request.session.get('selected_student')
 
+    quotas_generated = True
+
+    boarding_student_wallets = StudentWallet.objects.filter(
+        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+
+    print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
+
+    if boarding_student_wallets.count() >= 1:
+        quotas_generated = False
+
     student = Student.objects.get(user__first_name='Walk-In')
     if not selected_student:
         request.session['selected_student'] = {
@@ -147,7 +157,8 @@ def pos(request):
         "selected_student": selected_student,
         "student": None,
         "menus": menus,
-        "students": students
+        "students": students,
+        "quotas_generated": quotas_generated
     }
 
     if selected_student:
@@ -184,7 +195,8 @@ def pos(request):
             "order_value": order_value,
             "extra_amount": extra_amount,
             "students": students,
-            "selected_student": selected_student
+            "selected_student": selected_student,
+            "quotas_generated": quotas_generated
         }
     return render(request, "orders/pos.html", context)
 
@@ -651,6 +663,13 @@ def void_customer_order(request):
 
         order = Order.objects.get(id=order_id)
         order.status = "Nullified"
+
+        order_items = order.orderitems.all()
+
+        for order_item in order_items:
+            menu = Menu.objects.get(id=order_item.item.id)
+            menu.quantity += order_item.quantity
+            menu.save()
 
         sales_reports = SalesReport.objects.filter(order=order)
 

@@ -16,18 +16,20 @@
           <thead>
             <tr>
               <th scope="col">#</th>
+              <th scope="col">Last Update</th>
               <th scope="col"></th>
               <th scope="col">Item</th>
               <th scope="col">Starting Stock</th>
               <th scope="col">Ending Stock</th>
               <th scope="col">Price</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for menu in page_obj %}
             <tr>
               <td>{{menu.id}}</td>
+              <td>{{menu.updated_today}}</td>
               <td>
                 <img src="{{menu.image.url}}" height="35" />
               </td>
@@ -35,9 +37,15 @@
               <td>{{menu.starting_stock}}</td>
               <td>{{menu.quantity}}</td>
               <td>{{menu.price}}</td>
+              {% if menu.updated_today == date_today %}
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemAmountModal{{ menu.id }}">
+                <i class="bi bi-plus-lg"></i>
+              </a></td>
+              {% else %}
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
+              {% endif %}
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMenuItemModal{{ menu.id }}">
                 <i class="bi bi-trash"></i>
               </a></td>
@@ -45,6 +53,8 @@
             
             {% include "menus/delete_menu.html" %}
             {% include "menus/edit_menu.html" %}
+            {% include "menus/edit_menu_item.html" %}
+
             {% endfor %}
 
           </tbody>

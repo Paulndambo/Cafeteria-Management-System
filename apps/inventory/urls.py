@@ -2,10 +2,11 @@ from django.urls import path
 
 from apps.inventory.views import (delete_inventory_item, delete_menu_item,
                                   delete_supplier, edit_menu_item,
-                                  edit_supplier, inventory, menus,
-                                  new_menu_item, new_stock_item, new_supplier,
-                                  pay_supplier, re_stock, stock_logs,
-                                  supplier_details, suppliers, take_out_stock)
+                                  edit_menu_item_amount, edit_supplier,
+                                  inventory, menus, new_menu_item,
+                                  new_stock_item, new_supplier, pay_supplier,
+                                  re_stock, stock_logs, supplier_details,
+                                  suppliers, take_out_stock)
 
 urlpatterns = [
     path("", inventory, name="inventory"),
@@ -26,4 +27,5 @@ urlpatterns = [
     path("new-menu-item/", new_menu_item, name="new-menu-item"),
     path("edit-menu-item/", edit_menu_item, name="edit-menu-item"),
     path("delete-menu-item/", delete_menu_item, name="delete-menu-item"),
+    path("edit-menu-item-amount/", edit_menu_item_amount, name="edit-menu-item-amount"),
 ]

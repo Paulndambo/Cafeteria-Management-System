@@ -8,18 +8,27 @@
             <form action="/inventory/edit-menu-item/" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                <div class="mb-2">
-
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Image</label>
                     <input
-                        type="number"
-                        class="form-control"
-                        id="menu_id"
-                        name="menu_id"
-                        value="{{menu.id}}"
-                        required
-                        hidden
+                      type="file"
+                      class="form-control"
+                      id="image"
+                      name="image"
+                      required
                     />
-                    </div>
+                  </div>
+                <div class="mb-2">
+                  <input
+                      type="number"
+                      class="form-control"
+                      id="menu_id"
+                      name="menu_id"
+                      value="{{menu.id}}"
+                      required
+                      hidden
+                  />
+                  </div>
                 <div class="mb-2">
                   <label for="exampleInputPassword1" class="form-label">Item Name</label>
                   <input
@@ -32,30 +41,18 @@
                   />
                 </div>
                 <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">Starting Stock</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="starting_stock"
-                    name="starting_stock"
-                    min="1"
-                    value="{{menu.starting_stock}}"
-                    required
-                  />
-                </div>
-                <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">Ending Stock</label>
+                  <label for="exampleInputPassword1" class="form-label">Quantity</label>
                   <input
                     type="number"
                     class="form-control"
                     id="quantity"
                     name="quantity"
+                    min="1"
                     value="{{menu.quantity}}"
-                    readonly
                     required
                   />
                 </div>
-             
+                
                   <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Price</label>
                     <input

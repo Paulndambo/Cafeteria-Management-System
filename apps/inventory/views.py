@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.contrib import messages
@@ -10,7 +11,7 @@ from apps.core.models import Expense
 from apps.inventory.models import (Inventory, Menu, StockLog, Supplier,
                                    SupplyLog)
 
-
+date_today = datetime.now().date()
 # Create your views here.
 def menus(request):
     menus = Menu.objects.all()
@@ -21,6 +22,7 @@ def menus(request):
     context = {
         "menus": menus,
         "page_obj": page_obj,
+        "date_today": date_today
     }
     return render(request, "menus/menu.html", context)
 
@@ -28,7 +30,6 @@ def menus(request):
 def new_menu_item(request):
     if request.method == "POST":
         item = request.POST.get("item")
-        starting_stock = float(request.POST.get("starting_stock"))
         price = request.POST.get("price")
         quantity = request.POST.get("quantity")
         image = request.FILES["image"]
@@ -38,7 +39,7 @@ def new_menu_item(request):
             price=price,
             quantity=quantity,
             image=image,
-            starting_stock=starting_stock
+            starting_stock=quantity
         )
 
         return redirect("menus")
@@ -47,24 +48,40 @@ def new_menu_item(request):
 
 def edit_menu_item(request):
     if request.method == "POST":
-        menu_id = request.POST.get("menu_id")
+        menu_id = int(request.POST.get("menu_id"))
         item = request.POST.get("item")
-        price = request.POST.get("price")
-        starting_stock = float(request.POST.get("starting_stock"))
-        quantity = request.POST.get("quantity")
-        available = True if request.POST.get("available") == "true" else False
+        price = Decimal(request.POST.get("price"))
+        image = request.FILES["image"]
+    
+        quantity = float(request.POST.get("quantity"))
+        
 
         menu_item = Menu.objects.get(id=menu_id)
         menu_item.item = item
         menu_item.price = price
         menu_item.quantity = quantity
-        menu_item.available = available
-        menu_item.starting_stock =starting_stock
+        menu_item.starting_stock = quantity
+        menu_item.image = image
+        menu_item.updated_today = date_today
         menu_item.save()
 
         return redirect("menus")
 
     return render(request, "menus/edit_menu.html")
+
+def edit_menu_item_amount(request):
+    if request.method == "POST":
+        menu_id = int(request.POST.get("menu_id"))
+        quantity = float(request.POST.get("quantity"))
+        
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.quantity += quantity
+        menu_item.starting_stock += quantity
+        menu_item.save()
+
+        return redirect("menus")
+
+    return render(request, "menus/edit_menu_item.html")
 
 
 def delete_menu_item(request):
