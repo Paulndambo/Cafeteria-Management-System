@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
-from weasyprint import HTML
 
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
@@ -21,23 +20,6 @@ from .utils import determin_meal_time
 
 date_today = datetime.now().date()
 # Create your views here.
-
-
-def generate_receipt_pdf(request, order_id=None):
-    # Fetch order data and generate receipt data
-
-    order = Order.objects.get(id=order_id)
-    order_items = order.orderitems.all()
-
-    template = get_template('orders/receipt.html')
-    html_content = template.render({'order': order, 'order_items': order_items})
-
-    pdf_file = HTML(string=html_content).write_pdf()
-
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'filename=receipt_{order_id}.pdf'
-
-    return response
 
 
 @login_required(login_url="/users/login/")
