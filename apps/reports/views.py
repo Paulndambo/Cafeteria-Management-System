@@ -29,7 +29,7 @@ def today_sales_report(request):
         .order_by('payment_method')
     )
 
-    sales_total = sum(list(SalesReport.objects.filter(
+    sales_total = sum(list(GeneralisedReportData.objects.filter(
         created__date=date_today, sold_or_spoiled="Sold").values_list('amount', flat=True)))
 
     if request.method == "POST":
@@ -37,16 +37,16 @@ def today_sales_report(request):
         print(f"Action Type: {action_type}")
         
         if action_type == "item_sales":   
-
+            
             response = HttpResponse(content_type='text/csv')
             file_name =  f'attachment; filename="Checkin Report - {date_today}.csv"'    
             response['Content-Disposition'] = file_name
             writer = csv.writer(response)
-            writer.writerow(["ID", "Sale Date" "Item Sold", "Unit Price", "Quantity", "Sales Total"]) 
-            checkins = daily_item_sales.values_list('id', 'created__date', 'item', 'unit_price', 'quantity', 'amount')       
+            writer.writerow(["ID", "Sale Date", "Item Sold", "Unit Price", "Quantity", "Sales Total"]) 
+            daily_item_sales_values = daily_item_sales.values_list('id', 'created__date', 'item', 'unit_price', 'quantity', 'amount')       
 
-            for checkin in checkins:
-                writer.writerow(checkin)
+            for daily_item_sale in daily_item_sales_values:
+                writer.writerow(daily_item_sale)
             writer.writerow(["", "", "", "", "", ""])
             writer.writerow(["Total Sales", "", "", "", "", sales_total])
             return response
