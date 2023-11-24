@@ -16,7 +16,7 @@ SOLD_OR_SPOILED_CHOICES = (
 )
 
 class DailySalesReport(AbstractBaseModel):
-    order = order = models.ForeignKey("orders.Order", on_delete=models.SET_NULL, null=True)
+    order = order = models.ForeignKey("orders.Order", on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=255, choices=PAYMENT_METHODS)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
 
@@ -25,7 +25,7 @@ class DailySalesReport(AbstractBaseModel):
 
 
 class SalesReport(AbstractBaseModel):
-    order = models.ForeignKey("orders.Order", on_delete=models.SET_NULL, null=True)
+    order = models.ForeignKey("orders.Order", on_delete=models.CASCADE)
     item = models.CharField(max_length=255, null=True)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)

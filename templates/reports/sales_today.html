@@ -49,6 +49,7 @@
           <thead>
             <tr>
               <th scope="col">ID</th>
+              <th scope="col">Date</th>
               <th scope="col">Item</th>
               <th scope="col">Quantity</th>
               <th scope="col">Total Amount</th>
@@ -60,6 +61,7 @@
             {% for sale_today in page_obj %}
             <tr>
               <td>{{sale_today.id}}</td>
+              <td>{{sale_today.created}}</td>
               <td>{{sale_today.item}}</td>
               <td>{{sale_today.quantity}}</td>
               <td>{{sale_today.amount}}</td>

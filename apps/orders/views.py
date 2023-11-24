@@ -13,9 +13,11 @@ from django.urls import reverse, reverse_lazy
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
                                 TemporaryOrderItem)
-from apps.reports.models import SalesReport, DailySalesReport, GeneralisedReportData
-from apps.students.models import Student, StudentWallet, WalletRechargeLog
 from apps.reports.mixins import DailyReportMixin
+from apps.reports.models import (DailySalesReport, GeneralisedReportData,
+                                 SalesReport)
+from apps.students.models import Student, StudentWallet, WalletRechargeLog
+
 from .utils import determin_meal_time
 
 date_today = datetime.now().date()
@@ -199,7 +201,8 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         status="Processed",
         total_cost=order_value,
         meal_time=meal_time,
-        served_by=user
+        served_by=user,
+        payment_method="Wallet"
     )
 
     items = TemporaryOrderItem.objects.all()
@@ -220,37 +223,22 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         menu_item.quantity -= order_item.quantity
         menu_item.save()
 
-        report_item = SalesReport.objects.create(
-            order=order,
-            item=order_item.item.item,
+     
+        SalesReport.objects.create(
+            order=order_item.order,
+            item=menu_item.item,
             amount=menu_item.price * Decimal(order_item.quantity),
             sold_or_spoiled="Sold",
             quantity=order_item.quantity,
             unit_price=menu_item.price
         )
 
-        general_report_item = GeneralisedReportData.objects.filter(created__date=date_today, item=order_item.item.item).first()
-
-        if general_report_item:
-            general_report_item.quantity += order_item.quantity
-            general_report_item.amount += menu_item.price * Decimal(order_item.quantity)
-            general_report_item.save()
-        else:
-            GeneralisedReportData.objects.create(
-                item=order_item.item.item,
-                amount=menu_item.price * Decimal(order_item.quantity),
-                quantity=order_item.quantity,
-                unit_price=menu_item.price,
-                sold_or_spoiled="Sold"
-            )
-
-        DailySalesReport.objects.create(
-            order=order,
-            payment_method="Wallet",
-            amount=order_value
-        )
-
-
+    DailySalesReport.objects.create(
+        order=order,
+        payment_method="Wallet",
+        amount=order.total_cost
+    )
+    
     student.studentwallet.balance -= order_value
     student.studentwallet.total_spend_today += order_value
     student.studentwallet.save()
@@ -267,7 +255,6 @@ def confirm_order(request, student_id=None, *args, **kwargs):
 @transaction.atomic
 def confirm_overpaid_order(request):
     user = request.user
-
     if request.method == "POST":
         recharge_method = request.POST.get("recharge_method")
         amount = Decimal(request.POST.get("amount"))
@@ -296,7 +283,8 @@ def confirm_overpaid_order(request):
             status="Processed",
             total_cost=order_value,
             meal_time=meal_time,
-            served_by=user
+            served_by=user, 
+            payment_method="Wallet And Cash" if recharge_method == "Cash" else "Wallet And Mpesa"
         )
 
         items = TemporaryOrderItem.objects.all()
@@ -316,9 +304,9 @@ def confirm_overpaid_order(request):
             menu_item = Menu.objects.get(id=order_item.item.id)
             menu_item.quantity -= order_item.quantity
             menu_item.save()
-
+            
             SalesReport.objects.create(
-                order=order,
+                order=order_item.order,
                 item=menu_item.item,
                 amount=menu_item.price * Decimal(order_item.quantity),
                 sold_or_spoiled="Sold",
@@ -326,33 +314,18 @@ def confirm_overpaid_order(request):
                 unit_price=menu_item.price
             )
 
-            general_report_item = GeneralisedReportData.objects.filter(created__date=date_today, item=order_item.item.item).first()
-
-            if general_report_item:
-                general_report_item.quantity += order_item.quantity
-                general_report_item.amount += menu_item.price * Decimal(order_item.quantity)
-                general_report_item.save()
-            else:
-                GeneralisedReportData.objects.create(
-                    item=order_item.item.item,
-                    amount=menu_item.price * Decimal(order_item.quantity),
-                    quantity=order_item.quantity,
-                    unit_price=menu_item.price,
-                    sold_or_spoiled="Sold"
-                )
-
+        mixin = DailyReportMixin(
+            order=order,
+            recharge_method=recharge_method,
+            order_value=order_value,
+            amount=amount
+        )
+        mixin.run()
 
         student.studentwallet.balance -= order_value
         student.studentwallet.total_spend_today += order_value
         student.studentwallet.save()
 
-        daily_report = DailyReportMixin(
-            order=order, 
-            recharge_method=recharge_method, 
-            order_value=order_value, 
-            amount=amount
-        )
-        daily_report.run()
         
         Menu.objects.update(added_to_cart=False)
         TemporaryOrderItem.objects.all().delete()
@@ -451,203 +424,6 @@ def clear_order_items(request, student_id=None):
         print(items)
     return redirect(f"/orders/place-order/")
 
-########################## Walk In Customer Logic ######################
-
-"""
-@login_required(login_url="/users/login/")
-def clear_shopping_cart(request):
-    items = TemporaryCustomerOrderItem.objects.all().delete()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def add_cart_items(request, item_id=None):
-    menu_item = Menu.objects.get(id=item_id)
-
-    item = TemporaryCustomerOrderItem.objects.create(
-        menu_item=menu_item,
-        quantity=1,
-        price=menu_item.price
-    )
-
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def delete_cart_item(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-    item.delete()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def customer_order(request):
-    students = Student.objects.all()
-    cart_items = TemporaryCustomerOrderItem.objects.all()
-
-    selected_student = request.session.get('selected_student')
-
-    print("This view was reached!!")
-    print(f"Request Method: {request.method}")
-
-    if request.method == 'POST':
-        reg_number = request.POST.get('reg_number')
-        print(f"Student Reg. Number: {reg_number}")
-
-        try:
-            student = Student.objects.get(registration_number=reg_number)
-            request.session['selected_student'] = {
-                'id': student.id,
-                'name': f'{student.user.first_name} {student.user.last_name}',
-                'registration_number': student.registration_number,
-                'wallet_balance': str(student.wallet_balance),
-            }
-            selected_student = request.session.get('selected_student')
-            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
-            return redirect('customer-order')
-        except Student.DoesNotExist:
-            # Handle the case when the student is not found
-            pass
-
-    items_added = False
-    if cart_items.count() >= 1:
-        items_added = True
-
-    menus = Menu.objects.exclude(
-        id__in=TemporaryCustomerOrderItem.objects.values_list(
-            "menu_item_id", flat=True)
-    )
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    paginator = Paginator(menus, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "menus": menus,
-        "page_obj": page_obj,
-        "cart_items": cart_items,
-        "order_value": order_value,
-        "items_added": items_added,
-        "students": students,
-        "selected_student": selected_student
-    }
-    return render(request, "orders/customer_order.html", context)
-
-
-@login_required(login_url="/users/login/")
-@transaction.atomic
-def place_customer_mpesa_order(request):
-    user = request.user
-    meal_time = determin_meal_time()
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    order = Order.objects.create(
-        status="Processed",
-        total_cost=order_value,
-        meal_time=meal_time,
-        served_by=user
-    )
-
-    items = TemporaryCustomerOrderItem.objects.all()
-
-    order_items_list = []
-    for order_item in items:
-        order_items_list.append(OrderItem(
-            order=order,
-            item=order_item.menu_item,
-            quantity=order_item.quantity,
-            price=order_item.price
-        ))
-
-    order_items = OrderItem.objects.bulk_create(order_items_list)
-
-    for order_item in order_items:
-        menu_item = Menu.objects.get(id=order_item.item.id)
-        menu_item.quantity -= order_item.quantity
-        menu_item.save()
-
-    sales_report_log = SalesReport.objects.create(
-        order=order,
-        payment_method="Mpesa",
-        amount=order_value
-    )
-
-    TemporaryCustomerOrderItem.objects.all().delete()
-    request.session.flush()
-    return redirect(f"/orders/print-order/{order.id}/")
-
-
-@login_required(login_url="/users/login/")
-@transaction.atomic
-def place_customer_cash_order(request):
-    user = request.user
-    meal_time = determin_meal_time()
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    order = Order.objects.create(
-        status="Processed",
-        total_cost=order_value,
-        meal_time=meal_time,
-        served_by=user
-    )
-
-    items = TemporaryCustomerOrderItem.objects.all()
-
-    order_items_list = []
-    for order_item in items:
-        order_items_list.append(OrderItem(
-            order=order,
-            item=order_item.menu_item,
-            quantity=order_item.quantity,
-            price=order_item.price
-        ))
-
-    order_items = OrderItem.objects.bulk_create(order_items_list)
-
-    for order_item in order_items:
-        menu_item = Menu.objects.get(id=order_item.item.id)
-        menu_item.quantity -= order_item.quantity
-        menu_item.save()
-    
-    sales_report_log = SalesReport.objects.create(
-        order=order,
-        payment_method="Cash",
-        amount=order_value
-    )
-
-    TemporaryCustomerOrderItem.objects.all().delete()
-
-    return redirect(f"/orders/print-order/{order.id}/")
-
-@login_required(login_url="/users/login/")
-def increase_item_quantity(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-    item.quantity += 1
-    item.price += item.menu_item.price
-    item.save()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def decrease_item_quantity(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-
-    if item.quantity == 0:
-        item.quantity = 0
-    else:
-        item.quantity -= 1
-        item.price -= item.menu_item.price
-        item.save()
-    return redirect("customer-order")
-"""
-
 
 @login_required(login_url="/users/login/")
 def recharge_student_wallet_at_order(request):
@@ -676,12 +452,14 @@ def recharge_student_wallet_at_order(request):
     return render(request, "modals/request_recharge.html")
 
 
+@transaction.atomic
 def void_customer_order(request):
     if request.method == "POST":
         order_id = int(request.POST.get("order_id"))
 
         order = Order.objects.get(id=order_id)
         order.status = "Nullified"
+        order.total_cost = 0
 
         order_items = order.orderitems.all()
 
@@ -690,30 +468,29 @@ def void_customer_order(request):
             menu.quantity += order_item.quantity
             menu.save()
 
-        sales_report = SalesReport.objects.filter(order=order)
-        for x in sales_report:
-            x.quantity = 0
-            x.amount = 0
-            x.unit_price = 0
-            x.save()
-
+        
         daily_sales_reports = DailySalesReport.objects.filter(order=order)
-
+        
         for sale_report in daily_sales_reports:
             if sale_report.payment_method in ["Mpesa", "Cash"]:
                 sale_report.amount = 0
                 sale_report.save()
 
             elif sale_report.payment_method == "Wallet":
-                sale_report_amount = sale_report.amount
                 student = sale_report.order.student
                 student_wallet = student.studentwallet
-                student_wallet.balance += sale_report_amount
-                student_wallet.total_spend_today -= sale_report_amount
+                student_wallet.balance += sale_report.amount
+                student_wallet.total_spend_today -= sale_report.amount
                 student_wallet.save()
 
                 sale_report.amount = 0
                 sale_report.save()
+
+        daily_sales_reports.delete()
+        sales_reports = SalesReport.objects.filter(order=order)
+        sales_reports.delete()
+        order_items.delete()
+
 
         order.save()
 

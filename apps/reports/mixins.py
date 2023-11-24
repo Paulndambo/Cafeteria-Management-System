@@ -1,5 +1,6 @@
 from apps.reports.models import DailySalesReport
 
+
 class DailyReportMixin(object):
     def __init__(self, order, recharge_method, order_value, amount):
         self.order = order

@@ -15,6 +15,8 @@ PAYMENT_METHODS = (
     ("Mpesa", "Mpesa"),
     ("Cash", "Cash"),
     ("Wallet", "Wallet"),
+    ("Wallet And Cash", "Wallet And Cash"),
+    ("Wallet And Mpesa", "Wallet And Mpesa"),
 )
 
 class Order(AbstractBaseModel):
