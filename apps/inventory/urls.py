@@ -6,7 +6,7 @@ from apps.inventory.views import (delete_inventory_item, delete_menu_item,
                                   inventory, menus, new_menu_item,
                                   new_stock_item, new_supplier, pay_supplier,
                                   re_stock, stock_logs, supplier_details,
-                                  suppliers, take_out_stock)
+                                  suppliers, take_out_stock, spolied_menu_item)
 
 urlpatterns = [
     path("", inventory, name="inventory"),
@@ -28,4 +28,5 @@ urlpatterns = [
     path("edit-menu-item/", edit_menu_item, name="edit-menu-item"),
     path("delete-menu-item/", delete_menu_item, name="delete-menu-item"),
     path("edit-menu-item-amount/", edit_menu_item_amount, name="edit-menu-item-amount"),
+    path("record-spoiled-item/", spolied_menu_item, name="record-spoiled-item"),
 ]

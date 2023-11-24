@@ -6,4 +6,4 @@ from apps.reports.models import SalesReport
 # Register your models here.
 @admin.register(SalesReport)
 class SalesReportAdmin(admin.ModelAdmin):
-    list_display = ["order", "payment_method", "amount"]
+    list_display = ["order", "amount"]

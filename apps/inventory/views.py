@@ -10,6 +10,7 @@ from django.shortcuts import redirect, render
 from apps.core.models import Expense
 from apps.inventory.models import (Inventory, Menu, StockLog, Supplier,
                                    SupplyLog)
+from apps.reports.models import SalesReport
 
 date_today = datetime.now().date()
 # Create your views here.
@@ -84,6 +85,27 @@ def edit_menu_item_amount(request):
         menu_item.quantity += quantity
         menu_item.starting_stock += quantity
         menu_item.save()
+
+        return redirect("menus")
+
+    return render(request, "menus/edit_menu_item.html")
+
+def spolied_menu_item(request):
+    if request.method == "POST":
+        menu_id = int(request.POST.get("menu_id"))
+        quantity = float(request.POST.get("quantity"))
+        
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.quantity -= quantity
+        menu_item.starting_stock -= quantity
+        menu_item.save()
+
+        SalesReport.objects.create(
+            item=menu_item.item,
+            amount=menu_item.price * Decimal(quantity),
+            sold_or_spoiled="Spoiled",
+            quantity=quantity
+        )
 
         return redirect("menus")
 

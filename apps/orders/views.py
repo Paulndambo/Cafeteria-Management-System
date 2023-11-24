@@ -13,9 +13,9 @@ from django.urls import reverse, reverse_lazy
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
                                 TemporaryOrderItem)
-from apps.reports.models import SalesReport
+from apps.reports.models import SalesReport, DailySalesReport
 from apps.students.models import Student, StudentWallet, WalletRechargeLog
-
+from apps.reports.mixins import DailyReportMixin
 from .utils import determin_meal_time
 
 date_today = datetime.now().date()
@@ -220,15 +220,27 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         menu_item.quantity -= order_item.quantity
         menu_item.save()
 
+        SalesReport.objects.create(
+            order=order,
+            item=order_item.item.item,
+            amount=menu_item.price * Decimal(order_item.quantity),
+            sold_or_spoiled="Sold",
+            quantity=order_item.quantity,
+            unit_price=menu_item.price
+        )
+
+        DailySalesReport.objects.create(
+            order=order,
+            payment_method="Wallet",
+            amount=order_value
+        )
+
+
     student.studentwallet.balance -= order_value
     student.studentwallet.total_spend_today += order_value
     student.studentwallet.save()
 
-    wallet_payment = SalesReport.objects.create(
-        order=order,
-        payment_method="Wallet",
-        amount=order_value
-    )
+   
 
     Menu.objects.update(added_to_cart=False)
     TemporaryOrderItem.objects.all().delete()
@@ -290,33 +302,28 @@ def confirm_overpaid_order(request):
             menu_item.quantity -= order_item.quantity
             menu_item.save()
 
+            SalesReport.objects.create(
+                order=order,
+                item=menu_item.item,
+                amount=menu_item.price * Decimal(order_item.quantity),
+                sold_or_spoiled="Sold",
+                quantity=order_item.quantity,
+                unit_price=menu_item.price
+            )
+
+
         student.studentwallet.balance -= order_value
         student.studentwallet.total_spend_today += order_value
         student.studentwallet.save()
 
-        if recharge_method == "Mpesa":
-            wallet_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Wallet",
-                amount=order_value-amount
-            )
-            mpesa_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Mpesa",
-                amount=amount
-            )
-        elif recharge_method == "Cash":
-            wallet_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Wallet",
-                amount=order_value-amount
-            )
-            cash_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Cash",
-                amount=amount
-            )
-
+        daily_report = DailyReportMixin(
+            order=order, 
+            recharge_method=recharge_method, 
+            order_value=order_value, 
+            amount=amount
+        )
+        daily_report.run()
+        
         Menu.objects.update(added_to_cart=False)
         TemporaryOrderItem.objects.all().delete()
         return redirect(f"/orders/print-order/{order.id}/")
@@ -653,9 +660,16 @@ def void_customer_order(request):
             menu.quantity += order_item.quantity
             menu.save()
 
-        sales_reports = SalesReport.objects.filter(order=order)
+        sales_report = SalesReport.objects.filter(order=order)
+        for x in sales_report:
+            x.quantity = 0
+            x.amount = 0
+            x.unit_price = 0
+            x.save()
 
-        for sale_report in sales_reports:
+        daily_sales_reports = DailySalesReport.objects.filter(order=order)
+
+        for sale_report in daily_sales_reports:
             if sale_report.payment_method in ["Mpesa", "Cash"]:
                 sale_report.amount = 0
                 sale_report.save()

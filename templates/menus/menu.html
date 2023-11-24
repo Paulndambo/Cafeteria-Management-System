@@ -58,6 +58,9 @@
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemAmountModal{{ menu.id }}">
                 <i class="bi bi-plus-lg"></i>
               </a></td>
+              <td><a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#recordSpoiledItemModal{{ menu.id }}">
+                <i class="bi bi-dash"></i>
+              </a></td>
             
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}">
                 <i class="bi bi-pencil-square"></i>
@@ -71,6 +74,7 @@
             {% include "menus/delete_menu.html" %}
             {% include "menus/edit_menu.html" %}
             {% include "menus/edit_menu_item.html" %}
+            {% include "menus/record_spoiled.html" %}
 
             {% endfor %}
 
