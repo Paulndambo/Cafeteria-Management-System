@@ -12,8 +12,13 @@ from apps.reports.models import SalesReport, DailySalesReport
 
 
 def today_sales_report(request):
-    sales_today = SalesReport.objects.filter(created__date=date_today, sold_or_spoiled="Sold").order_by("-created")
-    paginator = Paginator(sales_today, 15)
+    items_sold_today = SalesReport.objects.filter(created__date=date_today, sold_or_spoiled="Sold")
+    sales_today = (
+        SalesReport.objects.values('id', 'created', 'item', 'sold_or_spoiled', 'unit_price')
+        .annotate(total_quantity=Sum('quantity'), total_amount=Sum('amount'))
+        .order_by('item')
+    )
+    paginator = Paginator(items_sold_today, 15)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -32,18 +37,42 @@ def today_sales_report(request):
         print(f"Action Type: {action_type}")
         
         if action_type == "item_sales":
-            response = HttpResponse(content_type='text/csv')
-            file_name =  f'attachment; filename="Sales Report - {date_today}.csv"'    
-            response['Content-Disposition'] = file_name
-            writer = csv.writer(response)
-            writer.writerow(['ID', 'Sales Date', 'Item Sold','Sold or Spoiled', 'Quantity Sold', 'Unit Price', 'Amount']) 
-            checkins = sales_today.values_list('id', 'created__date','item','sold_or_spoiled', 'quantity', 'unit_price', 'amount')       
+            #response = HttpResponse(content_type='text/csv')
+            #file_name =  f'attachment; filename="Sales Report - {date_today}.csv"'    
+            #response['Content-Disposition'] = file_name
+            #writer = csv.writer(response)
+            #writer.writerow(['ID', 'Sales Date', 'Item Sold','Sold or Spoiled', 'Quantity Sold', 'Unit Price', 'Amount']) 
+            #checkins = sales_today.values_list('id', 'created__date','item','sold_or_spoiled', 'quantity', 'unit_price', 'amount')     
+            csv_data = [
+                ['ID', 'Date Sold', 'Item Sold', 'Sold or Spoiled', 'Quantity Sold', 'Unit Price', 'Total Amount']
+            ]
+            for entry in sales_today:
+                csv_data.append([
+                    entry['id'],
+                    date_today,
+                    entry['item'],
+                    entry['sold_or_spoiled'],
+                    entry['total_quantity'],
+                    entry['unit_price'],
+                    entry['total_amount']
+                ])
 
-            for checkin in checkins:
-                writer.writerow(checkin)
-            writer.writerow(["", "", "", "", "", "", ""])
-            writer.writerow(["Total Sales", "", "", "", "", "", sales_total])
+            # Create CSV response
+            response = HttpResponse(content_type='text/csv')
+            file_name =  f'attachment; filename="Sales Report - {date_today}.csv"' 
+            response['Content-Disposition'] = file_name
+
+            # Write CSV data to the response
+            writer = csv.writer(response)
+            writer.writerows(csv_data)
+            writer.writerow(["", "", "", "", "", ""])
+            writer.writerow(["Total Sales", "", "", "", "", sales_total])
             return response
+  
+
+        
+            
+            #return response
         elif action_type == "overall_sales":
             csv_data = [['Report Date', 'Payment Method', 'Total Sales Amount']]
             for entry in report_data:

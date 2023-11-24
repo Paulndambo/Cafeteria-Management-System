@@ -116,7 +116,6 @@ a {
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th scope="col">ID</th>
                   <th scope="col">Item</th>
                   <th scope="col"></th>
                   <th scope="col">Quantity</th>
@@ -127,7 +126,7 @@ a {
               <tbody>
                 {% for order_item in items %}
                 <tr>
-                  <td>{{order_item.id}}</td>
+                  
                   <td>{{order_item.menu_item}}</td>
                   <td>
                     <a href="{% url 'decrease-order-item-quantity' order_item.id selected_student.id %}" class="btn btn-secondary btn-sm">
