@@ -13,7 +13,7 @@ from django.urls import reverse, reverse_lazy
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
                                 TemporaryOrderItem)
-from apps.reports.models import SalesReport, DailySalesReport
+from apps.reports.models import SalesReport, DailySalesReport, GeneralisedReportData
 from apps.students.models import Student, StudentWallet, WalletRechargeLog
 from apps.reports.mixins import DailyReportMixin
 from .utils import determin_meal_time
@@ -220,7 +220,7 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         menu_item.quantity -= order_item.quantity
         menu_item.save()
 
-        SalesReport.objects.create(
+        report_item = SalesReport.objects.create(
             order=order,
             item=order_item.item.item,
             amount=menu_item.price * Decimal(order_item.quantity),
@@ -228,6 +228,21 @@ def confirm_order(request, student_id=None, *args, **kwargs):
             quantity=order_item.quantity,
             unit_price=menu_item.price
         )
+
+        general_report_item = GeneralisedReportData.objects.filter(created__date=date_today, item=order_item.item.item).first()
+
+        if general_report_item:
+            general_report_item.quantity += order_item.quantity
+            general_report_item.amount += menu_item.price * Decimal(order_item.quantity)
+            general_report_item.save()
+        else:
+            GeneralisedReportData.objects.create(
+                item=order_item.item.item,
+                amount=menu_item.price * Decimal(order_item.quantity),
+                quantity=order_item.quantity,
+                unit_price=menu_item.price,
+                sold_or_spoiled="Sold"
+            )
 
         DailySalesReport.objects.create(
             order=order,
@@ -310,6 +325,21 @@ def confirm_overpaid_order(request):
                 quantity=order_item.quantity,
                 unit_price=menu_item.price
             )
+
+            general_report_item = GeneralisedReportData.objects.filter(created__date=date_today, item=order_item.item.item).first()
+
+            if general_report_item:
+                general_report_item.quantity += order_item.quantity
+                general_report_item.amount += menu_item.price * Decimal(order_item.quantity)
+                general_report_item.save()
+            else:
+                GeneralisedReportData.objects.create(
+                    item=order_item.item.item,
+                    amount=menu_item.price * Decimal(order_item.quantity),
+                    quantity=order_item.quantity,
+                    unit_price=menu_item.price,
+                    sold_or_spoiled="Sold"
+                )
 
 
         student.studentwallet.balance -= order_value

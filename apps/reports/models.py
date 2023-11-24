@@ -34,3 +34,13 @@ class SalesReport(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
+
+class GeneralisedReportData(AbstractBaseModel):
+    item = models.CharField(max_length=255, null=True)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    sold_or_spoiled = models.CharField(max_length=255, choices=SOLD_OR_SPOILED_CHOICES, null=True)
+    quantity = models.FloatField(default=0)
+
+    def __str__(self):
+        return str(self.id)
