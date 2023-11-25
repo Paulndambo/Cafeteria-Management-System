@@ -8,7 +8,9 @@ from apps.orders.models import Order, OrderItem, TemporaryOrderItem
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["student", "total_cost", "payment_method"]
 
-admin.site.register(TemporaryOrderItem)
+@admin.register(TemporaryOrderItem)
+class TemporaryOrderItem(admin.ModelAdmin):
+    list_display = ["student", "order", "menu_item", "quantity", "price"]
 
 
 @admin.register(OrderItem)

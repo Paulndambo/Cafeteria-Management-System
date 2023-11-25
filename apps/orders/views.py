@@ -285,7 +285,7 @@ def confirm_overpaid_order(request):
         meal_time = determin_meal_time()
 
         order_value = sum(TemporaryOrderItem.objects.filter(
-            student=student).values_list("price", flat=True))
+            student=student, user=user).values_list("price", flat=True))
 
         order = Order.objects.create(
             student=student,
@@ -351,6 +351,7 @@ def add_to_cart(request, menu_id=None, student_id=None):
         menu_item=menu_item,
         user=user
     ).first()
+
     total_price = menu_item.price * 1
     if item_check:
         item_check.quantity += 1
@@ -383,7 +384,7 @@ def edit_order_item(request):
 
 
 @login_required(login_url="/users/login/")
-def remove_from_cart(request, item_id=None):
+def remove_from_cart(request, item_id=None, student_id=None):
     item = TemporaryOrderItem.objects.get(id=item_id)
     menu_item = Menu.objects.get(id=item.menu_item.id)
     menu_item.added_to_cart = False
@@ -396,6 +397,7 @@ def remove_from_cart(request, item_id=None):
 
 @login_required(login_url="/users/login/")
 def print_order_receipt(request, order_id=None):
+    user = request.user
     cashier_id = request.session.get("cashier_id")
     order = Order.objects.get(id=order_id)
     order_items = order.orderitems.all()

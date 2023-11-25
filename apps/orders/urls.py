@@ -28,7 +28,7 @@ urlpatterns = [
     path("void-order/", void_customer_order, name="void-order"),
     path("clear-student/", clear_student_from_pos, name="clear-student"),
    
-    path("remove-from-cart/<int:item_id>/", remove_from_cart, name="remove-from-cart"),
+    path("remove-from-cart/<int:item_id>/<int:student_id>/", remove_from_cart, name="remove-from-cart"),
     path("clear-order-items/<int:student_id>/", clear_order_items, name="clear-order-items"),
     path("edit-order-item/", edit_order_item, name="edit-order-item"),
     path("print-order/<int:order_id>/", print_order_receipt, name="print-order"),
