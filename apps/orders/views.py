@@ -221,8 +221,8 @@ def confirm_order(request, student_id=None, *args, **kwargs):
     order_items_list = []
     for order_item in items:
         order_items_list.append(OrderItem(
-            user=user,
             order=order,
+            user=user,
             item=order_item.menu_item,
             quantity=order_item.quantity,
             price=order_item.price
@@ -308,6 +308,7 @@ def confirm_overpaid_order(request):
         for order_item in items:
             order_items_list.append(OrderItem(
                 order=order,
+                user=user,
                 item=order_item.menu_item,
                 quantity=order_item.quantity,
                 price=order_item.price
