@@ -255,7 +255,7 @@ def confirm_order(request, student_id=None, *args, **kwargs):
    
 
     Menu.objects.update(added_to_cart=False)
-    TemporaryOrderItem.objects.all().delete()
+    TemporaryOrderItem.objects.filter(user=user, student=student).delete()
     del request.session[f'selected_student_{cashier_id}']
     return redirect(f"/orders/print-order/{order.id}/")
 
@@ -374,7 +374,7 @@ def edit_order_item(request):
         order_item_id = request.POST.get("order_item_id")
         quantity = Decimal(request.POST.get("quantity"))
 
-        item = TemporaryOrderItem.objects.get(id=order_item_id)
+        item = TemporaryOrderItem.objects.get(id=order_item_id, student_id=student_id)
         item.quantity = quantity
         item.price = quantity * item.menu_item.price
         item.save()
@@ -411,7 +411,7 @@ def print_order_receipt(request, order_id=None):
 
 @login_required(login_url="/users/login/")
 def increase_order_item_quantity(request, item_id=None, student_id=None):
-    item = TemporaryOrderItem.objects.get(id=item_id)
+    item = TemporaryOrderItem.objects.get(id=item_id, student_id=student_id)
     item.quantity += 1
     item.price += item.menu_item.price
     item.save()
@@ -421,7 +421,7 @@ def increase_order_item_quantity(request, item_id=None, student_id=None):
 
 @login_required(login_url="/users/login/")
 def decrease_order_item_quantity(request, item_id=None, student_id=None):
-    item = TemporaryOrderItem.objects.get(id=item_id)
+    item = TemporaryOrderItem.objects.get(id=item_id, student_id=student_id)
     if item.quantity == 0:
         item.quantity = 0
         item.save()
