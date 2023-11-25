@@ -35,6 +35,8 @@ def today_sales_report(request):
         print(f"Action Type: {action_type}")
         
         if action_type == "item_sales":   
+            today_sales_data = GeneralisedReportData.objects.all().delete()
+            
             for x in items_sold_today:
                 gen = GeneralisedReportData.objects.filter(item=x.item, created__date=date_today).first()
 

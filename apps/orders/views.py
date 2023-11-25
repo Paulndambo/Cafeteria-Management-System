@@ -110,10 +110,16 @@ def pos_home(request):
 
 @login_required(login_url="/users/login/")
 def pos(request):
-    
+    user = request.user
+
+    cashier_id = request.session.get("cashier_id")
+
+    if not cashier_id:
+        request.session["cashier_id"] = user.id
+
     students = Student.objects.all()
     menus = Menu.objects.none()  # filter(added_to_cart=False)
-    selected_student = request.session.get('selected_student')
+    selected_student = request.session.get(f'selected_student_{cashier_id}', {})
 
     quotas_generated = True
 
@@ -127,12 +133,13 @@ def pos(request):
 
     student = Student.objects.get(user__first_name='Walk-In')
     if not selected_student:
-        request.session['selected_student'] = {
+        request.session[f'selected_student_{cashier_id}'] = {
             'id': student.id,
             'last_name': student.user.last_name,
             'first_name': student.user.first_name,
             'registration_number': student.registration_number,
             'wallet_balance': str(student.wallet_balance),
+            'cashier_id': cashier_id
         }
             
     print(f"Select Student: {selected_student}")
@@ -150,13 +157,13 @@ def pos(request):
             id=selected_student['id']
         ).first()
 
-        items = TemporaryOrderItem.objects.filter(student=student)
+        items = TemporaryOrderItem.objects.filter(student=student, user=user)
         order_value = sum(TemporaryOrderItem.objects.filter(
-            student=student).values_list("price", flat=True))
+            student=student, user=user).values_list("price", flat=True))
 
         menus = Menu.objects.exclude(
             id__in=list(TemporaryOrderItem.objects.filter(
-                student=student).values_list('menu_item_id', flat=True))
+                student=student, user=user).values_list('menu_item_id', flat=True))
         ).filter(quantity__gt=0)
 
         extra_amount = order_value - student.studentwallet.balance
@@ -190,11 +197,12 @@ def pos(request):
 @transaction.atomic
 def confirm_order(request, student_id=None, *args, **kwargs):
     user = request.user
+    cashier_id = request.session.get("cashier_id")
     student = Student.objects.get(id=student_id)
     meal_time = determin_meal_time()
 
     order_value = sum(TemporaryOrderItem.objects.filter(
-        student=student).values_list("price", flat=True))
+        student=student, user=user).values_list("price", flat=True))
 
     order = Order.objects.create(
         student=student,
@@ -210,6 +218,7 @@ def confirm_order(request, student_id=None, *args, **kwargs):
     order_items_list = []
     for order_item in items:
         order_items_list.append(OrderItem(
+            user=user,
             order=order,
             item=order_item.menu_item,
             quantity=order_item.quantity,
@@ -247,7 +256,7 @@ def confirm_order(request, student_id=None, *args, **kwargs):
 
     Menu.objects.update(added_to_cart=False)
     TemporaryOrderItem.objects.all().delete()
-    del request.session['selected_student']
+    del request.session[f'selected_student_{cashier_id}']
     return redirect(f"/orders/print-order/{order.id}/")
 
 
@@ -334,9 +343,14 @@ def confirm_overpaid_order(request):
 
 @login_required(login_url="/users/login/")
 def add_to_cart(request, menu_id=None, student_id=None):
+    user = request.user
     menu_item = Menu.objects.get(id=menu_id)
 
-    item_check = TemporaryOrderItem.objects.filter(student_id=student_id, menu_item=menu_item).first()
+    item_check = TemporaryOrderItem.objects.filter(
+        student_id=student_id,
+        menu_item=menu_item,
+        user=user
+    ).first()
     total_price = menu_item.price * 1
     if item_check:
         item_check.quantity += 1
@@ -344,6 +358,7 @@ def add_to_cart(request, menu_id=None, student_id=None):
         item_check.save()
     else:
         TemporaryOrderItem.objects.create(
+            user=user,
             student_id=student_id,
             menu_item=menu_item,
             quantity=1,
@@ -381,6 +396,7 @@ def remove_from_cart(request, item_id=None):
 
 @login_required(login_url="/users/login/")
 def print_order_receipt(request, order_id=None):
+    cashier_id = request.session.get("cashier_id")
     order = Order.objects.get(id=order_id)
     order_items = order.orderitems.all()
 
@@ -388,8 +404,8 @@ def print_order_receipt(request, order_id=None):
         "order": order,
         "order_items": order_items
     }
-    if request.session.get('selected_student'):
-        del request.session['selected_student']
+    if request.session.get(f'selected_student_{cashier_id}'):
+        del request.session[f'selected_student_{cashier_id}']
     return render(request, "orders/receipt.html", context)
 
 
@@ -427,6 +443,7 @@ def clear_order_items(request, student_id=None):
 
 @login_required(login_url="/users/login/")
 def recharge_student_wallet_at_order(request):
+    cashier_id = request.session.get("cashier_id")
     if request.method == "POST":
         reg_number = request.POST.get("reg_number")
         recharge_method = request.POST.get("recharge_method")
@@ -446,7 +463,7 @@ def recharge_student_wallet_at_order(request):
             recharge_method=recharge_method,
             amount_recharged=amount
         )
-        del request.session['selected_student']
+        del request.session[f'selected_student_{cashier_id}']
         return redirect(f"/orders/place-order/{student.id}")
 
     return render(request, "modals/request_recharge.html")
@@ -498,6 +515,8 @@ def void_customer_order(request):
     return render(request, "orders/void_order.html")
 
 
+@login_required(login_url="/users/login/")
 def clear_student_from_pos(request):
-    del request.session['selected_student']
+    cashier_id = request.session.get("cashier_id")
+    del request.session[f'selected_student_{cashier_id}']
     return redirect("place-order")
