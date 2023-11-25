@@ -10,7 +10,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(TemporaryOrderItem)
 class TemporaryOrderItem(admin.ModelAdmin):
-    list_display = ["student", "order", "menu_item", "quantity", "price"]
+    list_display = ["student", "user", "menu_item", "quantity", "price"]
 
 
 @admin.register(OrderItem)
