@@ -213,7 +213,10 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         payment_method="Wallet"
     )
 
-    items = TemporaryOrderItem.objects.all()
+    items = TemporaryOrderItem.objects.filter(
+        student=student,
+        user=user
+    )
 
     order_items_list = []
     for order_item in items:
@@ -296,7 +299,10 @@ def confirm_overpaid_order(request):
             payment_method="Wallet And Cash" if recharge_method == "Cash" else "Wallet And Mpesa"
         )
 
-        items = TemporaryOrderItem.objects.all()
+        items = TemporaryOrderItem.objects.filter(
+            user=user,
+            student=student
+        )
 
         order_items_list = []
         for order_item in items:
