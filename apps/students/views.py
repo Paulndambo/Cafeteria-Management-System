@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
@@ -30,7 +31,8 @@ def students(request):
             Q(registration_number__icontains=registration_number) | 
             Q(user__id_number__icontains=registration_number) |
             Q(user__first_name__icontains=registration_number) |
-            Q(user__last_name__icontains=registration_number) 
+            Q(user__last_name__icontains=registration_number) |
+            Q(user__username__icontains=registration_number)
         ).order_by("-created")
     
     paginator = Paginator(students, 8)
@@ -68,6 +70,7 @@ def delete_student(request):
 
 
 @login_required(login_url="/users/login/")
+@transaction.atomic
 def new_student(request):
     if request.method == 'POST':
         username = request.POST.get("id_number")
@@ -84,12 +87,10 @@ def new_student(request):
         user_by_username = User.objects.filter(username=username).first()
 
         if user_by_email:
-            return messages.error(request, f"User with this email exists already, try a different email!!")
+            print("User with this email found in the system")
             print(username, email, first_name, last_name)
         elif user_by_username:
-            messages.error(
-                request, f"User with this username exists already, try a different username!!")
-
+    
             print(username, email, first_name, last_name)
         else:
             user = User.objects.create(
@@ -120,7 +121,7 @@ def new_student(request):
 
             messages.success(request, f"User created successfully!!")
 
-            return redirect('students')
+        return redirect('students')
 
     return render(request, "modals/new_student.html")
 

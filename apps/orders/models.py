@@ -42,7 +42,7 @@ class OrderItem(AbstractBaseModel):
 class TemporaryOrderItem(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey("students.Student", on_delete=models.CASCADE)
-    menu_item = models.OneToOneField("inventory.Menu", on_delete=models.CASCADE)
+    menu_item = models.ForeignKey("inventory.Menu", on_delete=models.CASCADE)
     quantity = models.FloatField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 

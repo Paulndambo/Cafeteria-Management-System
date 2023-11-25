@@ -337,7 +337,7 @@ def confirm_overpaid_order(request):
 
         
         Menu.objects.update(added_to_cart=False)
-        TemporaryOrderItem.objects.all().delete()
+        TemporaryOrderItem.objects.filter(user=user, student=student).delete()
         return redirect(f"/orders/print-order/{order.id}/")
 
 
