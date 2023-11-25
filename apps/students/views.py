@@ -262,32 +262,36 @@ def upload_students(request):
         
         res = handle_uploaded_file(request.FILES['student_file'])
 
-
         students_list = []
         for x in res:
-            user = User.objects.create(
-                first_name=x.get("first_name"),
-                last_name=x.get("last_name"),
-                email=x.get("email"),
-                username=x.get("id_number"),
-                id_number=x.get("id_number"),
-                role="student",
-                phone_number=x.get("phone_number"),
-                gender=x.get("gender")
-            )
+            user = User.objects.filter(id_number=x.get('id_number')).first()
 
-            student = Student.objects.create(
-                user=user,
-                student_type=x.get("student_type").capitalize(),
-                registration_number=x.get("reg_number"),
-                status=x.get("status"),
-                credit_limit=x.get("credit_limit")
-            )
-            wallet = StudentWallet.objects.create(
-                student=student,
-                balance = x.get("credit_limit") if x.get("status") == "Active" else 0
-            )
-            print("Student Created Successfully!!!!")
+            if user:
+                print("This Student Already Exists")
+            else:
+                user = User.objects.create(
+                    first_name=x.get("first_name"),
+                    last_name=x.get("last_name"),
+                    email=x.get("email"),
+                    username=x.get("id_number"),
+                    id_number=x.get("id_number"),
+                    role="student",
+                    phone_number=x.get("phone_number"),
+                    gender=x.get("gender")
+                )
+
+                student = Student.objects.create(
+                    user=user,
+                    student_type=x.get("student_type").capitalize(),
+                    registration_number=x.get("reg_number"),
+                    status=x.get("status"),
+                    credit_limit=x.get("credit_limit")
+                )
+                wallet = StudentWallet.objects.create(
+                    student=student,
+                    balance = x.get("credit_limit") if x.get("status") == "Active" else 0
+                )
+                print("Student Created Successfully!!!!")
 
         return redirect("students")
 
