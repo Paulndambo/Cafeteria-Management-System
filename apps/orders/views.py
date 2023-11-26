@@ -172,18 +172,26 @@ def pos(request):
 
         extra_amount = order_value - student.studentwallet.balance
 
-
         student_orders = Order.objects.filter(student=student, created__date=date_today)
-        total_orders_today = 0
-        if student_orders:
-            total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
 
-            if total_orders_today + student.studentwallet.balance > 350:
-                flag_irregularity = True
-            else:
-                flag_irregularity = False
-        elif student.studentwallet.balance > 350:
+        if student.user.first_name == "Walk-In" and student.studentwallet.balance > 0:
             flag_irregularity = True
+
+        elif student.user.first_name != "Walk-In":
+            if student.studentwallet.balance > 350:
+                flag_irregularity = True
+
+            elif student_orders:
+                total_orders_today = 0
+
+                total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
+
+                if total_orders_today + student.studentwallet.balance > 350:
+                    flag_irregularity = True
+                else:
+                    flag_irregularity = False
+            elif student.studentwallet.balance > 350:
+                flag_irregularity = True
 
 
         if request.method == "POST":
