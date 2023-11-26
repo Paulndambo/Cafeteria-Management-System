@@ -159,13 +159,19 @@ a {
               </tbody>
             </table>
             <div class="row">
+              {% if flag_irregularity == True %}
+              <div class="col bg-warning">
+                <p class="text-center" style="font-weight: bold;">This student has balance irregularity</p>
+                <p class="text-center" style="font-weight: bold;">don't sell to the student please report!</p>
+              </div>
+            {% else %}
               <div class="col">
-                <p>Grand Total: <b>{{order_value}}</b></p>
-            </div>
-            <div class="col">
-              <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
-
-          </div>
+                  <p>Grand Total: <b>{{order_value}}</b></p>
+              </div>
+              <div class="col">
+                <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
+              </div>
+            {% endif %}
             </div>
             <div class="row">
                 <div class="col">

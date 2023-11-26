@@ -112,6 +112,8 @@ def pos_home(request):
 def pos(request):
     user = request.user
 
+    flag_irregularity = False
+
     cashier_id = request.session.get("cashier_id")
 
     if not cashier_id:
@@ -149,13 +151,15 @@ def pos(request):
         "student": None,
         "menus": menus,
         "students": students,
-        "quotas_generated": quotas_generated
+        "quotas_generated": quotas_generated,
+        "flag_irregularity": flag_irregularity
     }
 
     if selected_student:
         student = Student.objects.filter(
             id=selected_student['id']
         ).first()
+
 
         items = TemporaryOrderItem.objects.filter(student=student, user=user)
         order_value = sum(TemporaryOrderItem.objects.filter(
@@ -168,15 +172,26 @@ def pos(request):
 
         extra_amount = order_value - student.studentwallet.balance
 
+
+        student_orders = Order.objects.filter(student=student, created__date=date_today)
+        total_orders_today = 0
+        if student_orders:
+            total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
+
+            if total_orders_today + student.studentwallet.balance > 350:
+                flag_irregularity = True
+            else:
+                flag_irregularity = False
+        elif student.studentwallet.balance > 350:
+            flag_irregularity = True
+
+
         if request.method == "POST":
             item = request.POST.get("item")
             print(f"Searched Item: {item}")
             menus = Menu.objects.filter(Q(item__icontains=item)).filter(quantity__gt=0)
             print(f"Found Menu Items: {menus}")
-
-        #paginator = Paginator(menus, 12)
-        #page_number = request.GET.get("page")
-        #page_obj = paginator.get_page(page_number)
+        
 
         context = {
             "student": student,
@@ -187,7 +202,8 @@ def pos(request):
             "extra_amount": extra_amount,
             "students": students,
             "selected_student": selected_student,
-            "quotas_generated": quotas_generated
+            "quotas_generated": quotas_generated,
+            "flag_irregularity": flag_irregularity
         }
     return render(request, "orders/pos.html", context)
 

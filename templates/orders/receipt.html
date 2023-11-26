@@ -25,11 +25,10 @@
   <div class="l-col-right ticket-wrap" aria-label="A fake boat ticket demonstrating mixing font weights and widths">
     <div class="ticket" aria-hidden="true">
       <div class="">
-        <h3>Jawaka Cafeteria</h3>
-        <hr/>
-        <p class=""><strong>Till No:</strong>8200958</p>
-        <p class=""><strong>Phone No:</strong>0202037035/0715837426</p>
-        <p class=""><strong>Order:</strong>#JWS-{{order.id}}</p>
+        <h3>Jawaka Events & Caterers</h3>
+        <p class="">{{order.created}} &nbsp;&nbsp;<strong>Till No:</strong>8200958</p>
+        <p class=""><strong>Phone No: </strong>0202037035&nbsp;/&nbsp;0715837426</p>
+        <p class=""><strong>Order:</strong>#JWS-{{order.id}}&nbsp;<strong>Served By: </strong>{{order.served_by.name}}</p>
         <div class="table-responsive small">
             <table class="table table-sm" style="border: None!important;">
                 <thead>
@@ -54,15 +53,15 @@
             </table>
             </div>
         <div class="text-left">
-            <p>Order Total: {{order.total_cost}}</p>
+            <!-- <p>Order Total: {{order.total_cost}}</p> -->
             {% if order.student %}
-            <p>Student: {{order.student.user.name}}</p>
-            <p><b>Wallet Balance: {{order.student.wallet_balance}}</b></p>
+            <p>{{order.student.user.name}}&nbsp;<strong>Total: </strong>{{order.total_cost}}&nbsp;<b>Balance: {{order.student.wallet_balance}}</b></p>
+            <!-- <p><b>Balance: {{order.student.wallet_balance}}</b></p> -->
             {% endif %}
-            <p>Served By: {{order.served_by.name}}</p>
-            <p>{{order.created}}</p>
+            <!-- <p>Served By: {{order.served_by.name}}</p> -->
+            <!-- <p>{{order.created}}</p> -->
         </div>
-        <p>This ticket is <strong>NOT</strong> transferable</p>
+        <!-- <p>This ticket is <strong>NOT</strong> transferable</p> -->
         <div class="row text-center">
           <a href="{% url 'place-order' %}" class="btn btn-primary">Back to Orders</a>
       </div>
