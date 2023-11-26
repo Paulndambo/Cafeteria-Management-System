@@ -160,9 +160,12 @@ a {
             </table>
             <div class="row">
               {% if flag_irregularity == True %}
-              <div class="col bg-warning">
+              <div class="col bg-warning text-center">
                 <p class="text-center" style="font-weight: bold;">This student has balance irregularity</p>
                 <p class="text-center" style="font-weight: bold;">don't sell to the student please report!</p>
+                {% if is_walk_in_student == True %}
+                <a href="{% url 'set-zero-balance' selected_student.id %}" class="btn btn-success">Set Balance To Zero</a>
+                {% endif %}
               </div>
             {% else %}
               <div class="col">

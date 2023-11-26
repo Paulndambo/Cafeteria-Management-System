@@ -113,6 +113,7 @@ def pos(request):
     user = request.user
 
     flag_irregularity = False
+    is_walk_in_student = False
 
     cashier_id = request.session.get("cashier_id")
 
@@ -176,10 +177,12 @@ def pos(request):
 
         if student.user.first_name == "Walk-In" and student.studentwallet.balance > 0:
             flag_irregularity = True
+            is_walk_in_student = True
 
         elif student.user.first_name != "Walk-In":
             if student.studentwallet.balance > 350:
                 flag_irregularity = True
+                
 
             elif student_orders:
                 total_orders_today = 0
@@ -211,7 +214,8 @@ def pos(request):
             "students": students,
             "selected_student": selected_student,
             "quotas_generated": quotas_generated,
-            "flag_irregularity": flag_irregularity
+            "flag_irregularity": flag_irregularity,
+            "is_walk_in_student": is_walk_in_student
         }
     return render(request, "orders/pos.html", context)
 

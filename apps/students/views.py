@@ -336,3 +336,10 @@ def search_student(request):
             pass
 
     return redirect("customer-order")
+
+
+def turn_balance_to_zero(request, student_id=None):
+    student = Student.objects.get(id=student_id)
+    student.studentwallet.balance = 0
+    student.studentwallet.save()
+    return redirect("place-order")
