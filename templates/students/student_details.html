@@ -43,8 +43,10 @@
               <td>{{order.total_cost}}</td>
               <td>{{order.meal_time}}</td>
               <td>{{order.status}}</td>
+              <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
               <td><a href="{% url 'print-order' order.id %}" class="btn btn-info btn-sm">Print</a></td>
             </tr>
+            {% include "orders/void_order.html" %}
             
             {% endfor %}
 

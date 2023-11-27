@@ -9,9 +9,17 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 date_today = datetime.now().date()
+from datetime import date
+
 # Create your views here.
-from apps.reports.models import (DailySalesReport, GeneralisedReportData,
-                                 SalesReport)
+from apps.reports.models import (DailySalesReport, DailySalesReportData,
+                                 GeneralisedReportData, SalesReport)
+
+
+def convert_to_date(datetime_field):
+    if datetime_field:
+        return datetime_field.date()
+    return None
 
 
 def today_sales_report(request): 
@@ -89,3 +97,71 @@ def today_sales_report(request):
         "page_obj": page_obj
     }
     return render(request, "reports/sales_today.html", context)
+
+
+def daily_sales_data(request):
+    daily_sales_data = DailySalesReportData.objects.all()
+    """
+    items_sold = SalesReport.objects.filter(sold_or_spoiled="Sold")
+
+    for sold_item in items_sold:
+        item_exists = DailySalesReportData.objects.filter(item=sold_item.item, date_recorded__date=convert_to_date(sold_item.created)).first()
+
+        if item_exists:
+            item_exists.quantity += sold_item.quantity
+            item_exists.amount += sold_item.amount
+            item_exists.save()
+        else:
+            DailySalesReportData.objects.create(
+                date_recorded=sold_item.created,
+                item=sold_item.item,
+                quantity=sold_item.quantity,
+                amount=sold_item.amount,
+                unit_price=sold_item.unit_price,
+                sold_or_spoiled="Sold"
+            )
+    """
+
+    if request.method == "POST":
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        action_type = request.POST.get("action_type")
+        print(f"Action Type: {action_type}")
+
+        if start_date and end_date:
+    
+            daily_sales_data = DailySalesReportData.objects.filter(
+                date_recorded__date__gte=start_date
+            ).filter(date_recorded__date__lte=end_date)
+
+
+        if action_type == "export":
+
+            response = HttpResponse(content_type='text/csv')
+            file_name =  f'attachment; filename="Daily Item Sales General Report.csv"'    
+            response['Content-Disposition'] = file_name
+            writer = csv.writer(response)
+            writer.writerow(["ID", "Sale Date", "Item Sold", "Unit Price", "Quantity", "Sales Total"]) 
+            daily_item_sales_values = daily_sales_data.values_list('id', 'date_recorded__date', 'item', 'unit_price', 'quantity', 'amount')       
+
+            for daily_item_sale in daily_item_sales_values:
+                writer.writerow(daily_item_sale)
+            
+            return response
+
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+    
+    #if request.method == "POST":
+        
+
+    
+    paginator = Paginator(daily_sales_data, 15)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "daily_sales": daily_sales_data,
+        "page_obj": page_obj
+    }
+    return render(request, "reports/daily_sales.html", context)

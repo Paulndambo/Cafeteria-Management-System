@@ -47,6 +47,9 @@
               <td>{{order.student.user.name}}</td>
               <td>{{order.total_cost}}</td>
               <td>{{order.status}}</td>
+              <td>
+                <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
+              </td>
               <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
               <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">
                 <i class="bi bi-printer"></i>
@@ -56,6 +59,7 @@
             {% include "orders/delete_order.html" %}
             {% include "orders/edit_order.html" %}
             {% include "orders/void_order.html" %}
+            {% include "orders/order_items.html" %}
             {% endfor %}
 
           </tbody>

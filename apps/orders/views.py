@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -35,7 +36,9 @@ def orders(request):
     if request.method == "POST":
         registration_number = request.POST.get("reg_number")
         orders = Order.objects.filter(
-            Q(student__registration_number__icontains=registration_number))
+            Q(student__registration_number__icontains=registration_number) | 
+            Q(id__icontains=registration_number)
+        )
 
     paginator = Paginator(orders, 15)
     page_number = request.GET.get("page")
@@ -115,6 +118,13 @@ def pos(request):
     flag_irregularity = False
     is_walk_in_student = False
 
+    menus_list = cache.get('menus')
+    if not menus_list:
+        test_menus = Menu.objects.all()
+        cache.set('menus', test_menus, 3600)
+
+    print(menus_list)
+
     cashier_id = request.session.get("cashier_id")
 
     if not cashier_id:
@@ -166,7 +176,9 @@ def pos(request):
         order_value = sum(TemporaryOrderItem.objects.filter(
             student=student, user=user).values_list("price", flat=True))
 
-        menus = Menu.objects.exclude(
+        
+
+        menus = menus_list.exclude(
             id__in=list(TemporaryOrderItem.objects.filter(
                 student=student, user=user).values_list('menu_item_id', flat=True))
         ).filter(quantity__gt=0)

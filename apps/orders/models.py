@@ -30,6 +30,9 @@ class Order(AbstractBaseModel):
     def __str__(self):
         return str(self.id)
 
+    def items(self):
+        return self.orderitems.all()
+
 
 class OrderItem(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)

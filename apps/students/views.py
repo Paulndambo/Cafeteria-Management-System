@@ -302,7 +302,7 @@ def upload_students(request):
 
 def student_details(request, student_id=None):
     student = Student.objects.get(id=student_id)
-    orders = student.studentorders.all()
+    orders = student.studentorders.all().order_by("-created")
 
     paginator = Paginator(orders, 5)
     page_number = request.GET.get("page")
