@@ -123,7 +123,6 @@ def pos(request):
         test_menus = Menu.objects.all()
         cache.set('menus', test_menus, 3600)
 
-    print(menus_list)
 
     cashier_id = request.session.get("cashier_id")
 

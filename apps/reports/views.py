@@ -100,9 +100,7 @@ def today_sales_report(request):
 
 
 def daily_sales_data(request):
-    daily_sales_data = DailySalesReportData.objects.all()
-    """
-    items_sold = SalesReport.objects.filter(sold_or_spoiled="Sold")
+    items_sold = SalesReport.objects.filter(created__date=date_today).filter(sold_or_spoiled="Sold")
 
     for sold_item in items_sold:
         item_exists = DailySalesReportData.objects.filter(item=sold_item.item, date_recorded__date=convert_to_date(sold_item.created)).first()
@@ -120,8 +118,8 @@ def daily_sales_data(request):
                 unit_price=sold_item.unit_price,
                 sold_or_spoiled="Sold"
             )
-    """
-
+    
+    daily_sales_data = DailySalesReportData.objects.all()
     if request.method == "POST":
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
