@@ -79,6 +79,14 @@ def delete_expense(request):
 
 @login_required(login_url="/users/login/")
 def home(request):
+    user = request.user
+
+    if user.role == "chef":
+        return redirect("menus")
+
+    elif user.role == "cashier":
+        return redirect("place-order")
+
     end_date = timezone.now()
     start_date = end_date - timedelta(days=6)
 
