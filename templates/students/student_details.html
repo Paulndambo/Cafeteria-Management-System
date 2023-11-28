@@ -29,7 +29,6 @@
               <th scope="col">Student</th>
               <th scope="col">Cost</th>
               <th scope="col">Meal Time</th>
-              <th scope="col"></th>
               <th scope="col">Status</th>
               <th scope="col" colspan="3">Actions</th>
             </tr>
@@ -43,10 +42,10 @@
               <td>{{order.student}}</td>
               <td>{{order.total_cost}}</td>
               <td>{{order.meal_time}}</td>
+              <td>{{order.status}}</td>
               <td>
                 <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
               </td>
-              <td>{{order.status}}</td>
               <td><a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
               <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">Print</a></td>
             </tr>
