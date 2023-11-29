@@ -164,7 +164,7 @@ a {
                 <p class="text-center" style="font-weight: bold;">This student has balance irregularity</p>
                 <p class="text-center" style="font-weight: bold;">don't sell to the student please report!</p>
                 {% if is_walk_in_student == True %}
-                <a href="{% url 'set-zero-balance' selected_student.id %}" class="btn btn-success">Set Balance To Zero</a>
+                <a href="{% url 'set-zero-balance' selected_student.id %}" class="btn btn-success mb-2">Set Balance To Zero</a>
                 {% endif %}
               </div>
             {% else %}
@@ -176,10 +176,10 @@ a {
               </div>
             {% endif %}
             </div>
-            <div class="row">
+            <div class="row mt-2">
                 <div class="col">
                     {% if order_value > student.wallet_balance %}
-                    <a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
+                    <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
                         Pay With Cash/Mpesa
                     </a>
                     <a href="{% url 'clear-order-items' selected_student.id %}" class="btn btn-danger btn-sm">

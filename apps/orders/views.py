@@ -190,8 +190,12 @@ def pos(request):
             flag_irregularity = True
             is_walk_in_student = True
 
+        if student.user.first_name == "Walk-In" and student.studentwallet.balance < 0:
+            flag_irregularity = True
+            is_walk_in_student = True
+
         elif student.user.first_name != "Walk-In":
-            if student.studentwallet.balance > 350:
+            if student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
                 flag_irregularity = True
                 
 
@@ -204,7 +208,7 @@ def pos(request):
                     flag_irregularity = True
                 else:
                     flag_irregularity = False
-            elif student.studentwallet.balance > 350:
+            elif student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
                 flag_irregularity = True
 
 
@@ -329,14 +333,26 @@ def confirm_overpaid_order(request):
         order_value = sum(TemporaryOrderItem.objects.filter(
             student=student, user=user).values_list("price", flat=True))
 
-        order = Order.objects.create(
-            student=student,
-            status="Processed",
-            total_cost=order_value,
-            meal_time=meal_time,
-            served_by=user, 
-            payment_method="Wallet And Cash" if recharge_method == "Cash" else "Wallet And Mpesa"
-        )
+        if recharge_method.lower() == "cash":
+            order = Order.objects.create(
+                student=student,
+                status="Processed",
+                total_cost=order_value,
+                meal_time=meal_time,
+                served_by=user, 
+                payment_method="Wallet And Cash"
+            )
+        elif recharge_method.lower() == "mpesa":
+            order = Order.objects.create(
+                student=student,
+                status="Processed",
+                total_cost=order_value,
+                meal_time=meal_time,
+                served_by=user, 
+                payment_method="Wallet And Mpesa"
+            )
+        else:
+            print(f"Recharge Method: {recharge_method} Was not found")
 
         items = TemporaryOrderItem.objects.filter(
             user=user,
