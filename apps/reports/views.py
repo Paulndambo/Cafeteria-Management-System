@@ -120,10 +120,17 @@ def daily_sales_data(request):
             )
     
     daily_sales_data = DailySalesReportData.objects.all()
+    
+    
     if request.method == "POST":
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
         action_type = request.POST.get("action_type")
+
+        starting_date = request.POST.get("starting_date")
+        ending_date = request.POST.get("ending_date")
+
+       
         print(f"Action Type: {action_type}")
 
         if start_date and end_date:
@@ -133,14 +140,20 @@ def daily_sales_data(request):
             ).filter(date_recorded__date__lte=end_date)
 
 
-        if action_type == "export":
+        if action_type == "export" and starting_date and ending_date:
+
+            print(f"Starting Date: {starting_date}, Ending Date: {ending_date}")
+
+            filtered_report = DailySalesReportData.objects.filter(
+                date_recorded__date__gte=starting_date
+            ).filter(date_recorded__date__lte=ending_date)
 
             response = HttpResponse(content_type='text/csv')
             file_name =  f'attachment; filename="Daily Item Sales General Report.csv"'    
             response['Content-Disposition'] = file_name
             writer = csv.writer(response)
             writer.writerow(["ID", "Sale Date", "Item Sold", "Unit Price", "Quantity", "Sales Total"]) 
-            daily_item_sales_values = daily_sales_data.values_list('id', 'date_recorded__date', 'item', 'unit_price', 'quantity', 'amount')       
+            daily_item_sales_values = filtered_report.values_list('id', 'date_recorded__date', 'item', 'unit_price', 'quantity', 'amount')       
 
             for daily_item_sale in daily_item_sales_values:
                 writer.writerow(daily_item_sale)
