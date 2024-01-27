@@ -36,22 +36,32 @@
               <th scope="col">#</th>
               <th scope="col">Supply Name</th>
               <th scope="col">Quantity Supplied</th>
-              <th scope="col">Unit Price</th>
-              <th scope="col">Total Cost</th>
+              <th scope="col">Price</th>
+              <th scope="col">Cost</th>
+              <th scope="col">Amount Paid</th>
+              <th scope="col">Amount Due</th>
               <th scope="col">Payment Method</th>
               
             </tr>
           </thead>
           <tbody>
-            {% for stock in page_obj %}
+            {% for supply in page_obj %}
             <tr>
-              <td>{{stock.id}}</td>
-              <td>{{stock.item}}</td>
-              <td>{{stock.quantity_supplied}} {{stock.supply_unit}}</td>
-              <td>{{stock.unit_price}}</td>
-              <td>{{stock.total_cost}}</td>
-              <td>{{stock.payment_method}}</td>
+              <td>{{supply.id}}</td>
+              <td>{{supply.item}}</td>
+              <td>{{supply.quantity_supplied}} {{supply.supply_unit}}</td>
+              <td>{{supply.unit_price}}</td>
+              <td>{{supply.total_cost}}</td>
+              <td>{{supply.amount_paid}}</td>
+              <td>{{supply.amount_due}}</td>
+              <td>{{supply.payment_method}}</td>
+              {% if supply.payment_method == "Credit" and supply.amount_due >= 1 %}
+              <td><a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#paySupplierModal{{ supply.id }}">
+                Make Payment
+              </a></td>
+              {% endif %}
             </tr>
+            {% include "suppliers/pay_supplier.html" %}
             {% endfor %}
 
           </tbody>

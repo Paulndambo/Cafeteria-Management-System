@@ -15,6 +15,8 @@ PAYMENT_METHODS = (
     ("Mpesa", "Mpesa"),
     ("Cash", "Cash"),
     ("Wallet", "Wallet"),
+    ("Wallet And Cash", "Wallet And Cash"),
+    ("Wallet And Mpesa", "Wallet And Mpesa"),
 )
 
 class Order(AbstractBaseModel):
@@ -28,8 +30,12 @@ class Order(AbstractBaseModel):
     def __str__(self):
         return str(self.id)
 
+    def items(self):
+        return self.orderitems.all()
+
 
 class OrderItem(AbstractBaseModel):
+    user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="orderitems")
     item = models.ForeignKey("inventory.Menu", on_delete=models.SET_NULL, null=True)
     quantity = models.FloatField(default=0)
@@ -37,8 +43,9 @@ class OrderItem(AbstractBaseModel):
 
 
 class TemporaryOrderItem(AbstractBaseModel):
+    user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey("students.Student", on_delete=models.CASCADE)
-    menu_item = models.OneToOneField("inventory.Menu", on_delete=models.CASCADE)
+    menu_item = models.ForeignKey("inventory.Menu", on_delete=models.CASCADE)
     quantity = models.FloatField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 

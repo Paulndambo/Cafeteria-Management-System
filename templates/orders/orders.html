@@ -11,7 +11,7 @@
         <div class="input-group mb-3">
           <div class="row">
             <div class="col-7">
-              <input type="text" class="form-control" name="reg_number" id="reg_number" placeholder="Reg. Number ...">
+              <input type="text" class="form-control" name="reg_number" id="reg_number" placeholder="Order ID ...">
             </div>
             <div class="col-5">
               <button class="btn btn-success">Search</button>
@@ -35,6 +35,7 @@
               <th scope="col">Student</th>
               <th scope="col">Cost</th>
               <th scope="col">Status</th>
+              <th scope="col">Payment Method</th>
               <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
@@ -47,8 +48,12 @@
               <td>{{order.student.user.name}}</td>
               <td>{{order.total_cost}}</td>
               <td>{{order.status}}</td>
-              <td><a class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
-              <td><a href="{% url 'test-receipt' order.id %}" class="btn btn-warning btn-sm">
+              <td>{{order.payment_method}}</td>
+              <td>
+                <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
+              </td>
+              <td><a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
+              <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">
                 <i class="bi bi-printer"></i>
               </a></td>
             </tr>
@@ -56,6 +61,7 @@
             {% include "orders/delete_order.html" %}
             {% include "orders/edit_order.html" %}
             {% include "orders/void_order.html" %}
+            {% include "orders/order_items.html" %}
             {% endfor %}
 
           </tbody>

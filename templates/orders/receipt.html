@@ -12,22 +12,23 @@
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://az813057.vo.msecnd.net/testdrive/var-fonts/font-declarations.css">
   <link rel="stylesheet" href="{% static 'receipt.css' %}">
+
+  <style>
+      p {
+    line-height: 1; /* You can adjust this value to control line height */
+  }
+
+  </style>
 </head>
 
 <body>
-  <!-- partial:index.partial.html -->
   <div class="l-col-right ticket-wrap" aria-label="A fake boat ticket demonstrating mixing font weights and widths">
     <div class="ticket" aria-hidden="true">
-      <div class="ticket__header">
-        <a href="{% url 'pos-home' %}">
-          <div class="ticket__co">
-            <span class="ticket__co-name">School Cafeteria</span>
-          </div>
-        </a>
-      </div>
-      <div class="ticket__body">
-        <p class="ticket__route"><strong>Order:</strong>#JWS-{{order.id}}</p>
-        <!-- <p class="ticket__description">{{checkin.staff.department}}</p> -->
+      <div class="">
+        <h3>Jawaka Events & Caterers</h3>
+        <p class="">{{order.created}} &nbsp;&nbsp;<strong>Till No:</strong>8200958</p>
+        <p class=""><strong>Phone No: </strong>0202037035&nbsp;/&nbsp;0715837426</p>
+        <p class=""><strong>Order:</strong>#JWS-{{order.id}}&nbsp;<strong>Served By: </strong>{{order.served_by.name}}</p>
         <div class="table-responsive small">
             <table class="table table-sm" style="border: None!important;">
                 <thead>
@@ -52,17 +53,16 @@
             </table>
             </div>
         <div class="text-left">
-            <p>Order Total: {{order.total_cost}}</p>
-
+            <!-- <p>Order Total: {{order.total_cost}}</p> -->
+            <p>Payment Method: {{order.payment_method}}</p>
             {% if order.student %}
-            <p>Student: {{order.student.user.name}}</p>
-            <p>Wallet Balance: {{order.student.wallet_balance}}</p>
+            <p>{{order.student.user.name}}&nbsp;<strong>Total: </strong>{{order.total_cost}}&nbsp;<b>Balance: {{order.student.wallet_balance}}</b></p>
+            <!-- <p><b>Balance: {{order.student.wallet_balance}}</b></p> -->
             {% endif %}
-            <p>Served By: {{order.served_by.name}}</p>
+            <!-- <p>Served By: {{order.served_by.name}}</p> -->
+            <!-- <p>{{order.created}}</p> -->
         </div>
-            
-        <br>
-        <p class="ticket__fine-print">This ticket is <strong>NOT</strong> transferable</p>
+        <!-- <p>This ticket is <strong>NOT</strong> transferable</p> -->
         <div class="row text-center">
           <a href="{% url 'place-order' %}" class="btn btn-primary">Back to Orders</a>
       </div>

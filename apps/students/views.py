@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
@@ -30,7 +31,8 @@ def students(request):
             Q(registration_number__icontains=registration_number) | 
             Q(user__id_number__icontains=registration_number) |
             Q(user__first_name__icontains=registration_number) |
-            Q(user__last_name__icontains=registration_number) 
+            Q(user__last_name__icontains=registration_number) |
+            Q(user__username__icontains=registration_number)
         ).order_by("-created")
     
     paginator = Paginator(students, 8)
@@ -68,6 +70,7 @@ def delete_student(request):
 
 
 @login_required(login_url="/users/login/")
+@transaction.atomic
 def new_student(request):
     if request.method == 'POST':
         username = request.POST.get("id_number")
@@ -84,12 +87,10 @@ def new_student(request):
         user_by_username = User.objects.filter(username=username).first()
 
         if user_by_email:
-            return messages.error(request, f"User with this email exists already, try a different email!!")
+            print("User with this email found in the system")
             print(username, email, first_name, last_name)
         elif user_by_username:
-            messages.error(
-                request, f"User with this username exists already, try a different username!!")
-
+    
             print(username, email, first_name, last_name)
         else:
             user = User.objects.create(
@@ -120,7 +121,7 @@ def new_student(request):
 
             messages.success(request, f"User created successfully!!")
 
-            return redirect('students')
+        return redirect('students')
 
     return render(request, "modals/new_student.html")
 
@@ -262,32 +263,36 @@ def upload_students(request):
         
         res = handle_uploaded_file(request.FILES['student_file'])
 
-
         students_list = []
         for x in res:
-            user = User.objects.create(
-                first_name=x.get("first_name"),
-                last_name=x.get("last_name"),
-                email=x.get("email"),
-                username=x.get("id_number"),
-                id_number=x.get("id_number"),
-                role="student",
-                phone_number=x.get("phone_number"),
-                gender=x.get("gender")
-            )
+            user = User.objects.filter(id_number=x.get('id_number')).first()
 
-            student = Student.objects.create(
-                user=user,
-                student_type=x.get("student_type").capitalize(),
-                registration_number=x.get("reg_number"),
-                status=x.get("status"),
-                credit_limit=x.get("credit_limit")
-            )
-            wallet = StudentWallet.objects.create(
-                student=student,
-                balance = x.get("credit_limit") if x.get("status") == "Active" else 0
-            )
-            print("Student Created Successfully!!!!")
+            if user:
+                print("This Student Already Exists")
+            else:
+                user = User.objects.create(
+                    first_name=x.get("first_name"),
+                    last_name=x.get("last_name"),
+                    email=x.get("email"),
+                    username=x.get("id_number"),
+                    id_number=x.get("id_number"),
+                    role="student",
+                    phone_number=x.get("phone_number"),
+                    gender=x.get("gender")
+                )
+
+                student = Student.objects.create(
+                    user=user,
+                    student_type=x.get("student_type").capitalize(),
+                    registration_number=x.get("reg_number"),
+                    status=x.get("status"),
+                    credit_limit=x.get("credit_limit")
+                )
+                wallet = StudentWallet.objects.create(
+                    student=student,
+                    balance = x.get("credit_limit") if x.get("status") == "Active" else 0
+                )
+                print("Student Created Successfully!!!!")
 
         return redirect("students")
 
@@ -297,7 +302,7 @@ def upload_students(request):
 
 def student_details(request, student_id=None):
     student = Student.objects.get(id=student_id)
-    orders = student.studentorders.all()
+    orders = student.studentorders.all().order_by("-created")
 
     paginator = Paginator(orders, 5)
     page_number = request.GET.get("page")
@@ -331,3 +336,10 @@ def search_student(request):
             pass
 
     return redirect("customer-order")
+
+
+def turn_balance_to_zero(request, student_id=None):
+    student = Student.objects.get(id=student_id)
+    student.studentwallet.balance = 0
+    student.studentwallet.save()
+    return redirect("place-order")

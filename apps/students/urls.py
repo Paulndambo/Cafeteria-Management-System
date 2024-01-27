@@ -5,7 +5,7 @@ from apps.students.views import (activate_deactivate_student, delete_student,
                                  new_student, recharge_student_wallet,
                                  search_student, student_details,
                                  student_wallets, students, students_finder,
-                                 upload_students)
+                                 turn_balance_to_zero, upload_students)
 
 urlpatterns = [
     path("", students, name="students"),
@@ -20,4 +20,5 @@ urlpatterns = [
     path("students-finder/", students_finder, name="students-finder"),
     path("students/<int:student_id>/", student_details, name="student-details"),
     path("search-student/", search_student, name="search-student"),
+    path("set-zero-balance/<int:student_id>/", turn_balance_to_zero, name="set-zero-balance"),
 ]

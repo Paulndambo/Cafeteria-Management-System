@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -9,35 +10,19 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
-from weasyprint import HTML
 
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
                                 TemporaryOrderItem)
-from apps.reports.models import SalesReport
+from apps.reports.mixins import DailyReportMixin
+from apps.reports.models import (DailySalesReport, GeneralisedReportData,
+                                 SalesReport)
 from apps.students.models import Student, StudentWallet, WalletRechargeLog
 
 from .utils import determin_meal_time
 
 date_today = datetime.now().date()
 # Create your views here.
-
-
-def generate_receipt_pdf(request, order_id=None):
-    # Fetch order data and generate receipt data
-
-    order = Order.objects.get(id=order_id)
-    order_items = order.orderitems.all()
-
-    template = get_template('orders/receipt.html')
-    html_content = template.render({'order': order, 'order_items': order_items})
-
-    pdf_file = HTML(string=html_content).write_pdf()
-
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'filename=receipt_{order_id}.pdf'
-
-    return response
 
 
 @login_required(login_url="/users/login/")
@@ -51,7 +36,9 @@ def orders(request):
     if request.method == "POST":
         registration_number = request.POST.get("reg_number")
         orders = Order.objects.filter(
-            Q(student__registration_number__icontains=registration_number))
+            Q(student__registration_number__icontains=registration_number) | 
+            Q(id__icontains=registration_number)
+        )
 
     paginator = Paginator(orders, 15)
     page_number = request.GET.get("page")
@@ -126,66 +113,111 @@ def pos_home(request):
 
 @login_required(login_url="/users/login/")
 def pos(request):
-    
+    user = request.user
+
+    flag_irregularity = False
+    is_walk_in_student = False
+
+    menus_list = cache.get('menus')
+    if not menus_list:
+        test_menus = Menu.objects.all()
+        cache.set('menus', test_menus, 3600)
+
+
+    cashier_id = request.session.get("cashier_id")
+
+    if not cashier_id:
+        request.session["cashier_id"] = user.id
+
     students = Student.objects.all()
     menus = Menu.objects.none()  # filter(added_to_cart=False)
-    selected_student = request.session.get('selected_student')
+    selected_student = request.session.get(f'selected_student_{cashier_id}', {})
 
-    if request.method == "POST":
-        reg_number = request.POST.get('reg_number')
-        print(f"Student Reg. Number: {reg_number}")
+    quotas_generated = True
 
-        try:
-            student = Student.objects.get(registration_number=reg_number)
-            request.session['selected_student'] = {
-                'id': student.id,
-                'name': f'{student.user.first_name} {student.user.last_name}',
-                'registration_number': student.registration_number,
-                'wallet_balance': str(student.wallet_balance),
-            }
+    boarding_student_wallets = StudentWallet.objects.filter(
+        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+
+    print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
+
+    if boarding_student_wallets.count() >= 1:
+        quotas_generated = False
+
+    student = Student.objects.get(user__first_name='Walk-In')
+    if not selected_student:
+        request.session[f'selected_student_{cashier_id}'] = {
+            'id': student.id,
+            'last_name': student.user.last_name,
+            'first_name': student.user.first_name,
+            'registration_number': student.registration_number,
+            'wallet_balance': str(student.wallet_balance),
+            'cashier_id': cashier_id
+        }
             
-            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
-            return redirect('place-order')
-        except Student.DoesNotExist:
-            # Handle the case when the student is not found
-            pass
-
-    
     print(f"Select Student: {selected_student}")
 
     context = {
         "selected_student": selected_student,
         "student": None,
         "menus": menus,
-        "students": students
+        "students": students,
+        "quotas_generated": quotas_generated,
+        "flag_irregularity": flag_irregularity
     }
 
-    
     if selected_student:
         student = Student.objects.filter(
             id=selected_student['id']
         ).first()
 
-        items = TemporaryOrderItem.objects.filter(student=student)
-        order_value = sum(TemporaryOrderItem.objects.filter(
-            student=student).values_list("price", flat=True))
 
-        menus = Menu.objects.exclude(
+        items = TemporaryOrderItem.objects.filter(student=student, user=user)
+        order_value = sum(TemporaryOrderItem.objects.filter(
+            student=student, user=user).values_list("price", flat=True))
+
+        
+
+        menus = menus_list.exclude(
             id__in=list(TemporaryOrderItem.objects.filter(
-                student=student).values_list('menu_item_id', flat=True))
+                student=student, user=user).values_list('menu_item_id', flat=True))
         ).filter(quantity__gt=0)
 
         extra_amount = order_value - student.studentwallet.balance
+
+        student_orders = Order.objects.filter(student=student, created__date=date_today)
+
+        if student.user.first_name == "Walk-In" and student.studentwallet.balance > 0:
+            flag_irregularity = True
+            is_walk_in_student = True
+
+        if student.user.first_name == "Walk-In" and student.studentwallet.balance < 0:
+            flag_irregularity = True
+            is_walk_in_student = True
+
+        elif student.user.first_name != "Walk-In":
+            if student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
+                flag_irregularity = True
+                
+
+            elif student_orders:
+                total_orders_today = 0
+
+                total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
+
+                if total_orders_today + student.studentwallet.balance > 350:
+                    flag_irregularity = True
+                else:
+                    flag_irregularity = False
+            elif student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
+                flag_irregularity = True
+
 
         if request.method == "POST":
             item = request.POST.get("item")
             print(f"Searched Item: {item}")
             menus = Menu.objects.filter(Q(item__icontains=item)).filter(quantity__gt=0)
             print(f"Found Menu Items: {menus}")
-
-        #paginator = Paginator(menus, 12)
-        #page_number = request.GET.get("page")
-        #page_obj = paginator.get_page(page_number)
+        
 
         context = {
             "student": student,
@@ -195,35 +227,45 @@ def pos(request):
             "order_value": order_value,
             "extra_amount": extra_amount,
             "students": students,
-            "selected_student": selected_student
+            "selected_student": selected_student,
+            "quotas_generated": quotas_generated,
+            "flag_irregularity": flag_irregularity,
+            "is_walk_in_student": is_walk_in_student
         }
     return render(request, "orders/pos.html", context)
+
 
 
 @login_required(login_url="/users/login/")
 @transaction.atomic
 def confirm_order(request, student_id=None, *args, **kwargs):
     user = request.user
+    cashier_id = request.session.get("cashier_id")
     student = Student.objects.get(id=student_id)
     meal_time = determin_meal_time()
 
     order_value = sum(TemporaryOrderItem.objects.filter(
-        student=student).values_list("price", flat=True))
+        student=student, user=user).values_list("price", flat=True))
 
     order = Order.objects.create(
         student=student,
         status="Processed",
         total_cost=order_value,
         meal_time=meal_time,
-        served_by=user
+        served_by=user,
+        payment_method="Wallet"
     )
 
-    items = TemporaryOrderItem.objects.all()
+    items = TemporaryOrderItem.objects.filter(
+        student=student,
+        user=user
+    )
 
     order_items_list = []
     for order_item in items:
         order_items_list.append(OrderItem(
             order=order,
+            user=user,
             item=order_item.menu_item,
             quantity=order_item.quantity,
             price=order_item.price
@@ -236,19 +278,31 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         menu_item.quantity -= order_item.quantity
         menu_item.save()
 
+     
+        SalesReport.objects.create(
+            order=order_item.order,
+            item=menu_item.item,
+            amount=menu_item.price * Decimal(order_item.quantity),
+            sold_or_spoiled="Sold",
+            quantity=order_item.quantity,
+            unit_price=menu_item.price
+        )
+
+    DailySalesReport.objects.create(
+        order=order,
+        payment_method="Wallet",
+        amount=order.total_cost
+    )
+    
     student.studentwallet.balance -= order_value
     student.studentwallet.total_spend_today += order_value
     student.studentwallet.save()
 
-    wallet_payment = SalesReport.objects.create(
-        order=order,
-        payment_method="Wallet",
-        amount=order_value
-    )
+   
 
     Menu.objects.update(added_to_cart=False)
-    TemporaryOrderItem.objects.all().delete()
-    del request.session['selected_student']
+    TemporaryOrderItem.objects.filter(user=user, student=student).delete()
+    del request.session[f'selected_student_{cashier_id}']
     return redirect(f"/orders/print-order/{order.id}/")
 
 
@@ -256,7 +310,6 @@ def confirm_order(request, student_id=None, *args, **kwargs):
 @transaction.atomic
 def confirm_overpaid_order(request):
     user = request.user
-
     if request.method == "POST":
         recharge_method = request.POST.get("recharge_method")
         amount = Decimal(request.POST.get("amount"))
@@ -278,22 +331,39 @@ def confirm_overpaid_order(request):
         meal_time = determin_meal_time()
 
         order_value = sum(TemporaryOrderItem.objects.filter(
-            student=student).values_list("price", flat=True))
+            student=student, user=user).values_list("price", flat=True))
 
-        order = Order.objects.create(
-            student=student,
-            status="Processed",
-            total_cost=order_value,
-            meal_time=meal_time,
-            served_by=user
+        if recharge_method.lower() == "cash":
+            order = Order.objects.create(
+                student=student,
+                status="Processed",
+                total_cost=order_value,
+                meal_time=meal_time,
+                served_by=user, 
+                payment_method="Wallet And Cash"
+            )
+        elif recharge_method.lower() == "mpesa":
+            order = Order.objects.create(
+                student=student,
+                status="Processed",
+                total_cost=order_value,
+                meal_time=meal_time,
+                served_by=user, 
+                payment_method="Wallet And Mpesa"
+            )
+        else:
+            print(f"Recharge Method: {recharge_method} Was not found")
+
+        items = TemporaryOrderItem.objects.filter(
+            user=user,
+            student=student
         )
-
-        items = TemporaryOrderItem.objects.all()
 
         order_items_list = []
         for order_item in items:
             order_items_list.append(OrderItem(
                 order=order,
+                user=user,
                 item=order_item.menu_item,
                 quantity=order_item.quantity,
                 price=order_item.price
@@ -305,50 +375,58 @@ def confirm_overpaid_order(request):
             menu_item = Menu.objects.get(id=order_item.item.id)
             menu_item.quantity -= order_item.quantity
             menu_item.save()
+            
+            SalesReport.objects.create(
+                order=order_item.order,
+                item=menu_item.item,
+                amount=menu_item.price * Decimal(order_item.quantity),
+                sold_or_spoiled="Sold",
+                quantity=order_item.quantity,
+                unit_price=menu_item.price
+            )
+
+        mixin = DailyReportMixin(
+            order=order,
+            recharge_method=recharge_method,
+            order_value=order_value,
+            amount=amount
+        )
+        mixin.run()
 
         student.studentwallet.balance -= order_value
         student.studentwallet.total_spend_today += order_value
         student.studentwallet.save()
 
-        if recharge_method == "Mpesa":
-            wallet_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Wallet",
-                amount=order_value-amount
-            )
-            mpesa_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Mpesa",
-                amount=amount
-            )
-        elif recharge_method == "Cash":
-            wallet_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Wallet",
-                amount=order_value-amount
-            )
-            cash_payment = SalesReport.objects.create(
-                order=order,
-                payment_method="Cash",
-                amount=amount
-            )
-
+        
         Menu.objects.update(added_to_cart=False)
-        TemporaryOrderItem.objects.all().delete()
+        TemporaryOrderItem.objects.filter(user=user, student=student).delete()
         return redirect(f"/orders/print-order/{order.id}/")
 
 
 @login_required(login_url="/users/login/")
 def add_to_cart(request, menu_id=None, student_id=None):
+    user = request.user
     menu_item = Menu.objects.get(id=menu_id)
 
-    total_price = menu_item.price * 1
-    TemporaryOrderItem.objects.create(
+    item_check = TemporaryOrderItem.objects.filter(
         student_id=student_id,
         menu_item=menu_item,
-        quantity=1,
-        price=total_price
-    )
+        user=user
+    ).first()
+
+    total_price = menu_item.price * 1
+    if item_check:
+        item_check.quantity += 1
+        item_check.price += total_price
+        item_check.save()
+    else:
+        TemporaryOrderItem.objects.create(
+            user=user,
+            student_id=student_id,
+            menu_item=menu_item,
+            quantity=1,
+            price=total_price
+        )
     return redirect(f"/orders/place-order/")
 
 
@@ -359,7 +437,7 @@ def edit_order_item(request):
         order_item_id = request.POST.get("order_item_id")
         quantity = Decimal(request.POST.get("quantity"))
 
-        item = TemporaryOrderItem.objects.get(id=order_item_id)
+        item = TemporaryOrderItem.objects.get(id=order_item_id, student_id=student_id)
         item.quantity = quantity
         item.price = quantity * item.menu_item.price
         item.save()
@@ -368,7 +446,7 @@ def edit_order_item(request):
 
 
 @login_required(login_url="/users/login/")
-def remove_from_cart(request, item_id=None):
+def remove_from_cart(request, item_id=None, student_id=None):
     item = TemporaryOrderItem.objects.get(id=item_id)
     menu_item = Menu.objects.get(id=item.menu_item.id)
     menu_item.added_to_cart = False
@@ -381,6 +459,8 @@ def remove_from_cart(request, item_id=None):
 
 @login_required(login_url="/users/login/")
 def print_order_receipt(request, order_id=None):
+    user = request.user
+    cashier_id = request.session.get("cashier_id")
     order = Order.objects.get(id=order_id)
     order_items = order.orderitems.all()
 
@@ -388,14 +468,14 @@ def print_order_receipt(request, order_id=None):
         "order": order,
         "order_items": order_items
     }
-    if request.session.get('selected_student'):
-        del request.session['selected_student']
+    if request.session.get(f'selected_student_{cashier_id}'):
+        del request.session[f'selected_student_{cashier_id}']
     return render(request, "orders/receipt.html", context)
 
 
 @login_required(login_url="/users/login/")
 def increase_order_item_quantity(request, item_id=None, student_id=None):
-    item = TemporaryOrderItem.objects.get(id=item_id)
+    item = TemporaryOrderItem.objects.get(id=item_id, student_id=student_id)
     item.quantity += 1
     item.price += item.menu_item.price
     item.save()
@@ -405,7 +485,7 @@ def increase_order_item_quantity(request, item_id=None, student_id=None):
 
 @login_required(login_url="/users/login/")
 def decrease_order_item_quantity(request, item_id=None, student_id=None):
-    item = TemporaryOrderItem.objects.get(id=item_id)
+    item = TemporaryOrderItem.objects.get(id=item_id, student_id=student_id)
     if item.quantity == 0:
         item.quantity = 0
         item.save()
@@ -424,206 +504,10 @@ def clear_order_items(request, student_id=None):
         print(items)
     return redirect(f"/orders/place-order/")
 
-########################## Walk In Customer Logic ######################
-
-"""
-@login_required(login_url="/users/login/")
-def clear_shopping_cart(request):
-    items = TemporaryCustomerOrderItem.objects.all().delete()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def add_cart_items(request, item_id=None):
-    menu_item = Menu.objects.get(id=item_id)
-
-    item = TemporaryCustomerOrderItem.objects.create(
-        menu_item=menu_item,
-        quantity=1,
-        price=menu_item.price
-    )
-
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def delete_cart_item(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-    item.delete()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def customer_order(request):
-    students = Student.objects.all()
-    cart_items = TemporaryCustomerOrderItem.objects.all()
-
-    selected_student = request.session.get('selected_student')
-
-    print("This view was reached!!")
-    print(f"Request Method: {request.method}")
-
-    if request.method == 'POST':
-        reg_number = request.POST.get('reg_number')
-        print(f"Student Reg. Number: {reg_number}")
-
-        try:
-            student = Student.objects.get(registration_number=reg_number)
-            request.session['selected_student'] = {
-                'id': student.id,
-                'name': f'{student.user.first_name} {student.user.last_name}',
-                'registration_number': student.registration_number,
-                'wallet_balance': str(student.wallet_balance),
-            }
-            selected_student = request.session.get('selected_student')
-            print(f"Selected Student: {student.user.first_name} {student.user.last_name}")
-            return redirect('customer-order')
-        except Student.DoesNotExist:
-            # Handle the case when the student is not found
-            pass
-
-    items_added = False
-    if cart_items.count() >= 1:
-        items_added = True
-
-    menus = Menu.objects.exclude(
-        id__in=TemporaryCustomerOrderItem.objects.values_list(
-            "menu_item_id", flat=True)
-    )
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    paginator = Paginator(menus, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "menus": menus,
-        "page_obj": page_obj,
-        "cart_items": cart_items,
-        "order_value": order_value,
-        "items_added": items_added,
-        "students": students,
-        "selected_student": selected_student
-    }
-    return render(request, "orders/customer_order.html", context)
-
-
-@login_required(login_url="/users/login/")
-@transaction.atomic
-def place_customer_mpesa_order(request):
-    user = request.user
-    meal_time = determin_meal_time()
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    order = Order.objects.create(
-        status="Processed",
-        total_cost=order_value,
-        meal_time=meal_time,
-        served_by=user
-    )
-
-    items = TemporaryCustomerOrderItem.objects.all()
-
-    order_items_list = []
-    for order_item in items:
-        order_items_list.append(OrderItem(
-            order=order,
-            item=order_item.menu_item,
-            quantity=order_item.quantity,
-            price=order_item.price
-        ))
-
-    order_items = OrderItem.objects.bulk_create(order_items_list)
-
-    for order_item in order_items:
-        menu_item = Menu.objects.get(id=order_item.item.id)
-        menu_item.quantity -= order_item.quantity
-        menu_item.save()
-
-    sales_report_log = SalesReport.objects.create(
-        order=order,
-        payment_method="Mpesa",
-        amount=order_value
-    )
-
-    TemporaryCustomerOrderItem.objects.all().delete()
-    request.session.flush()
-    return redirect(f"/orders/print-order/{order.id}/")
-
-
-@login_required(login_url="/users/login/")
-@transaction.atomic
-def place_customer_cash_order(request):
-    user = request.user
-    meal_time = determin_meal_time()
-
-    order_value = sum(
-        list(TemporaryCustomerOrderItem.objects.values_list("price", flat=True)))
-
-    order = Order.objects.create(
-        status="Processed",
-        total_cost=order_value,
-        meal_time=meal_time,
-        served_by=user
-    )
-
-    items = TemporaryCustomerOrderItem.objects.all()
-
-    order_items_list = []
-    for order_item in items:
-        order_items_list.append(OrderItem(
-            order=order,
-            item=order_item.menu_item,
-            quantity=order_item.quantity,
-            price=order_item.price
-        ))
-
-    order_items = OrderItem.objects.bulk_create(order_items_list)
-
-    for order_item in order_items:
-        menu_item = Menu.objects.get(id=order_item.item.id)
-        menu_item.quantity -= order_item.quantity
-        menu_item.save()
-    
-    sales_report_log = SalesReport.objects.create(
-        order=order,
-        payment_method="Cash",
-        amount=order_value
-    )
-
-    TemporaryCustomerOrderItem.objects.all().delete()
-
-    return redirect(f"/orders/print-order/{order.id}/")
-
-@login_required(login_url="/users/login/")
-def increase_item_quantity(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-    item.quantity += 1
-    item.price += item.menu_item.price
-    item.save()
-    return redirect("customer-order")
-
-
-@login_required(login_url="/users/login/")
-def decrease_item_quantity(request, item_id=None):
-    item = TemporaryCustomerOrderItem.objects.get(id=item_id)
-
-    if item.quantity == 0:
-        item.quantity = 0
-    else:
-        item.quantity -= 1
-        item.price -= item.menu_item.price
-        item.save()
-    return redirect("customer-order")
-"""
-
 
 @login_required(login_url="/users/login/")
 def recharge_student_wallet_at_order(request):
+    cashier_id = request.session.get("cashier_id")
     if request.method == "POST":
         reg_number = request.POST.get("reg_number")
         recharge_method = request.POST.get("recharge_method")
@@ -643,38 +527,60 @@ def recharge_student_wallet_at_order(request):
             recharge_method=recharge_method,
             amount_recharged=amount
         )
-        del request.session['selected_student']
+        del request.session[f'selected_student_{cashier_id}']
         return redirect(f"/orders/place-order/{student.id}")
 
     return render(request, "modals/request_recharge.html")
 
 
+@transaction.atomic
 def void_customer_order(request):
     if request.method == "POST":
         order_id = int(request.POST.get("order_id"))
 
         order = Order.objects.get(id=order_id)
         order.status = "Nullified"
+        order.total_cost = 0
 
-        sales_reports = SalesReport.objects.filter(order=order)
+        order_items = order.orderitems.all()
 
-        for sale_report in sales_reports:
+        for order_item in order_items:
+            menu = Menu.objects.get(id=order_item.item.id)
+            menu.quantity += order_item.quantity
+            menu.save()
+
+        
+        daily_sales_reports = DailySalesReport.objects.filter(order=order)
+        
+        for sale_report in daily_sales_reports:
             if sale_report.payment_method in ["Mpesa", "Cash"]:
                 sale_report.amount = 0
                 sale_report.save()
 
             elif sale_report.payment_method == "Wallet":
-                sale_report_amount = sale_report.amount
                 student = sale_report.order.student
                 student_wallet = student.studentwallet
-                student_wallet.balance += sale_report_amount
-                student_wallet.total_spend_today -= sale_report_amount
+                student_wallet.balance += sale_report.amount
+                student_wallet.total_spend_today -= sale_report.amount
                 student_wallet.save()
 
                 sale_report.amount = 0
                 sale_report.save()
 
+        daily_sales_reports.delete()
+        sales_reports = SalesReport.objects.filter(order=order)
+        sales_reports.delete()
+        order_items.delete()
+
+
         order.save()
 
         return redirect("orders")
     return render(request, "orders/void_order.html")
+
+
+@login_required(login_url="/users/login/")
+def clear_student_from_pos(request):
+    cashier_id = request.session.get("cashier_id")
+    del request.session[f'selected_student_{cashier_id}']
+    return redirect("place-order")

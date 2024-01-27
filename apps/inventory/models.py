@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from django.db import models
+from django.utils import timezone
 
 from apps.core.constants import UNIT_CHOICES
 from apps.core.models import AbstractBaseModel
 
+date_today = datetime.now().date()
 
 # Create your models here.
 class Supplier(AbstractBaseModel):
@@ -31,6 +35,8 @@ class SupplyLog(AbstractBaseModel):
     payment_method = models.CharField(max_length=255, null=True)
     total_cost = models.DecimalField(max_digits=100, decimal_places=2)
     supply_unit = models.CharField(max_length=255, null=True)
+    amount_paid = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    amount_due = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
 
     def __str__(self):
@@ -77,6 +83,7 @@ class Menu(AbstractBaseModel):
     added_to_cart = models.BooleanField(default=False)
     quantity = models.FloatField(default=0)
     starting_stock = models.FloatField(default=0)
+    updated_today = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.item

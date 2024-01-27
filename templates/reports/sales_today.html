@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h3>Sales Data Today</h3>
+    </div>
+    
+   
+    <div class="col">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+          <div class="row">
+            <div class="">
+              <input type="text" class="form-control" hidden id="action_type" name="action_type" value="item_sales" >
+            </div>
+            <div class="col">
+              <button class="btn btn-success">Item Sales Report</button>
+            </div>
+          </div>
+          
+        </div>
+        
+      </form>
+    </div>
+    <div class="col">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+          <div class="row">
+            <div class="">
+              <input type="text" class="form-control" hidden id="action_type" name="action_type" value="overall_sales" >
+            </div>
+            <div class="col">
+              <button class="btn btn-primary">Overall Sales Report</button>
+            </div>
+          </div>
+          
+        </div>
+        
+      </form>
+    </div>
+    
+</div>
+<hr/>
+      <div class="table-responsive small">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Item</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Total Amount</th>
+              <th scope="col">Sold or Spoiled</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale_today in page_obj %}
+            <tr>
+              <td>{{sale_today.id}}</td>
+              <td>{{sale_today.created}}</td>
+              <td>{{sale_today.item}}</td>
+              <td>{{sale_today.quantity}}</td>
+              <td>{{sale_today.amount}}</td>
+              <td>{{sale_today.sold_or_spoiled}}</td>
+            </tr>
+           
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}   
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+              {% if page_obj.has_next %}    
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}   
+            </ul>
+          </nav>
+        </div>
+      </div>
+{% endblock content %}

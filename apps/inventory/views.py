@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.contrib import messages
@@ -6,13 +7,21 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
+from apps.core.models import Expense
 from apps.inventory.models import (Inventory, Menu, StockLog, Supplier,
                                    SupplyLog)
+from apps.reports.models import SalesReport
 
-
+date_today = datetime.now().date()
 # Create your views here.
 def menus(request):
     menus = Menu.objects.all()
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+
+        menus = Menu.objects.filter(Q(item__icontains=name))
+
     paginator = Paginator(menus, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -20,6 +29,7 @@ def menus(request):
     context = {
         "menus": menus,
         "page_obj": page_obj,
+        "date_today": date_today
     }
     return render(request, "menus/menu.html", context)
 
@@ -27,7 +37,6 @@ def menus(request):
 def new_menu_item(request):
     if request.method == "POST":
         item = request.POST.get("item")
-        starting_stock = float(request.POST.get("starting_stock"))
         price = request.POST.get("price")
         quantity = request.POST.get("quantity")
         image = request.FILES["image"]
@@ -37,7 +46,7 @@ def new_menu_item(request):
             price=price,
             quantity=quantity,
             image=image,
-            starting_stock=starting_stock
+            starting_stock=quantity
         )
 
         return redirect("menus")
@@ -46,24 +55,61 @@ def new_menu_item(request):
 
 def edit_menu_item(request):
     if request.method == "POST":
-        menu_id = request.POST.get("menu_id")
+        menu_id = int(request.POST.get("menu_id"))
         item = request.POST.get("item")
-        price = request.POST.get("price")
-        starting_stock = float(request.POST.get("starting_stock"))
-        quantity = request.POST.get("quantity")
-        available = True if request.POST.get("available") == "true" else False
+        price = Decimal(request.POST.get("price"))
+        image = request.FILES.get("image")
+    
+        quantity = float(request.POST.get("quantity"))
+        
 
         menu_item = Menu.objects.get(id=menu_id)
         menu_item.item = item
         menu_item.price = price
         menu_item.quantity = quantity
-        menu_item.available = available
-        menu_item.starting_stock =starting_stock
+        menu_item.starting_stock = quantity
+        menu_item.image = image if image else menu_item.image
+        menu_item.updated_today = date_today
         menu_item.save()
 
         return redirect("menus")
 
     return render(request, "menus/edit_menu.html")
+
+def edit_menu_item_amount(request):
+    if request.method == "POST":
+        menu_id = int(request.POST.get("menu_id"))
+        quantity = float(request.POST.get("quantity"))
+        
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.quantity += quantity
+        menu_item.starting_stock += quantity
+        menu_item.save()
+
+        return redirect("menus")
+
+    return render(request, "menus/edit_menu_item.html")
+
+def spolied_menu_item(request):
+    if request.method == "POST":
+        menu_id = int(request.POST.get("menu_id"))
+        quantity = float(request.POST.get("quantity"))
+        
+        menu_item = Menu.objects.get(id=menu_id)
+        menu_item.quantity -= quantity
+        menu_item.starting_stock -= quantity
+        menu_item.save()
+
+        SalesReport.objects.create(
+            item=menu_item.item,
+            amount=menu_item.price * Decimal(quantity),
+            sold_or_spoiled="Spoiled",
+            quantity=quantity
+        )
+
+        return redirect("menus")
+
+    return render(request, "menus/edit_menu_item.html")
 
 
 def delete_menu_item(request):
@@ -142,6 +188,7 @@ def new_supplier(request):
             country=country
         )
 
+
         return redirect("suppliers")
 
     return render(request, "suppliers/edit_supplier.html")
@@ -213,11 +260,18 @@ def new_stock_item(request):
 
         supplier = Supplier.objects.get(id=supplier_id)
         supply_cost = unit_price * Decimal(stock)
+
+        print(f"Type of Total Supplies Cost: {type(supplier.total_supplies_cost)}")
+        print(f"Type of Supply Cost: {type(supply_cost)}")
+
+
         if payment_method == "Credit":
             supplier.amount_owed += supply_cost
         elif payment_method in ["Mpesa", "Cash"]:
-            supplier.total_paid += supply_cost,
+
+            supplier.total_paid += supply_cost
         supplier.total_supplies_cost += supply_cost
+
         supplier.save()
 
         inventory = Inventory.objects.create(
@@ -229,15 +283,30 @@ def new_stock_item(request):
             payment_method=payment_method,
         )
 
-        supply_log = SupplyLog.objects.create(
-            supplier=supplier,
-            item=name,
-            quantity_supplied=stock,
-            unit_price=unit_price,
-            payment_method=payment_method,
-            total_cost = supply_cost,
-            supply_unit=unit
-        )
+        if payment_method == "Credit":
+            supply_log = SupplyLog.objects.create(
+                supplier=supplier,
+                item=name,
+                quantity_supplied=stock,
+                unit_price=unit_price,
+                payment_method=payment_method,
+                total_cost = supply_cost,
+                supply_unit=unit,
+                amount_due=supply_cost,
+                amount_paid=0
+            )
+        elif payment_method in ["Cash", "Mpesa"]:
+            supply_log = SupplyLog.objects.create(
+                supplier=supplier,
+                item=name,
+                quantity_supplied=stock,
+                unit_price=unit_price,
+                payment_method=payment_method,
+                total_cost = supply_cost,
+                supply_unit=unit,
+                amount_due=0,
+                amount_paid=supply_cost
+            )
 
         log = StockLog.objects.create(inventory=inventory, quantity=stock)
 
@@ -273,14 +342,30 @@ def re_stock(request):
 
         inventory.save()
 
-        supply_log = SupplyLog.objects.create(
+        
+        if payment_method == "Credit":
+            supply_log = SupplyLog.objects.create(
+                supplier=inventory.supplier,
+                item=inventory.name,
+                quantity_supplied=amount,
+                unit_price=inventory.unit_price,
+                payment_method=payment_method,
+                total_cost = total_cost,
+                supply_unit=inventory.unit,
+                amount_due=total_cost,
+                amount_paid=0
+            )
+        elif payment_method in ["Mpesa", "Cash"]:
+            supply_log = SupplyLog.objects.create(
             supplier=inventory.supplier,
             item=inventory.name,
             quantity_supplied=amount,
             unit_price=inventory.unit_price,
             payment_method=payment_method,
             total_cost = total_cost,
-            supply_unit=inventory.unit
+            supply_unit=inventory.unit,
+            amount_due=0,
+            amount_paid=total_cost
         )
 
         log = StockLog.objects.create(
@@ -338,3 +423,31 @@ def stock_logs(request):
         "page_obj": page_obj,
     }
     return render(request, "inventory/inventory_logs.html", context)
+
+
+def pay_supplier(request):
+    if request.method == "POST":
+        supply_id = int(request.POST.get("supply_id"))
+        amount = Decimal(request.POST.get("amount"))
+        payment_method = request.POST.get("payment_method")
+
+        supply = SupplyLog.objects.get(id=supply_id)
+
+        supply.amount_due -= amount
+        supply.amount_paid += amount
+        supply.save()
+
+        Expense.objects.create(
+            title="Supply payment",
+            purpose=f"Supply payment to {supply.supplier.name}",
+            amount=amount,
+            payment_method=payment_method
+        )
+
+        supply.supplier.total_paid += amount
+        supply.supplier.amount_owed -= amount
+        supply.supplier.save()
+
+        return redirect("suppliers")
+
+    return render(request, "suppliers/pay_supplier.html")

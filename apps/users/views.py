@@ -103,6 +103,9 @@ def user_login(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
+
+            request.session["cashier_id"] = user.id
+
             login(request, user)
             return redirect('home') 
     return render(request, 'accounts/login.html')

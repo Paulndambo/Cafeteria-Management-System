@@ -7,17 +7,72 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORDER</title>
+    <link href="{%  static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/dist/css/select2.min.css' %}" rel="stylesheet">
+    
+    <link href="{% static 'assets/dist/css/bootstrap-icons.css' %}" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
     <link href="{%  static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
-     <!-- Custom styles for this template -->
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
-     <!-- Custom styles for this template -->
+     
+     
+     <link href="{% static 'selectcss/bootstrap-icons.css' %}" rel="stylesheet">
+    
      <link href="{% static 'dashboard.css' %}" rel="stylesheet">
+     <link href="{% static 'selectcss/select2.min.css' %}" rel="stylesheet">
+    
+     
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+     <style>
+      .product-list-container {
+display: flex;
+flex-wrap: wrap;
+justify-content: space-evenly;
+user-select: none;
+}
+
+.product-card {
+width: 15%;
+margin-bottom: 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+user-select: none;
+
+box-sizing: border-box;
+}
+
+.product-card img {
+width: 100%;
+height: auto;
+border-radius: 5px;
+margin-bottom: 10px;
+user-select: none;
+}
+
+.product-title {
+font-size: 20px;
+margin: 0;
+}
+
+.product-description {
+margin: 10px 0;
+}
+
+.product-price {
+font-weight: bold;
+margin: 0;
+}
+a {
+  text-decoration: none;
+  color: inherit; /* Use the parent's color */
+  cursor: pointer; /* Change cursor to pointer on hover for better UX */
+}
+  </style>
 </head>
 <body>
   <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="{% url 'place-order' %}">JAWAKA</a>
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="{% url 'home' %}">JAWAKA</a>
   
     <ul class="navbar-nav flex-row d-md-none">
       <li class="nav-item text-nowrap">
@@ -32,47 +87,35 @@
       </li>
       
     </ul>
-  
+    <p>Hello</p>
+    <a href="{% url 'place-order' %}"><button class="btn btn-primary">POS</button></a>
+    <a href="{% url 'students' %}"><button class="btn btn-success">Students</button></a>
+    <a href="{% url 'orders' %}"><button class="btn btn-warning">Orders</button></a>
+    <button class="btn btn-light">Hello, {{request.user.username}}</button>
     <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+  
+    
   </header>
 <div class="container-fluid">
-  <div class="row mt-3">
-    {% if selected_student %}
-    <p class="text-center"><b>Name:</b> {{selected_student.name}} <b>Reg. Number:</b> {{selected_student.registration_number}}, <b>ID: </b>{{selected_student.id}}</p>
-    {% else %}
-    <div class="col-4"></div>
-    <div class="col-4">
+{% if quotas_generated %}
+<div class="row mt-3">
+    <div class="col-5">
       <form method="post" action="{% url 'place-order' %}">
         {% csrf_token %}
         <p class="text-center">Select Student First</p>
-        <select class="js-example-basic-single form-select" name="reg_number" id="reg_number">
-            <option value="" selected disabled>Search Student</option>
+        <select class="js-example-basic-single form-select" name="reg_number" id="reg_number" onchange="recordSelection()">
+            <option value="" disabled selected>{{selected_student.first_name}} {{selected_student.last_name}} - {{selected_student.registration_number}}</option>
             {% for student in students %}
                 <option value="{{student.registration_number}}" name="reg_number">{{student.user.name}} - {{student.registration_number}}</option>
             {% endfor %}
             
-        </select>
-        <div class="text-center mt-3">
-          <button type="submit" class="btn btn-lg btn-success">Select Student</button>
-      </div>
-        
+        </select> 
     </form>
-    </div>
-    <div class="col-4"></div>
-    {% endif %}
-  </div>
- 
-<hr/>
-{% if selected_student %}
-<div class="row">
-    <div class="col-5">
-        <h3 class="text-center">Cart Items</h3>
-        <hr/>
+    <hr/>
         <div class="table-responsive small">
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
                   <th scope="col">Item</th>
                   <th scope="col"></th>
                   <th scope="col">Quantity</th>
@@ -83,7 +126,7 @@
               <tbody>
                 {% for order_item in items %}
                 <tr>
-                  <td>{{order_item.id}}</td>
+                  
                   <td>{{order_item.menu_item}}</td>
                   <td>
                     <a href="{% url 'decrease-order-item-quantity' order_item.id selected_student.id %}" class="btn btn-secondary btn-sm">
@@ -102,7 +145,7 @@
                  
                   <td>{{order_item.price}}</td>
                 <td>
-                    <a href="{% url 'remove-from-cart' order_item.id %}" class="btn btn-danger btn-sm">
+                    <a href="{% url 'remove-from-cart' order_item.id selected_student.id %}" class="btn btn-danger btn-sm">
                         <i class="bi bi-trash"></i>
                     </a>
                 </td>
@@ -116,18 +159,27 @@
               </tbody>
             </table>
             <div class="row">
+              {% if flag_irregularity == True %}
+              <div class="col bg-warning text-center">
+                <p class="text-center" style="font-weight: bold;">This student has balance irregularity</p>
+                <p class="text-center" style="font-weight: bold;">don't sell to the student please report!</p>
+                {% if is_walk_in_student == True %}
+                <a href="{% url 'set-zero-balance' selected_student.id %}" class="btn btn-success mb-2">Set Balance To Zero</a>
+                {% endif %}
+              </div>
+            {% else %}
               <div class="col">
-                <p>Grand Total: <b>{{order_value}}</b></p>
+                  <p>Grand Total: <b>{{order_value}}</b></p>
+              </div>
+              <div class="col">
+                <p>Wallet Bal: <b>{{student.wallet_balance}}</b></p>
+              </div>
+            {% endif %}
             </div>
-            <div class="col">
-              <p>Wallet Bal: <b>{{selected_student.wallet_balance}}</b></p>
-
-          </div>
-            </div>
-            <div class="row">
+            <div class="row mt-2">
                 <div class="col">
                     {% if order_value > student.wallet_balance %}
-                    <a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
+                    <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
                         Pay With Cash/Mpesa
                     </a>
                     <a href="{% url 'clear-order-items' selected_student.id %}" class="btn btn-danger btn-sm">
@@ -152,8 +204,8 @@
     </div>
     
     <div class="col-7">
-        <h3 class="text-center">Menu Today</h3>
-        <hr/>
+      <p>Name: {{student.user.first_name}} {{student.user.last_name}}, Reg: {{student.registration_number}}, ID: {{student.id}}</p>
+      <hr/>
         <form method="POST">
           {% csrf_token %}
           <div class="input-group mb-3">
@@ -169,19 +221,22 @@
           </div>
         </form>
         <hr/>
-        <div class="row" style="max-height: auto; overflow-y: auto;">
+
+        <div class="row product-list-container" style="max-height: auto; overflow-y: auto;">
+         
+
         {% for menu in menus %}
-        <div class="col-2 mt-1">
-          <a href="{% url 'add-to-cart' menu.id student.id %}">
-            <div class="card d-flex flex-column" style="height: 160px; width: 110px;">
-              <img src="{{menu.image.url}}" class="card-img-top" alt="Product 2 Image">
-              <div class="card-body">
-                <p class="card-title">{{menu.item}}</p>
-              </div>
-            </div>
-          </a>
-        </div>
+        
+        <a href="{% url 'add-to-cart' menu.id selected_student.id %}" class="product-card" style="height: 150px; width: 100px;">
+          <div>
+            <img src="{{menu.image.url}}" alt="Product Name">
+            <h3 class="product-title">{{menu.item}}</h3>
+            <p class="product-price">({{menu.price}})</p>
+          </div>
+        </a>
+      
         {% endfor %}
+      
       
         <!--
         <div class="table-responsive small">
@@ -238,22 +293,71 @@
         
     </div>
 </div>
-</div>
 {% else %}
-<div class="row">
-  <p class="text-center">Please Select a Student First!</p>
+<div class="text-center mt-3">
+  <a href="{% url 'generate-daily-quotas' %}" class="btn btn-info">Generate Quotas for Boarding Students</a>
 </div>
+
 {% endif %}
+</div>
+<script src="{% static 'selectcss/jquery-3.3.1.slim.min.js' %}"></script>
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'selectcss/select2.min.js' %}"></script>
+<script src="{% static 'selectcss/bootstrap.min.js' %}"></script>
+<script src="{% static 'selectcss/jquery-3.3.1.slim.min.js' %}" ></script>
+<script src="{% static 'selectcss/select2.min.js' %}"></script>
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'selectcss/chart.umd.min.js' %}"></script>
+
+
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-    <!-- Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" integrity="sha384-gdQErvCNWvHQZj6XZM0dNsAoY4v+j5P1XDpNkcM3HJG1Yx04ecqIHk7+4VBOCHOG" crossorigin="anonymous"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js" integrity="sha384-gdQErvCNWvHQZj6XZM0dNsAoY4v+j5P1XDpNkcM3HJG1Yx04ecqIHk7+4VBOCHOG" crossorigin="anonymous"></script><script src="dashboard.js"></script>
-    <script>
-      // Initialize Select2
+<script>
+// Initialize Select2
+function getCSRFToken() {
+    const csrfCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('csrftoken='));
+    if (csrfCookie) {
+        return csrfCookie.split('=')[1];
+    }
+    return null;
+}
+const recordSelection = async() => {
+    var selectedOption = document.getElementById("reg_number");
+    var selectedValue = selectedOption.value;
+    var selectedText = selectedOption.options[selectedOption.selectedIndex].text;
+
+    // You can now do something with the selected value and text
+    console.log("Selected Value: " + selectedValue);
+    console.log("Selected Text: " + selectedText);
+
+    let headersList = {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        'X-CSRFToken': getCSRFToken(),
+    }
+
+    let bodyContent = JSON.stringify({
+      "registration_number": selectedValue
+    });
+
+    let response = await fetch("/orders/create-session/", { 
+      method: "POST",
+      body: bodyContent,
+      headers: headersList
+    });
+    
+    let data = await response.text();
+    console.log(data);
+    // You can also perform additional actions or send data to the server using Ajax, etc.
+    window.location.reload()
+}
+
+  
+
+
       $(document).ready(function() {
           $('.js-example-basic-single').select2();
       });

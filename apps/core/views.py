@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from apps.core.models import Expense
 from apps.orders.models import Order
-from apps.reports.models import SalesReport
+from apps.reports.models import DailySalesReport
 from apps.students.models import Student, StudentWallet
 from apps.users.models import User
 
@@ -79,6 +79,14 @@ def delete_expense(request):
 
 @login_required(login_url="/users/login/")
 def home(request):
+    user = request.user
+
+    if user.role == "chef":
+        return redirect("menus")
+
+    elif user.role == "cashier":
+        return redirect("place-order")
+
     end_date = timezone.now()
     start_date = end_date - timedelta(days=6)
 
@@ -87,29 +95,29 @@ def home(request):
     orders_today = Order.objects.filter(created__date=date_today).count()
 
     ### Data Today
-    mpesa_sales_today = sum(list(SalesReport.objects.filter(
+    mpesa_sales_today = sum(list(DailySalesReport.objects.filter(
         created__date=date_today, 
         payment_method="Mpesa"
     ).values_list("amount", flat=True)))
 
-    cash_sales_today = sum(list(SalesReport.objects.filter(
+    cash_sales_today = sum(list(DailySalesReport.objects.filter(
         created__date=date_today, 
         payment_method="Cash"
     ).values_list("amount", flat=True)))
 
-    wallet_sales_today = sum(list(SalesReport.objects.filter(
+    wallet_sales_today = sum(list(DailySalesReport.objects.filter(
         created__date=date_today, 
         payment_method="Wallet"
     ).values_list("amount", flat=True)))
 
     ### Data this week
-    mpesa_sales_this_week = sum(list(SalesReport.objects.filter(
+    mpesa_sales_this_week = sum(list(DailySalesReport.objects.filter(
         created__range=[start_date, end_date], payment_method="Mpesa"
     ).values_list("amount", flat=True)))
-    wallet_sales_this_week = sum(list(SalesReport.objects.filter(
+    wallet_sales_this_week = sum(list(DailySalesReport.objects.filter(
         created__range=[start_date, end_date], payment_method="Wallet"
     ).values_list("amount", flat=True)))
-    cash_sales_this_week = sum(list(SalesReport.objects.filter(
+    cash_sales_this_week = sum(list(DailySalesReport.objects.filter(
         created__range=[start_date, end_date], payment_method="Cash"
     ).values_list("amount", flat=True)))
 
@@ -117,17 +125,17 @@ def home(request):
     print("Cash: ", cash_sales_this_week)
     print("Wallet: ", wallet_sales_this_week)
     ### Data This Month
-    mpesa_sales_this_month = sum(list(SalesReport.objects.filter(
+    mpesa_sales_this_month = sum(list(DailySalesReport.objects.filter(
         created__month=date_today.month, 
         payment_method="Mpesa"
     ).values_list("amount", flat=True)))
 
-    wallet_sales_this_month = sum(list(SalesReport.objects.filter(
+    wallet_sales_this_month = sum(list(DailySalesReport.objects.filter(
         created__month=date_today.month, 
         payment_method="Wallet"
     ).values_list("amount", flat=True)))
 
-    cash_sales_this_month = sum(list(SalesReport.objects.filter(
+    cash_sales_this_month = sum(list(DailySalesReport.objects.filter(
         created__month=date_today.month, 
         payment_method="Cash"
     ).values_list("amount", flat=True)))
