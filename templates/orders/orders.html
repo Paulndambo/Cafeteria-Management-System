@@ -1,61 +1,48 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h3>Orders</h3>
-    </div>
-    <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-7">
-              <input type="text" class="form-control" name="reg_number" id="reg_number" placeholder="Order ID ...">
-            </div>
-            <div class="col-5">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
-        </div>
-        
-      </form>
-    </div>
+<div class="table-card">
+<div class="row py-3 px-2">
+  <div class="col">
+      <h3>Orders</h3>
+  </div>
+  <div class="col">
+      <input type="text" class="form-control" placeholder="Search..." 
+      id="searchInput" value="{{ search_query }}">
+  </div>
+ 
 </div>
 
-<hr/>
-      <div class="table-responsive small">
+<div class="loader" id="loader"></div>
+      <div class="table-container px-2">
         <table class="table table-sm">
           <thead>
             <tr>
-              <th scope="col">Order ID</th>
-              <th scope="col">Ordered At.</th>
+              <th scope="col">#</th>
+              <th scope="col">Customer</th>
               <th scope="col">Served By</th>
-              <th scope="col">Student</th>
               <th scope="col">Cost</th>
               <th scope="col">Status</th>
               <th scope="col">Payment Method</th>
-              <th scope="col" colspan="3">Actions</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
             {% for order in page_obj %}
             <tr>
-              <td>{{order.id}}</td>
-              <td>{{order.created}}</td>
-              <td>{{order.served_by}}</td>
+              <td>{{forloop.counter}}</td>
               <td>{{order.student.user.name}}</td>
+              <td>{{order.served_by}}</td>
               <td>{{order.total_cost}}</td>
               <td>{{order.status}}</td>
               <td>{{order.payment_method}}</td>
               <td>
-                <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
+                <div class="d-flex gap-1">
+                  <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
+                  <a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a>
+                  <a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm"><i class="bi bi-printer"></i></a>
+                </div>
               </td>
-              <td><a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
-              <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">
-                <i class="bi bi-printer"></i>
-              </a></td>
             </tr>
             
             {% include "orders/delete_order.html" %}
@@ -80,4 +67,5 @@
           </nav>
         </div>
       </div>
+</div>
 {% endblock content %}

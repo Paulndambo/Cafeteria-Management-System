@@ -1,35 +1,25 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-4">
-        <h3>Students</h3>
-    </div>
-    <div class="col-4">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStudentModal">Add Student</a>
-        <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#uploadStudentsModal">Upload</a>
-    </div>
-    <div class="col-4">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-8">
-              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Reg. Number" >
-            </div>
-            <div class="col-4">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
-        </div>
-        
-      </form>
+<div class="table-card">
+
+<div class="row py-3 px-2">
+  <div class="col">
+      <h3>Students</h3>
+  </div>
+  <div class="col">
+      <input type="text" class="form-control" placeholder="Search..." 
+      id="searchInput" value="{{ search_query }}">
+  </div>
+  <div class="col">
+    <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStudentModal">Add Student</a>
+    <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#uploadStudentsModal">Upload</a>
     </div>
 </div>
-<hr/>
-      <div class="table-responsive small">
-        <table class="table">
+
+<div class="loader" id="loader"></div>
+      <div class="table-container px-2">
+        <table class="table data-table table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -37,7 +27,7 @@
               <th scope="col">Reg. Number</th>
               <th scope="col">Student Type</th>
               <th scope="col">Status</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
@@ -49,25 +39,21 @@
               <td>{{student.student_type}}</td>
               <td>{{student.status}}</td>
               <td>
-                <a href="{% url 'student-details' student.id %}" class="btn btn-info btn-sm"><i class="bi bi-eye-fill"></i></a>
+                <div class="d-flex gap-1">
+                  <a href="{% url 'student-details' student.id %}" class="btn btn-info btn-sm"><i class="bi bi-eye-fill"></i></a>
+                  <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                  {% if student.status == "Active" %}
+                    <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-warning btn-sm">Deactivate</a>
+                  {% else %}
+                    <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-success btn-sm">Activate</a>
+                  {% endif %}
+                  </div>
               </td>
-              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">
-                <i class="bi bi-pencil-square"></i>
-              </a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">
-                <i class="bi bi-trash"></i>
-              </a></td>
-              
-              {% if student.status == "Active" %}
-              <td>
-                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-warning btn-sm">Deactivate</a>
-              </td>
-              
-              {% else %}
-              <td>
-                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-success btn-sm">Activate</a>
-              </td>
-              {% endif %}
             </tr>
             {% include "modals/students/delete_student.html" %}
             {% include "modals/students/edit_student.html" %}
@@ -89,4 +75,5 @@
           </nav>
         </div>
       </div>
+</div>
 {% endblock content %}

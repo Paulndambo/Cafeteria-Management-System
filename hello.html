@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Management Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: width 0.3s;
+            overflow-y: auto;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.expanded {
+            width: 250px;
+        }
+        .sidebar .nav-link {
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+        }
+        .content.collapsed {
+            margin-left: 80px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .toggle-sidebar {
+            cursor: pointer;
+            color: white;
+        }
+        .sidebar .submenu {
+            padding-left: 1.5rem;
+            display: none;
+        }
+        .sidebar .submenu.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar expanded" id="sidebar">
+        <div class="p-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Cafeteria</h4>
+            <i class="fas fa-bars toggle-sidebar" id="toggleSidebar"></i>
+        </div>
+        <nav class="nav flex-column">
+            <a href="#" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="#" class="nav-link dropdown-toggle" id="peopleMenu">
+                <i class="fas fa-users"></i> People
+            </a>
+            <div class="submenu" id="peopleSubmenu">
+                <a href="#" class="nav-link">Students</a>
+                <a href="#" class="nav-link">Staff</a>
+            </div>
+            <a href="#" class="nav-link"><i class="fas fa-utensils"></i> Menu</a>
+            <a href="#" class="nav-link"><i class="fas fa-cogs"></i> Settings</a>
+        </nav>
+    </div>
+
+    <div class="content" id="content">
+        <div class="container-fluid py-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Students Count</h5>
+                            <p class="card-text display-5"><i class="fas fa-user-graduate me-2"></i>120</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Staff Count</h5>
+                            <p class="card-text display-5"><i class="fas fa-user-tie me-2"></i>45</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Orders Today</h5>
+                            <p class="card-text display-5"><i class="fas fa-shopping-cart me-2"></i>230</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mt-3">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Weekly Sales</h5>
+                            <p class="card-text display-5"><i class="fas fa-calendar-week me-2"></i>$4,300</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Monthly Sales</h5>
+                            <p class="card-text display-5"><i class="fas fa-calendar-alt me-2"></i>$18,000</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Sales Today</h5>
+                            <p class="card-text display-5"><i class="fas fa-dollar-sign me-2"></i>$700</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const peopleMenu = document.getElementById('peopleMenu');
+        const peopleSubmenu = document.getElementById('peopleSubmenu');
+
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('expanded');
+            content.classList.toggle('collapsed');
+        });
+
+        peopleMenu.addEventListener('click', () => {
+            peopleSubmenu.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

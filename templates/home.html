@@ -1,63 +1,78 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
+
+{% block additional_css %}
+<style>
+  .dashboard-cards .card {
+            transition: transform 0.3s;
+        }
+
+        .dashboard-cards .card:hover {
+            transform: scale(1.05);
+        }
+</style>
+{% endblock additional_css %}
 
 {% block content %}
-<div class="row">
-    <div class="card m-2" style="width: 16rem; height: 150px;">
-        <div class="card-body">
-          <h5 class="card-title">Students Registered</h5>
-          <hr/>
-          <p class="card-text">Students Count: {{students}}</p>
-          <a href="#"></a>
-        </div>
-      </div>
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-       
-        <div class="card-body">
-          <h5 class="card-title">Staff</h5>
-          <hr/>
-          <p class="card-text">Staff Count: {{staffs}}</p>
-        </div>
-      </div>
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-        <div class="card-body">
-          <h5 class="card-title">Orders Placed Today</h5>
-          <hr/>
-          <p class="card-text">Orders Count: {{orders_today}}</p>
-         
-        </div>
+<div class="row dashboard-cards mt-4">
+  <div class="col-md-3 mb-4">
+      <div class="card text-center">
+          <div class="card-body">
+              <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+              <h5 class="card-title">Students Count</h5>
+              <p class="card-text display-6 text-primary">{{students}}</p>
+          </div>
       </div>
   </div>
-  <div class="row">
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales This Week</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_this_week}}</p>
-          <p class="card-text">Cash: {{cash_sales_this_week}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_this_week}}</p>
-          <a href="#"></a>
-        </div>
-      </div>
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales This Month</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_this_month}}</p>
-          <p class="card-text">Cash: {{cash_sales_this_month}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_this_month}}</p>
-          <a href="#"></a>
-        </div>
-      </div>
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales Today</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_today}}</p>
-          <p class="card-text">Cash: {{cash_sales_today}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_today}}</p>
-          <a href="#"></a>
-        </div>
-      </div>
   
+  <div class="col-md-3 mb-4">
+      <div class="card text-center">
+          <div class="card-body">
+              <i class="fas fa-chalkboard-teacher fa-3x text-success mb-3"></i>
+              <h5 class="card-title">Staff Count</h5>
+              <p class="card-text display-6 text-success">{{staffs}}</p>
+          </div>
+      </div>
+  </div>
+  
+  <div class="col-md-3 mb-4">
+      <div class="card text-center">
+          <div class="card-body">
+              <i class="fas fa-shopping-cart fa-3x text-warning mb-3"></i>
+              <h5 class="card-title">Orders Today</h5>
+              <p class="card-text display-6 text-warning">{{orders_today}}</p>
+          </div>
+      </div>
+  </div>
+  
+  <div class="col-md-3 mb-4">
+      <div class="card text-center">
+          <div class="card-body">
+              <i class="fas fa-dollar-sign fa-3x text-info mb-3"></i>
+              <h5 class="card-title">Sales Today</h5>
+              <p class="card-text display-6 text-info">{{sales_today}}</p>
+          </div>
+      </div>
+  </div>
 </div>
+
+<div class="row">
+  <div class="col-md-6 mb-4">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">Sales This Week</h5>
+              <p class="display-6 text-success">{{sales_this_week}}</p>
+          </div>
+      </div>
+  </div>
+  
+  <div class="col-md-6 mb-4">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">Sales This Month</h5>
+              <p class="display-6 text-primary">{{sales_this_month}}</p>
+          </div>
+      </div>
+  </div>
+</div>
+
 {% endblock %}

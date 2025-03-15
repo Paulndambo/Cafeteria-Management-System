@@ -40,7 +40,7 @@ def orders(request):
             Q(id__icontains=registration_number)
         )
 
-    paginator = Paginator(orders, 15)
+    paginator = Paginator(orders, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

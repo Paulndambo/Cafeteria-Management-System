@@ -144,14 +144,8 @@ def home(request):
         "students": students,
         "staffs": staffs,
         "orders_today": orders_today,
-        "mpesa_sales_today": mpesa_sales_today,
-        "wallet_sales_today": wallet_sales_today,
-        "cash_sales_today": cash_sales_today,
-        "mpesa_sales_this_month": mpesa_sales_this_month,
-        "cash_sales_this_month": cash_sales_this_month,
-        "wallet_sales_this_month": wallet_sales_this_month,
-        "wallet_sales_this_week": wallet_sales_this_week,
-        "cash_sales_this_week": cash_sales_this_week,
-        "mpesa_sales_this_week": mpesa_sales_this_week
+        "sales_today": mpesa_sales_today + wallet_sales_today + cash_sales_today,
+        "sales_this_week": wallet_sales_this_week + cash_sales_this_week + mpesa_sales_this_week,
+        "sales_this_month": mpesa_sales_this_month + cash_sales_this_month + wallet_sales_this_month
     }
     return render(request, "home.html", context)

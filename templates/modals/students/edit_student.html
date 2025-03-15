@@ -1,5 +1,5 @@
 <div class="modal fade" id="editStudentModal{{student.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Edit Student</h1>
@@ -8,53 +8,59 @@
             <form action="/students/edit-student/" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                <div class="mb-2">
-                    
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="student_id"
-                        name="student_id"
-                        value="{{student.id}}"
-                        hidden
-                        required
-                    />
-                    </div>
-                    <div class="mb-2">
-           
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="user_id"
-                        name="user_id"
-                        value="{{student.user.id}}"
-                        hidden
-                        required
-                    />
-                    </div>
-                <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">First Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="first_name"
-                    name="first_name"
-                    value="{{student.user.first_name}}"
-                    required
-                  />
-                </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Last Name</label>
+
+                  <div class="row mb-3">
+                    <div class="col">
+                      <input
+                          type="text"
+                          class="form-control"
+                          id="student_id"
+                          name="student_id"
+                          value="{{student.id}}"
+                          hidden
+                          required
+                      />
+                      </div>
+                      <div class="col">
+                      <input
+                          type="text"
+                          class="form-control"
+                          id="user_id"
+                          name="user_id"
+                          value="{{student.user.id}}"
+                          hidden
+                          required
+                      />
+                      </div>
+                  </div>
+
+                <div class="row mb-3">
+                  <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">First Name</label>
                     <input
                       type="text"
                       class="form-control"
-                      id="last_name"
-                      name="last_name"
-                      value="{{student.user.last_name}}"
+                      id="first_name"
+                      name="first_name"
+                      value="{{student.user.first_name}}"
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
+                      <label for="exampleInputPassword1" class="form-label">Last Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="last_name"
+                        name="last_name"
+                        value="{{student.user.last_name}}"
+                        required
+                      />
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Reg. Number</label>
                     <input
                       type="text"
@@ -65,7 +71,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">ID Number</label>
                     <input
                       type="text"
@@ -75,7 +81,10 @@
                       name="id_number"
                     />
                   </div>
-                  <div class="mb-2">
+                </div>
+                 
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                     <input
                       type="text"
@@ -86,7 +95,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Email</label>
                     <input
                       type="email"
@@ -97,7 +106,10 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                </div>
+                  
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Email</label>
                     <input
                       type="text"
@@ -109,22 +121,24 @@
                     />
                   </div>
                   
-                  <div class="mb-2">
+                  <div class="col">
                     <label class="form-label">Gender</label>
                     <select class="form-select" id="gender" name="gender" value="{{student.gender}}">
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
                   </div>
-
+                </div>
+                  
                   <div class="mb-2">
                     <label class="form-label">Student Type</label>
                     <select class="form-select" id="student_type" name="student_type" value="{{student.student_type}}">
-                        
-                        <option value="Boarder">Boarding Student</option>
-                        <option value="Prepaid">Prepaid Student</option>
-                        <option value="One-Time">Pay As You Go Student</option>
-    
+                        <option value="{{student.student_type}}">{{student.student_type}}</option>
+                        {% for type in student_types %}
+                          {% if type != student.student_type %}
+                            <option value="{{type}}">{{type}}</option>
+                          {% endif %}
+                        {% endfor %}
                       </select>
                   </div>
                 

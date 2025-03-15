@@ -1,34 +1,25 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-4">
-        <h3>Staff Members</h3>
-    </div>
-    <div class="col-4">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStaffModal">Add Staff</a>
-    </div>
-    <div class="col-4">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-8">
-              <input type="text" class="form-control" name="id_number" id="id_number" placeholder="ID Number" >
-            </div>
-            <div class="col-4">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
-        </div>
-        
-      </form>
+<div class="table-card">
+  
+<div class="row py-3 px-2">
+  <div class="col">
+      <h3>Staff</h3>
+  </div>
+  <div class="col">
+      <input type="text" class="form-control" placeholder="Search..." 
+      id="searchInput" value="{{ search_query }}">
+  </div>
+  <div class="col">
+    <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStaffModal">Add Staff</a>
     </div>
 </div>
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
+
+
+<div class="loader" id="loader"></div>
+      <div class="table-container px-2">
+        <table class="table data-table table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -74,4 +65,5 @@
           </nav>
         </div>
       </div>
+</div>
 {% endblock content %}
