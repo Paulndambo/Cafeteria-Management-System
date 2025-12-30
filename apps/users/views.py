@@ -10,13 +10,12 @@ from apps.users.models import User
 def register(request):
     if request.method == 'POST':
         username = request.POST.get("username")
-        email = request.POST.get("email")
+        email = f"{username}@gmail.com"
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
         gender = request.POST.get("gender")
         role = request.POST.get("role")
         phone_number = request.POST.get("phone_number")
-        id_number = request.POST.get("id_number")
 
         user_by_email = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
@@ -38,16 +37,15 @@ def register(request):
                 role=role,
                 gender=gender,
                 phone_number=phone_number,
-                id_number=id_number
             )
             user.set_password("1234")
             user.save()
             messages.success(request, f"User created successfully!!")
 
             return redirect('staff')
-    
-    
-    return render(request, 'modals/new_staff.html',)
+
+
+    return render(request, 'accounts/new_staff.html',)
 
 
 def edit_staff(request):
@@ -56,13 +54,13 @@ def edit_staff(request):
 
         if user_id:
             username = request.POST.get("username")
-            email = request.POST.get("email")
             first_name = request.POST.get("first_name")
             last_name = request.POST.get("last_name")
             gender = request.POST.get("gender")
             role = request.POST.get("role")
             phone_number = request.POST.get("phone_number")
-            id_number = request.POST.get("id_number")
+
+            email = f"{username}@gmail.com"
 
 
 
@@ -72,7 +70,6 @@ def edit_staff(request):
             user.email = email if email else user.email
             user.gender = gender if gender else user.gender
             user.phone_number = phone_number if phone_number else user.phone_number
-            user.id_number = id_number if id_number else user.id_number
             user.username = username if username else user.username
             user.role = role if role else user.role
             
@@ -82,7 +79,7 @@ def edit_staff(request):
         return redirect('staff')
     
     
-    return render(request, 'modals/new_staff.html',)
+    return render(request, 'modals/edit_staff.html',)
 
 
 def delete_staff(request):
@@ -127,6 +124,7 @@ def staff(request):
     page_obj = paginator.get_page(page_number)
     context = {
         "staffs": staffs,
-        "page_obj": page_obj
+        "page_obj": page_obj,
+        "staff_roles": ["admin", "chef", "cashier"],
     }
     return render(request, "accounts/staff.html", context)

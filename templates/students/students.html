@@ -1,92 +1,152 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="row">
-    <div class="col-4">
-        <h3>Students</h3>
-    </div>
-    <div class="col-4">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStudentModal">Add Student</a>
-        <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#uploadStudentsModal">Upload</a>
-    </div>
-    <div class="col-4">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-8">
-              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Reg. Number" >
-            </div>
-            <div class="col-4">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
+
+
+
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">STUDENTS</h3>
+            <hr style="height: 10px; background-color: #020f24; border: none; border-radius: 5px;">
         </div>
-        
-      </form>
     </div>
-</div>
-<hr/>
-      <div class="table-responsive small">
-        <table class="table">
-          <thead>
-            <tr>
+
+      <div class="row p-3 align-items-center">
+        <div class="col-md-4 mb-3 mb-md-0">
+          <a class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#newStudentModal">
+            <i class="bi bi-person-plus-fill me-2"></i>Add Student
+          </a>
+          <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#uploadStudentsModal">
+            <i class="bi bi-upload me-2"></i>Upload CSV
+          </a>
+        </div>
+        <div class="col-md-8">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Search by Registration Number...">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    {% include "modals/new_student.html" %}
+    {% include "students/upload_students.html" %}
+    <div class="loader" id="loader"></div>
+
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Reg. Number</th>
               <th scope="col">Student Type</th>
               <th scope="col">Status</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col" class="text-center">Actions</th>
             </tr>
-          </thead>
-          <tbody>
-            {% for student in page_obj %}
+            </thead>
+            <tbody id="tableBody">
+                {% for student in page_obj %}
             <tr>
-              <td>{{student.id}}</td>
-              <td>{{student.user.first_name}} {{student.user.last_name}}</td>
-              <td>{{student.registration_number}}</td>
-              <td>{{student.student_type}}</td>
-              <td>{{student.status}}</td>
+              <td class="fw-bold">{{student.id}}</td>
               <td>
-                <a href="{% url 'student-details' student.id %}" class="btn btn-info btn-sm"><i class="bi bi-eye-fill"></i></a>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 2rem; height: 2rem;">
+                    {{student.user.first_name|first}}{{student.user.last_name|first}}
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{student.user.first_name}} {{student.user.last_name}}</div>
+                  </div>
+                </div>
               </td>
-              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">
-                <i class="bi bi-pencil-square"></i>
-              </a></td>
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">
-                <i class="bi bi-trash"></i>
-              </a></td>
-              
-              {% if student.status == "Active" %}
+              <td><span class="badge bg-secondary">{{student.registration_number}}</span></td>
+              <td><span class="badge bg-info">{{student.student_type}}</span></td>
               <td>
-                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-warning btn-sm">Deactivate</a>
+                {% if student.status == "Active" %}
+                <span class="badge bg-success">
+                  <i class="bi bi-check-circle me-1"></i>{{student.status}}
+                </span>
+                {% else %}
+                <span class="badge bg-danger">
+                  <i class="bi bi-x-circle me-1"></i>{{student.status}}
+                </span>
+                {% endif %}
               </td>
-              
-              {% else %}
               <td>
-                <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-success btn-sm">Activate</a>
+                <div class="d-flex justify-content-center gap-1">
+                  <a href="{% url 'student-details' student.id %}" class="btn btn-info btn-sm" title="View Details">
+                    <i class="bi bi-eye-fill"></i>
+                  </a>
+                  <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}" title="Edit">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                  {% if student.status == "Active" %}
+                  <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-warning btn-sm" title="Deactivate">
+                    <i class="bi bi-toggle-on"></i>
+                  </a>
+                  {% else %}
+                  <a href="{% url 'activate-deactivate-student' student.id %}" class="btn btn-success btn-sm" title="Activate">
+                    <i class="bi bi-toggle-off"></i>
+                  </a>
+                  {% endif %}
+                </div>
               </td>
-              {% endif %}
             </tr>
             {% include "modals/students/delete_student.html" %}
             {% include "modals/students/edit_student.html" %}
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
-        <div>
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-              {% if page_obj.has_previous %}   
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-              {% endif %}
-              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
-              {% if page_obj.has_next %}    
-              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-              {% endif %}   
-            </ul>
-          </nav>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
         </div>
+        
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div class="card-footer bg-white">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-end mb-0">
+            {% if page_obj.has_previous %}   
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                  <i class="bi bi-chevron-left"></i> Previous
+                </a>
+              </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}    
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                  Next <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            {% endif %}   
+          </ul>
+        </nav>
       </div>
+      {% endif %}
+    </div>
+</div>
 {% endblock content %}

@@ -42,6 +42,21 @@ class Expense(AbstractBaseModel):
     purpose = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=255, choices=PAYMENT_CHOICES, null=True)
+    expense_date = models.DateField(null=True)
+    month = models.CharField(max_length=255, null=True)
+    year = models.CharField(max_length=255, null=True)
     
     def __str__(self):
         return self.title
+    
+
+class QuotaGroup(AbstractBaseModel):
+    name = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+
+    def __str__(self):
+        return f"Group: {self.name}, Amount: {self.amount}"
+    
+    def description(self):
+        return f"Group: {self.name}, Amount: {self.amount}"

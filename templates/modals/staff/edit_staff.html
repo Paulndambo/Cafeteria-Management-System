@@ -1,15 +1,15 @@
 <div class="modal fade" id="editStaffModal{{staff.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Add Staff</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="/users/edit-staff/" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'edit-staff' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                <div class="mb-2">
                   
+                <div class="mb-2">
                   <input
                     type="text"
                     class="form-control"
@@ -20,7 +20,8 @@
                     hidden
                   />
                 </div>
-                <div class="mb-2">
+                <div class="row mb-4">
+                    <div class="col">
                   <label for="exampleInputPassword1" class="form-label">First Name</label>
                   <input
                     type="text"
@@ -31,7 +32,7 @@
                     required
                   />
                 </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Last Name</label>
                     <input
                       type="text"
@@ -42,18 +43,10 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">ID Number</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="id_number"
-                      name="id_number"
-                      value="{{staff.id_number}}"
-                      required
-                    />
                   </div>
-                  <div class="mb-2">
+                <div class="row mb-4">
+                  
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                     <input
                       type="text"
@@ -64,7 +57,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Username</label>
                     <input
                       type="text"
@@ -75,19 +68,11 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Email</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="email"
-                      name="email"
-                      value="{{staff.email}}"
-                      required
-                    />
-                  </div>
+                </div>
                   
-                  <div class="mb-2">
+                  
+                  <div class="row mb-4">
+                    <div class="col">
                     <label class="form-label">Gender</label>
                     <select class="form-select" id="gender" name="gender" value="{{staff.gender}}" required>
                         <option value="Male">Male</option>
@@ -96,7 +81,7 @@
                       </select>
                   </div>
 
-                  <div class="mb-2">
+                  <div class="col">
                     <label class="form-label">Role</label>
                     <select class="form-select" id="role" name="role" value="{{staff.role}}" required>
                         
@@ -106,9 +91,11 @@
     
                       </select>
                   </div>
+                  </div>
+                  
                 
                 <div class="text-center mt-2">
-                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <button type="submit" class="btn btn-primary">Submit Changes</button>
                 </div>
               </div>
               </form>

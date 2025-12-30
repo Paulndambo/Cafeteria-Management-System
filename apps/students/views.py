@@ -13,6 +13,7 @@ from django.shortcuts import redirect, render
 
 from apps.students.models import Student, StudentWallet, WalletRechargeLog
 from apps.users.models import User
+from apps.core.models import QuotaGroup
 
 date_today = datetime.now().date()
 # Create your views here.
@@ -40,7 +41,9 @@ def students(request):
     page_obj = paginator.get_page(page_number)
     context = {
         "students": students,
-        "page_obj": page_obj
+        "page_obj": page_obj,
+        "quota_groups": QuotaGroup.objects.all(),
+        "gender_options": ["Male", "Female"]
     }
     return render(request, "students/students.html", context)
 
@@ -73,35 +76,35 @@ def delete_student(request):
 @transaction.atomic
 def new_student(request):
     if request.method == 'POST':
-        username = request.POST.get("id_number")
-        email = request.POST.get("email")
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
         gender = request.POST.get("gender")
         phone_number = request.POST.get("phone_number")
-        id_number = request.POST.get("id_number")
+    
         registration_number = request.POST.get("reg_number")
-        student_type = request.POST.get("student_type")
+        quota_group_id = request.POST.get("quota_group")
 
-        user_by_email = User.objects.filter(email=email).first()
-        user_by_username = User.objects.filter(username=username).first()
+        user_by_email = User.objects.filter(email=registration_number).first()
+        user_by_username = User.objects.filter(username=registration_number).first()
+
+        quota_group = QuotaGroup.objects.get(id=quota_group_id)
 
         if user_by_email:
             print("User with this email found in the system")
-            print(username, email, first_name, last_name)
+            print(first_name, last_name)
         elif user_by_username:
     
-            print(username, email, first_name, last_name)
+            print(first_name, last_name)
         else:
             user = User.objects.create(
                 first_name=first_name,
                 last_name=last_name,
-                username=username,
-                email=email,
+                username=registration_number,
+                email=f"{registration_number}@noemail.com",
                 role="student",
                 gender=gender,
                 phone_number=phone_number,
-                id_number=id_number
+                id_number=registration_number
             )
             user.set_password("1234")
             user.save()
@@ -109,13 +112,15 @@ def new_student(request):
             student = Student.objects.create(
                 registration_number=registration_number,
                 user=user,
-                student_type=student_type,
+                quota_group=quota_group,
+                student_type=quota_group.name,
+                credit_limit=quota_group.amount,
                 status="Active"
             )
 
-            wallet = StudentWallet.objects.create(
+            StudentWallet.objects.create(
                 student=student,
-                balance=350 if student_type == "Boarder" else 0,
+                balance=quota_group.amount,
                 total_spend_today=0
             )
 
@@ -152,20 +157,18 @@ def student_wallets(request):
 @login_required(login_url="/users/login/")
 def recharge_student_wallet(request):
     if request.method == "POST":
-        reg_number = request.POST.get("reg_number")
+        wallet_id = request.POST.get("wallet_id")
         recharge_method = request.POST.get("recharge_method")
 
-        student = Student.objects.filter(
-            Q(registration_number=reg_number) | Q(user__id_number=reg_number)).first()
+        wallet = StudentWallet.objects.get(id=wallet_id)
 
         amount = Decimal(request.POST.get("amount"))
 
-        wallet = student.studentwallet
         wallet.balance += amount
         wallet.save()
 
-        recharge_log = WalletRechargeLog.objects.create(
-            student=student,
+        WalletRechargeLog.objects.create(
+            student=wallet.student,
             wallet=wallet,
             recharge_method=recharge_method,
             amount_recharged=amount
@@ -183,34 +186,31 @@ def edit_student(request):
             user_id = request.POST.get("user_id")
 
             if student_id and user_id:
-
-                username = request.POST.get("username")
-                email = request.POST.get("email")
                 first_name = request.POST.get("first_name")
                 last_name = request.POST.get("last_name")
                 gender = request.POST.get("gender")
                 phone_number = request.POST.get("phone_number")
-                id_number = request.POST.get("id_number")
                 registration_number = request.POST.get("reg_number")
-                student_type = request.POST.get("student_type")
+                quota_group_id = request.POST.get("quota_group")
 
-                user = User.objects.get(id=user_id)
-                student = Student.objects.get(id=student_id)
+                quota_group = QuotaGroup.objects.get(id=quota_group_id)
 
-                user.first_name = first_name if first_name else user.first_name
-                user.last_name = last_name if last_name else user.last_name
-                user.email = email if email else user.email
-                user.gender = gender if gender else user.gender
-                user.phone_number = phone_number if phone_number else user.phone_number
-                user.id_number = id_number if id_number else user.id_number
-                user.username = username if username else user.username
-                user.save()
+                User.objects.filter(id=user_id).update(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=registration_number,
+                    email=f"{registration_number}@noemail.com",
+                    gender=gender,
+                    phone_number=phone_number,
+                    id_number=registration_number
+                )
 
-                student.student_type = student_type if student_type else student.student_type
-
-                student.registration_number = registration_number if registration_number else student.registration_number
-
-                student.save()
+                Student.objects.filter(id=student_id).update(
+                    registration_number=registration_number,
+                    quota_group=quota_group,
+                    student_type=quota_group.name,
+                    credit_limit=quota_group.amount
+                )
 
                 messages.success(request, f"User updated successfully!!")
 
@@ -223,8 +223,7 @@ def edit_student(request):
 
 @login_required(login_url="/users/login/")
 def generate_daily_quota(request):
-    student_wallets = StudentWallet.objects.filter(
-        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+    student_wallets = StudentWallet.objects.filter(student__status="Active")
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")
@@ -238,7 +237,7 @@ def generate_daily_quota(request):
             student_wallet.balance = 0
             student_wallet.save()
         else:
-            student_wallet.balance = 350
+            student_wallet.balance = student_wallet.student.quota_group.amount
             student_wallet.save()
     # print(student_wallets)
     return redirect("student-wallets")

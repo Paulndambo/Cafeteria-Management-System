@@ -26,6 +26,7 @@ class Student(AbstractBaseModel):
     status = models.CharField(max_length=255, choices=STUDENT_STATUS)
     added_on = models.DateField(null=True)
     credit_limit = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    quota_group = models.ForeignKey("core.QuotaGroup", on_delete=models.SET_NULL, null=True, blank=True)
 
 
     def __str__(self):

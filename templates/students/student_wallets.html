@@ -1,34 +1,34 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-6">
-        <h3>Student Wallets List</h3>
-    </div>
-    <div class="col-6">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-8">
-              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Reg. Number" >
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">STUDENTS WALLETS</h3>
+        </div>
+        <div class="col">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="Search wallets...">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
             </div>
-            <div class="col-4">
-              <button class="btn btn-primary">Search</button>
-            </div>
-          </div>
-          
+          </form>
         </div>
         
-      </form>
     </div>
-</div>
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
+ 
+    <div class="loader" id="loader"></div>
+
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
               <th scope="col">Date</th>
               <th scope="col">Student</th>
               <th scope="col">Daily Limit</th>
@@ -36,10 +36,10 @@
               <th scope="col">Balance</th>
               <th scope="col">Quota Generated?</th>
               <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for student_wallet in page_obj %}
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for student_wallet in page_obj %}
             <tr>
               <td>{{student_wallet.id}}</td>
               <td>{{student_wallet.modified}}</td>
@@ -60,13 +60,25 @@
               <td>
                 {{student_wallet.today_quota_generated}}
               </td>
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeRequestModal">Recharge</a></td>
-              
+              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletModal{{student_wallet.id}}">Recharge</a></td>
+            {% include "modals/recharge_wallet.html" %}
             </tr> 
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
+        </div>
         <div>
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
@@ -80,5 +92,6 @@
             </ul>
           </nav>
         </div>
-      </div>
+    </div>
+</div>
 {% endblock content %}

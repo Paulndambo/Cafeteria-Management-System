@@ -1,5 +1,5 @@
 <div class="modal fade" id="newStudentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Add Student</h1>
@@ -8,7 +8,8 @@
             <form action="{% url 'new-student' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                <div class="mb-2">
+                  <div class="row mb-4">
+                    <div class="col">
                   <label for="exampleInputPassword1" class="form-label">First Name</label>
                   <input
                     type="text"
@@ -18,7 +19,7 @@
                     required
                   />
                 </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Last Name</label>
                     <input
                       type="text"
@@ -28,7 +29,10 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Reg. Number</label>
                     <input
                       type="text"
@@ -38,16 +42,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">ID Number</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="id_number"
-                      name="id_number"
-                    />
-                  </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                     <input
                       type="text"
@@ -57,36 +52,30 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Email</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="email"
-                      name="email"
-                      required
-                    />
-                  </div>
-                  
-                  <div class="mb-2">
+                
+                </div>
+                
+
+                <div class="row mb-4">
+                  <div class="col">
                     <label class="form-label">Gender</label>
                     <select class="form-select" id="gender" name="gender">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-    
-                      </select>
+                    {% for gender in gender_options %}
+                        <option value="{{ gender }}">{{ gender }}</option>
+                    {% endfor %}
+                    </select>
                   </div>
 
-                  <div class="mb-2">
-                    <label class="form-label">Student Type</label>
-                    <select class="form-select" id="student_type" name="student_type">
-                        
-                        <option value="Boarder">Boarding Student</option>
-                        <option value="Prepaid">Prepaid Student</option>
-                        <option value="One-Time">Pay As You Go Student</option>
-    
+                  <div class="col">
+                    <label class="form-label">Quota Group</label>
+                    <select class="form-select" id="quota_group" name="quota_group">
+                        {% for group in quota_groups %}
+                        <option value="{{ group.id }}">{{ group.description }}</option>
+                        {% endfor %}
                       </select>
                   </div>
+                </div>
+                  
                 
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit Student</button>

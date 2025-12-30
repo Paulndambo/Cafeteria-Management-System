@@ -1,48 +1,47 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h3>Stock</h3>
-    </div>
-    <div class="col">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newStockModal">Add Stock</a>
-    </div>
-    <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col">
-              <input type="text" class="form-control" name="name" id="name" placeholder="Item Name">
-            </div>
-            <div class="col">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
+<div class="table-card">
+  <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">INVENTORY</h3>
         </div>
-        
-      </form>
+        <div class="col">
+            <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search stock items...">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newStockModal">Add Item</button>
+          </div>
     </div>
-</div>
 
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
+ {% include "modals/stock_item.html" %}
+    <div class="loader" id="loader"></div>
+
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
               <th scope="col">Supplier</th>
               <th scope="col">Name</th>
               <th scope="col">Quantity</th>
               <th scope="col">Buying Price</th>
               <th scope="col">Payment Method</th>
-              <th scope="col" colspan="2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for stock in page_obj %}
+              <th scope="col" colspan="3">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for stock in page_obj %}
             <tr>
               <td>{{stock.id}}</td>
               <td>{{stock.supplier}}</td>
@@ -68,10 +67,22 @@
             {% include "modals/restock.html" %}
             {% include "modals/take_out_stock.html" %}
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
-        <div>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
+        </div>
+      <div>
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
               {% if page_obj.has_previous %}   
@@ -84,5 +95,10 @@
             </ul>
           </nav>
         </div>
-      </div>
+    </div>
+</div>
+
+
+
+
 {% endblock content %}

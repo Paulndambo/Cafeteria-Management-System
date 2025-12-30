@@ -1,5 +1,5 @@
 <div class="modal fade" id="editExpenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Edit Expense</h1>
@@ -20,8 +20,8 @@
                       hidden
                     />
                   </div>
-                <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">Title</label>
+                <div class="mb-4">
+                  <label for="exampleInputPassword1" class="form-label">Expense Name</label>
                   <input
                     type="text"
                     class="form-control"
@@ -32,19 +32,8 @@
                   />
                 </div>
 
-                <div class="mb-2">
-                  <label for="exampleInputPassword1" class="form-label">Description</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="purpose"
-                    name="purpose"
-                    value="{{expense.purpose}}"
-                    required
-                  />
-                </div>
-             
-                  <div class="mb-2">
+                <div class="row mb-4">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Amount</label>
                     <input
                       type="number"
@@ -56,15 +45,29 @@
                     />
                   </div>
 
-                  <div class="mb-2">
+                  <div class="col">
                     <label class="form-label">Payment Method</label>
                     <select class="form-select" id="payment_method" name="payment_method" value="{{expense.payment_method}}">
-                        
-                        <option value="Mpesa">Mpesa</option>
-                        <option value="Cash">Cash/Manual</option>
+                        {% for method in payment_methods %}
+                        <option value="{{ method }}" {% if expense.payment_method == method %}selected{% endif %}>{{ method }}</option>
+                        {% endfor %}
                       </select>
                   </div>
+                </div>
                 
+                <div class="row mb-4">
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Expense Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="expense_date"
+                      name="expense_date"
+                      value="{{expense.expense_date|date:'Y-m-d'}}"
+                      required
+                    />
+                  </div>
+                  
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </div>

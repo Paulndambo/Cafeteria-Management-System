@@ -1,63 +1,714 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="row">
-    <div class="card m-2" style="width: 16rem; height: 150px;">
-        <div class="card-body">
-          <h5 class="card-title">Students Registered</h5>
-          <hr/>
-          <p class="card-text">Students Count: {{students}}</p>
-          <a href="#"></a>
+<div class="container-fluid fade-in">
+  <!-- Header Section -->
+  <div class="dashboard-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-3">
+          <div class="header-icon-wrapper">
+            <i class="bi bi-speedometer2"></i>
+          </div>
+          <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">Dashboard Overview</h1>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar3 me-1"></i>
+              <span id="currentDate"></span>
+            </p>
+          </div>
         </div>
       </div>
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-       
-        <div class="card-body">
-          <h5 class="card-title">Staff</h5>
-          <hr/>
-          <p class="card-text">Staff Count: {{staffs}}</p>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <div class="welcome-badge">
+          <i class="bi bi-person-circle me-2"></i>
+          <span>Welcome, <strong>{{ request.user.username }}</strong></span>
         </div>
       </div>
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-        <div class="card-body">
-          <h5 class="card-title">Orders Placed Today</h5>
-          <hr/>
-          <p class="card-text">Orders Count: {{orders_today}}</p>
-         
-        </div>
-      </div>
+    </div>
   </div>
-  <div class="row">
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales This Week</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_this_week}}</p>
-          <p class="card-text">Cash: {{cash_sales_this_week}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_this_week}}</p>
-          <a href="#"></a>
+
+  <!-- Quick Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-primary">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-primary">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">Total</span>
+          </div>
+          <h3 class="stat-value mb-1">{{students}}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-arrow-up-circle me-1 text-success"></i>
+            Students Registered
+          </p>
+        </div>
+        <div class="stat-card-footer">
+          <a href="{% url 'students' %}" class="stat-link">
+            View All <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales This Month</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_this_month}}</p>
-          <p class="card-text">Cash: {{cash_sales_this_month}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_this_month}}</p>
-          <a href="#"></a>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-info">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-info">
+              <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <span class="badge bg-info bg-opacity-10 text-info">Active</span>
+          </div>
+          <h3 class="stat-value mb-1">{{staffs}}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-person-check me-1 text-info"></i>
+            Staff Members
+          </p>
+        </div>
+        <div class="stat-card-footer">
+          <a href="{% url 'staff' %}" class="stat-link">
+            Manage Staff <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
-      <div class="card m-2" style="width: 16rem; height: 200px;">
-        <div class="card-body">
-          <h5 class="card-title">Sales Today</h5>
-          <hr/>
-          <p class="card-text">Wallet: {{wallet_sales_today}}</p>
-          <p class="card-text">Cash: {{cash_sales_today}}</p>
-          <p class="card-text">Mpesa: {{mpesa_sales_today}}</p>
-          <a href="#"></a>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-success">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-success">
+              <i class="bi bi-cart-check-fill"></i>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success">Today</span>
+          </div>
+          <h3 class="stat-value mb-1">{{orders_today}}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-bag-check me-1 text-success"></i>
+            Orders Placed
+          </p>
+        </div>
+        <div class="stat-card-footer">
+          <a href="{% url 'orders' %}" class="stat-link">
+            View Orders <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
-  
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-warning">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-warning">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <span class="badge bg-warning bg-opacity-10 text-warning">KSh</span>
+          </div>
+          <h3 class="stat-value mb-1">
+            KSh {{ wallet_sales_today|add:cash_sales_today|add:mpesa_sales_today }}
+          </h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-graph-up me-1 text-warning"></i>
+            Total Sales Today
+          </p>
+        </div>
+        <div class="stat-card-footer">
+          <a href="{% url 'sales-today' %}" class="stat-link">
+            View Report <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Overview Section -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="section-header mb-3">
+        <h4 class="section-title">
+          <i class="bi bi-graph-up-arrow me-2"></i>
+          Sales Performance
+        </h4>
+        <p class="section-subtitle text-muted">Revenue breakdown by payment method</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Sales Today -->
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-today">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-calendar-day me-2"></i>
+                Sales Today
+              </h5>
+              <p class="sales-card-subtitle mb-0">Current day revenue</p>
+            </div>
+            <div class="sales-card-icon">
+              <i class="bi bi-calendar-day"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total mb-4">
+            <span class="sales-total-label">Total</span>
+            <h2 class="sales-total-value" data-wallet="{{ wallet_sales_today }}" data-cash="{{ cash_sales_today }}" data-mpesa="{{ mpesa_sales_today }}">
+              KSh {{ wallet_sales_today|add:cash_sales_today|add:mpesa_sales_today }}
+            </h2>
+          </div>
+          <div class="sales-breakdown">
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-primary">
+                  <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Wallet</span>
+                </div>
+                <strong class="sales-item-value text-primary">KSh {{wallet_sales_today}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-success">
+                  <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Cash</span>
+                </div>
+                <strong class="sales-item-value text-success">KSh {{cash_sales_today}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center">
+                <div class="sales-item-icon bg-info">
+                  <i class="bi bi-phone"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Mpesa</span>
+                </div>
+                <strong class="sales-item-value text-info">KSh {{mpesa_sales_today}}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales This Week -->
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-week">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-calendar-week me-2"></i>
+                This Week
+              </h5>
+              <p class="sales-card-subtitle mb-0">Last 7 days revenue</p>
+            </div>
+            <div class="sales-card-icon">
+              <i class="bi bi-calendar-week"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total mb-4">
+            <span class="sales-total-label">Total</span>
+            <h2 class="sales-total-value" data-wallet="{{ wallet_sales_this_week }}" data-cash="{{ cash_sales_this_week }}" data-mpesa="{{ mpesa_sales_this_week }}">
+              KSh {{ wallet_sales_this_week|add:cash_sales_this_week|add:mpesa_sales_this_week }}
+            </h2>
+          </div>
+          <div class="sales-breakdown">
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-primary">
+                  <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Wallet</span>
+                </div>
+                <strong class="sales-item-value text-primary">KSh {{wallet_sales_this_week}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-success">
+                  <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Cash</span>
+                </div>
+                <strong class="sales-item-value text-success">KSh {{cash_sales_this_week}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center">
+                <div class="sales-item-icon bg-info">
+                  <i class="bi bi-phone"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Mpesa</span>
+                </div>
+                <strong class="sales-item-value text-info">KSh {{mpesa_sales_this_week}}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales This Month -->
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-month">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-calendar-month me-2"></i>
+                This Month
+              </h5>
+              <p class="sales-card-subtitle mb-0">Monthly revenue</p>
+            </div>
+            <div class="sales-card-icon">
+              <i class="bi bi-calendar-month"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total mb-4">
+            <span class="sales-total-label">Total</span>
+            <h2 class="sales-total-value" data-wallet="{{ wallet_sales_this_month }}" data-cash="{{ cash_sales_this_month }}" data-mpesa="{{ mpesa_sales_this_month }}">
+              KSh {{ wallet_sales_this_month|add:cash_sales_this_month|add:mpesa_sales_this_month }}
+            </h2>
+          </div>
+          <div class="sales-breakdown">
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-primary">
+                  <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Wallet</span>
+                </div>
+                <strong class="sales-item-value text-primary">KSh {{wallet_sales_this_month}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center mb-2">
+                <div class="sales-item-icon bg-success">
+                  <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Cash</span>
+                </div>
+                <strong class="sales-item-value text-success">KSh {{cash_sales_this_month}}</strong>
+              </div>
+            </div>
+            <div class="sales-item">
+              <div class="d-flex align-items-center">
+                <div class="sales-item-icon bg-info">
+                  <i class="bi bi-phone"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <span class="sales-item-label">Mpesa</span>
+                </div>
+                <strong class="sales-item-value text-info">KSh {{mpesa_sales_this_month}}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="quick-actions-card">
+        <h5 class="quick-actions-title mb-3">
+          <i class="bi bi-lightning-charge-fill me-2"></i>
+          Quick Actions
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-3 col-sm-6">
+            <a href="{% url 'place-order' %}" class="quick-action-btn quick-action-primary">
+              <i class="bi bi-cash-register"></i>
+              <span>New Order</span>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a href="{% url 'students' %}" class="quick-action-btn quick-action-success">
+              <i class="bi bi-person-plus"></i>
+              <span>Add Student</span>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a href="{% url 'menus' %}" class="quick-action-btn quick-action-info">
+              <i class="bi bi-menu-button-wide"></i>
+              <span>Manage Menu</span>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a href="{% url 'sales-today' %}" class="quick-action-btn quick-action-warning">
+              <i class="bi bi-file-earmark-bar-graph"></i>
+              <span>View Reports</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+  /* Dashboard Header */
+  .dashboard-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .header-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+  }
+
+  .welcome-badge {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #6b7280;
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card-primary {
+    border-top: 4px solid #6366f1;
+  }
+
+  .stat-card-info {
+    border-top: 4px solid #3b82f6;
+  }
+
+  .stat-card-success {
+    border-top: 4px solid #10b981;
+  }
+
+  .stat-card-warning {
+    border-top: 4px solid #f59e0b;
+  }
+
+  .stat-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .stat-icon-primary {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+  }
+
+  .stat-icon-info {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  }
+
+  .stat-icon-success {
+    background: linear-gradient(135deg, #10b981, #34d399);
+  }
+
+  .stat-icon-warning {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  }
+
+  .stat-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+  }
+
+  .stat-label {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .stat-card-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .stat-link {
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .stat-link:hover {
+    color: #4f46e5;
+    transform: translateX(4px);
+  }
+
+  /* Sales Cards */
+  .section-header {
+    padding: 0 0.5rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .section-subtitle {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .sales-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .sales-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .sales-card-today {
+    border-top: 4px solid #10b981;
+  }
+
+  .sales-card-week {
+    border-top: 4px solid #f59e0b;
+  }
+
+  .sales-card-month {
+    border-top: 4px solid #3b82f6;
+  }
+
+  .sales-card-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .sales-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .sales-card-subtitle {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .sales-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .sales-card-body {
+    padding: 1.5rem;
+  }
+
+  .sales-total {
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    border-radius: 0.75rem;
+  }
+
+  .sales-total-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .sales-total-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0.5rem 0 0 0;
+  }
+
+  .sales-breakdown {
+    margin-top: 1rem;
+  }
+
+  .sales-item {
+    padding: 0.75rem 0;
+  }
+
+  .sales-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+  }
+
+  .sales-item-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  .sales-item-value {
+    font-size: 1rem;
+  }
+
+  /* Quick Actions */
+  .quick-actions-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+  }
+
+  .quick-actions-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background: #f9fafb;
+    color: #6b7280;
+  }
+
+  .quick-action-btn i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .quick-action-btn span {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .quick-action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+  }
+
+  .quick-action-primary:hover {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    border-color: #6366f1;
+  }
+
+  .quick-action-success:hover {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    border-color: #10b981;
+  }
+
+  .quick-action-info:hover {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    border-color: #3b82f6;
+  }
+
+  .quick-action-warning:hover {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    border-color: #f59e0b;
+  }
+
+  @media (max-width: 768px) {
+    .stat-value {
+      font-size: 1.75rem;
+    }
+    
+    .sales-total-value {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Set current date
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateElement = document.getElementById('currentDate');
+    if (dateElement) {
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateElement.textContent = today.toLocaleDateString('en-US', options);
+    }
+  });
+</script>
 {% endblock %}

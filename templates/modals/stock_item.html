@@ -1,14 +1,17 @@
 <div class="modal fade" id="newStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Record Stock</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="/inventory/record-stock/" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'record-stock' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                  <div class="mb-2">
+                  
+                
+                <div class="row mb-4">
+                  <div class="col">
                     <label class="form-label">Supplier</label>
                     <select class="form-select" id="supplier_id" name="supplier_id" required>
                       {% for supplier in suppliers %}
@@ -16,7 +19,7 @@
                       {% endfor %}
                       </select>
                   </div>
-                <div class="mb-2">
+                  <div class="col">
                   <label for="exampleInputPassword1" class="form-label">Item Name</label>
                   <input
                     type="text"
@@ -26,7 +29,10 @@
                     required
                   />
                 </div>
-                <div class="mb-2">
+                </div>
+                
+                <div class="row mb-4">
+                  <div class="col">
                     <label class="form-label">Unit</label>
                     <select class="form-select" id="unit" name="unit">
                         <option value="Kg">Kilograms (KG) </option>
@@ -38,8 +44,7 @@
                         <option value="Pieces">Pieces</option>
                       </select>
                   </div>
-
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Buying Price</label>
                     <input
                       type="number"
@@ -50,7 +55,10 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                </div>
+                  
+                <div class="row mb-4">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Payment Method</label>
                     <select class="form-select" id="payment_method" name="payment_method">
                       <option value="Cash">Cash</option>
@@ -58,7 +66,7 @@
                       <option value="Credit">Credit</option>
                     </select>
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Quantity</label>
                     <input
                       type="number"
@@ -69,6 +77,8 @@
                       required
                     />
                   </div>
+                </div>
+                  
                   
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit Stock</button>

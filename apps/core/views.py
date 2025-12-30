@@ -6,11 +6,12 @@ from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from apps.core.models import Expense
+from apps.core.models import Expense, QuotaGroup
 from apps.orders.models import Order
 from apps.reports.models import DailySalesReport
 from apps.students.models import Student, StudentWallet
 from apps.users.models import User
+from apps.core.constants import get_month_name, format_date
 
 date_today = datetime.now().date()
 # Create your views here.
@@ -23,7 +24,8 @@ def expenses(request):
 
     context = {
         "expenses": expenses,
-        "page_obj": page_obj
+        "page_obj": page_obj,
+        "payment_methods": ["Mpesa", "Cash"]
     }
 
     return render(request, "expenses/expenses.html", context)
@@ -32,12 +34,17 @@ def new_expense(request):
     if request.method == "POST":
         title = request.POST.get("title")
         payment_method = request.POST.get("payment_method")
-        purpose = request.POST.get("purpose")
+        expense_date = request.POST.get("expense_date")
         amount = Decimal(request.POST.get("amount"))
 
-        expense = Expense.objects.create(
+        expense_date_formatted = format_date(expense_date)
+        month_name = get_month_name(expense_date_formatted.month)
+
+        Expense.objects.create(
             title=title,
-            purpose=purpose,
+            month=month_name,
+            year=str(expense_date_formatted.year),
+            expense_date=expense_date_formatted,
             amount=amount,
             payment_method=payment_method
         )
@@ -51,16 +58,20 @@ def edit_expense(request):
         expense_id = int(request.POST.get("expense_id"))
         title = request.POST.get("title")
         payment_method = request.POST.get("payment_method")
-        purpose = request.POST.get("purpose")
+        expense_date = request.POST.get("expense_date")
         amount = Decimal(request.POST.get("amount"))
 
-        expense = Expense.objects.get(id=expense_id)
-        expense.title = title
-        expense.purpose = purpose
-        expense.amount = amount
-        expense.payment_method = payment_method
-        expense.save()
-        
+        formatted_expense_date = format_date(expense_date)
+        month_name = get_month_name(formatted_expense_date.month)
+
+        Expense.objects.filter(id=expense_id).update(
+            title=title,
+            expense_date=formatted_expense_date,
+            month=month_name,
+            year=str(formatted_expense_date.year),
+            amount=amount,
+            payment_method=payment_method
+        )
 
         return redirect("expenses")
     return render(request, "expenses/edit_expense.html")
@@ -155,3 +166,44 @@ def home(request):
         "mpesa_sales_this_week": mpesa_sales_this_week
     }
     return render(request, "home.html", context)
+
+
+def quota_groups(request):
+    quota_groups = QuotaGroup.objects.all()
+    
+
+    context = {
+        "groups": quota_groups,
+    }
+
+    return render(request, "quotas/groups.html", context)
+
+
+def new_quota_group(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        amount = Decimal(request.POST.get("amount"))
+
+        quota_group = QuotaGroup.objects.create(
+            name=name,
+            amount=amount
+        )
+        return redirect("quota-groups")
+
+    return render(request, "quotas/new_group.html")
+
+
+def edit_quota_group(request):
+    if request.method == "POST":
+        quota_group_id = int(request.POST.get("group_id"))
+        name = request.POST.get("name")
+        amount = Decimal(request.POST.get("amount"))
+
+        quota_group = QuotaGroup.objects.get(id=quota_group_id)
+        quota_group.name = name
+        quota_group.amount = amount
+        quota_group.save()
+        
+
+        return redirect("quota-groups")
+    return render(request, "quotas/edit_group.html")

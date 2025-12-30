@@ -1,44 +1,44 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h3>Stock</h3>
-    </div>
-    <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col">
-              <input type="text" class="form-control" name="name" id="name" placeholder="Item Name">
-            </div>
-            <div class="col">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">INVENTORY LOGS</h3>
         </div>
-        
-      </form>
+        <div class="col">
+      
+      <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search stock items...">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+            </div>
+          </form>
+  
     </div>
-</div>
+    </div>
+ 
+    <div class="loader" id="loader"></div>
 
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
               <th scope="col">Actioned By</th>
               <th scope="col">Item</th>
               <th scope="col">Quantity</th>
               <th scope="col">Action</th>
               <th scope="col">Destination</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for stock in page_obj %}
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for stock in page_obj %}
             <tr>
               <td>{{stock.id}}</td>
               <td>{{stock.actioned_by}}</td>
@@ -50,9 +50,21 @@
             </tr>
             
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
+        </div>
         <div>
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
@@ -66,5 +78,9 @@
             </ul>
           </nav>
         </div>
-      </div>
+    </div>
+</div>
+
+
+
 {% endblock content %}

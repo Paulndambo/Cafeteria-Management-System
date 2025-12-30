@@ -1,97 +1,140 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h3>Menu Today</h3>
-    </div>
-    <div class="col">
-        <a class="btn btn-success" data-bs-toggle="modal" id="newMenuButton" data-bs-target="#newMenuItemModal">New Menu Item</a>
-    </div>
-    <div class="col">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-          <div class="row">
-            <div class="col-8">
-              <input type="text" class="form-control" id="name" name="name" placeholder="Type Name ..." >
-            </div>
-            <div class="col-4">
-              <button class="btn btn-success">Search</button>
-            </div>
-          </div>
-          
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">KITCHEN MENU</h3>
         </div>
-        
-      </form>
+        <div class="col">
+            <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search menu items...">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newMenuItemModal">Add Item</button>
+          </div>
     </div>
-</div>
+ 
+    <div class="loader" id="loader"></div>
 
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Last Update</th>
-              <th scope="col"></th>
-              <th scope="col">Item</th>
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+              <th scope="col">Item Name</th>
               <th scope="col">Starting Stock</th>
-              <th scope="col">Ending Stock</th>
+              <th scope="col">Current Stock</th>
               <th scope="col">Price</th>
-              <th scope="col" colspan="3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for menu in page_obj %}
+              <th scope="col">Last Updated</th>
+              <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for menu in page_obj %}
             <tr>
-              <td>{{menu.id}}</td>
-              <td>{{menu.updated_today}}</td>
+              <td class="fw-bold">{{menu.id}}</td>
+              
               <td>
-                <img src="{{menu.image.url}}" height="35" />
+                <div class="fw-semibold">{{menu.item}}</div>
+                {% if menu.quantity <= 2 %}
+                <span class="badge bg-warning mt-1">Low Stock</span>
+                {% elif menu.quantity == 0 %}
+                <span class="badge bg-danger mt-1">Out of Stock</span>
+                {% endif %}
               </td>
-              <td>{{menu.item}}</td>
-              <td>{{menu.starting_stock}}</td>
-              <td>{{menu.quantity}}</td>
-              <td>{{menu.price}}</td>
-              
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemAmountModal{{ menu.id }}">
-                <i class="bi bi-plus-lg"></i>
-              </a></td>
-              <td><a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#recordSpoiledItemModal{{ menu.id }}">
-                <i class="bi bi-dash"></i>
-              </a></td>
-            
-              <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}">
-                <i class="bi bi-pencil-square"></i>
-              </a></td>
-              
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMenuItemModal{{ menu.id }}">
-                <i class="bi bi-trash"></i>
-              </a></td>
+              <td>
+                <span class="badge bg-secondary">{{menu.starting_stock}}</span>
+              </td>
+              <td>
+                {% if menu.quantity > 2 %}
+                <span class="badge bg-success">{{menu.quantity}}</span>
+                {% elif menu.quantity > 0 %}
+                <span class="badge bg-warning">{{menu.quantity}}</span>
+                {% else %}
+                <span class="badge bg-danger">{{menu.quantity}}</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="fw-bold text-primary">KSh {{menu.price}}</span>
+              </td>
+              <td>
+                <small class="text-muted">{{menu.updated_today}}</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-center gap-1">
+                  <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemAmountModal{{ menu.id }}" title="Add Stock">
+                    <i class="bi bi-plus-lg"></i>
+                  </a>
+                  <a class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#recordSpoiledItemModal{{ menu.id }}" title="Record Spoiled">
+                    <i class="bi bi-dash"></i>
+                  </a>
+                  <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ menu.id }}" title="Edit">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMenuItemModal{{ menu.id }}" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </div>
+              </td>
             </tr>
             
             {% include "menus/delete_menu.html" %}
             {% include "menus/edit_menu.html" %}
             {% include "menus/edit_menu_item.html" %}
             {% include "menus/record_spoiled.html" %}
-
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
-        <div>
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-              {% if page_obj.has_previous %}   
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-              {% endif %}
-              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
-              {% if page_obj.has_next %}    
-              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-              {% endif %}   
-            </ul>
-          </nav>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
         </div>
+      {% if page_obj.has_other_pages %}
+      <div class="card-footer bg-white">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-end mb-0">
+            {% if page_obj.has_previous %}   
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                  <i class="bi bi-chevron-left"></i> Previous
+                </a>
+              </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}    
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                  Next <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            {% endif %}   
+          </ul>
+        </nav>
       </div>
+      {% endif %}
+    </div>
+</div>
+
 {% endblock content %}

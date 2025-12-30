@@ -1,36 +1,44 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h3>Expenses</h3>
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">EXPENSES</h3>
+        </div>
+        <div class="col">
+            <input type="text" class="form-control" placeholder="Search..." 
+            id="searchInput" value="{{ search_query }}">
+        </div>
+        <div class="col">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newExpenseModal">Record Expense</button>
+          </div>
     </div>
-    <div class="col">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newExpenseModal">New Expense</a>
-    </div>
-</div>
+ 
+    <div class="loader" id="loader"></div>
 
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Title</th>
-              <th scope="col">Purpose</th>
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                  <th scope="col">#</th>
+              <th scope="col">Name</th>
               <th scope="col">Amount</th>
               <th scope="col">Payment Method</th>
+              <th scope="col">Date</th>
               <th scope="col" colspan="2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for expense in page_obj %}
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for expense in page_obj %}
             <tr>
               <td>{{expense.id}}</td>
               <td>{{expense.title}}</td>
-              <td>{{expense.purpose}}</td>
+              
               <td>{{expense.amount}}</td>
               <td>{{expense.payment_method}}</td>
+              <td>{{expense.expense_date}}</td>
               
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editExpenseModal{{ expense.id }}">
                 <i class="bi bi-pencil-square"></i>
@@ -44,10 +52,22 @@
             {% include "expenses/delete_expense.html" %}
             
             {% endfor %}
-
-          </tbody>
+            </tbody>
         </table>
-        <div>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
+        </div>
+      <div>
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
               {% if page_obj.has_previous %}   
@@ -60,5 +80,7 @@
             </ul>
           </nav>
         </div>
-      </div>
+    </div>
+</div>
+{% include "expenses/new_expense.html" %}
 {% endblock content %}

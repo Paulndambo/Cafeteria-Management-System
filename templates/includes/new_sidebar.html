@@ -1,0 +1,117 @@
+<nav id="sidebar">
+    <div class="sidebar-header d-flex justify-content-between align-items-center">
+        <span class="text-white link-text fw-bold">ST. PAUL UNI</span>
+        <button class="hamburger" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-nav">
+        <ul class="list-unstyled">
+
+            <!-- Dashboard -->
+            <li>
+                <a href="/" class="nav-link">
+                    <i class="fas fa-tachometer-alt icon"></i>
+                    <span class="link-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'place-order' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt icon"></i>
+                    <span class="link-text">POS</span>
+                </a>
+            </li>
+            <!-- Memberships -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-people-group icon"></i>
+                    <span class="link-text">People</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    
+                    <li><a href="{% url 'staff' %}" class="nav-link"><i class="fas fa-user-group me-2"></i> Staff</a></li>
+                    <li><a href="{% url 'students' %}" class="nav-link"><i class="fas fa-user-group me-2"></i> Students</a></li>
+                </ul>
+            </li>
+
+            <!-- Attendance -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-user-check icon"></i>
+                    <span class="link-text">Inventory</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="{% url 'menus' %}" class="nav-link"><i class="fas fa-church me-2"></i> Kitchen Menu</a></li>
+                    <li><a href="{% url 'inventory' %}" class="nav-link"><i class="fas fa-calendar-check me-2"></i> Stock</a></li>
+                    <li><a href="{% url 'inventory-logs' %}" class="nav-link"><i class="fas fa-user-clock me-2"></i> Stock Logs</a></li>
+                    <li><a href="{% url 'orders' %}" class="nav-link"><i class="fas fa-user-clock me-2"></i> Orders</a></li>
+                    <li><a href="{% url 'suppliers' %}" class="nav-link"><i class="fas fa-user-clock me-2"></i> Suppliers</a></li>
+                </ul>
+            </li>
+
+            <!-- Finance & Accounting -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-coins icon"></i>
+                    <span class="link-text">Finances</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="{% url 'student-wallets' %}" class="nav-link"><i class="fas fa-heart me-2"></i> Wallets</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-hand-holding-dollar me-2"></i> Payments</a></li>
+                    <li><a href="{% url 'expenses' %}" class="nav-link"><i class="fas fa-gift me-2"></i> Expenses</a></li>
+                    <li><a href="{% url 'quota-groups' %}" class="nav-link"><i class="fas fa-hand-holding-dollar me-2"></i> Quota Groups</a></li>
+                </ul>
+            </li>
+            <!-- Projects & Contributions -->
+           
+
+            <!-- Reports -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-chart-line icon"></i>
+                    <span class="link-text">Reports</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-pie me-2"></i> Summary Stats</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-line me-2"></i> Daily Reports</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-line me-2"></i> Weekly Reports</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-line me-2"></i> Monthly Reports</a></li>
+                </ul>
+            </li>
+            <!-- Messages 
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-envelope icon"></i>
+                    <span class="link-text">Communication</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="#" class="nav-link"><i class="fas fa-envelope-open-text me-2"></i> Messages</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-bell me-2"></i> Reminders</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-bullhorn me-2"></i> Announcements</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-cog me-2"></i> Configurations</a></li>
+                </ul>
+            </li>
+            -->
+          
+            <!-- Profile -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-user-circle icon"></i>
+                    <span class="link-text">Profile</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="#" class="nav-link"><i class="fas fa-gear me-2"></i> Settings</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-right-from-bracket me-2"></i> Logout</a></li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+</nav>

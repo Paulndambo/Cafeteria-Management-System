@@ -41,7 +41,7 @@ def new_menu_item(request):
         quantity = request.POST.get("quantity")
         image = request.FILES["image"]
 
-        menu = Menu.objects.create(
+        Menu.objects.create(
             item=item,
             price=price,
             quantity=quantity,
@@ -58,19 +58,14 @@ def edit_menu_item(request):
         menu_id = int(request.POST.get("menu_id"))
         item = request.POST.get("item")
         price = Decimal(request.POST.get("price"))
-        image = request.FILES.get("image")
     
         quantity = float(request.POST.get("quantity"))
-        
-
-        menu_item = Menu.objects.get(id=menu_id)
-        menu_item.item = item
-        menu_item.price = price
-        menu_item.quantity = quantity
-        menu_item.starting_stock = quantity
-        menu_item.image = image if image else menu_item.image
-        menu_item.updated_today = date_today
-        menu_item.save()
+        Menu.objects.filter(id=menu_id).update(
+            item=item,
+            price=price,
+            quantity=quantity,
+            starting_stock=quantity
+        )
 
         return redirect("menus")
 
