@@ -75,9 +75,11 @@
     window.onload = function () {
       window.print();
     };
-    window.onafterprint((ev) => {
-      console.log({ev})
-    })
+    
+    // Redirect to place-order page after printing
+    window.onafterprint = function() {
+      window.location.href = "{% url 'place-order' %}";
+    };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"

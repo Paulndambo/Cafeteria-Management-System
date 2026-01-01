@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
+from django.http import HttpRequest
 
 from apps.inventory.models import Menu
 from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
@@ -113,7 +114,7 @@ def pos_home(request):
 
 
 @login_required(login_url="/users/login/")
-def pos(request):
+def pos(request: HttpRequest):
     user = request.user
 
     flag_irregularity = False

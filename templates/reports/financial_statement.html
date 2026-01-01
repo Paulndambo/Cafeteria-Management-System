@@ -1,0 +1,464 @@
+{% extends "new_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid fade-in">
+  <!-- Header Section -->
+  <div class="dashboard-header mb-4 no-print">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-3">
+          <div class="header-icon-wrapper">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">Financial Statement</h1>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar-check me-1"></i>
+              Comprehensive financial overview and analysis
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 text-end">
+        <button onclick="window.print()" class="btn btn-primary">
+          <i class="bi bi-printer me-1"></i>Print / Save as PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-card mb-4 no-print">
+    <div class="card-body">
+      <h5 class="card-title mb-3">
+        <i class="bi bi-funnel me-2"></i>Filter by Year
+      </h5>
+      <form method="GET" action="{% url 'financial-statement' %}" class="row g-3">
+        <div class="col-md-4">
+          <label for="year" class="form-label">Select Year</label>
+          <select class="form-select" id="year" name="year">
+            <option value="">All Years</option>
+            {% for year in available_years %}
+            <option value="{{ year }}" {% if filter_year and filter_year|add:0 == year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100 me-2">
+            <i class="bi bi-search me-1"></i>Apply Filter
+          </button>
+          <a href="{% url 'financial-statement' %}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i>
+          </a>
+        </div>
+      </form>
+      {% if filter_year %}
+      <div class="mt-3">
+        <span class="badge bg-info">
+          <i class="bi bi-info-circle me-1"></i>
+          Showing financial statement for {{ filter_year }}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Print Header (only visible when printing) -->
+  <div class="print-only text-center mb-4">
+    <h2 class="fw-bold">Cafeteria Management System</h2>
+    <h3>Financial Statement</h3>
+    <p class="text-muted">
+      {% if filter_year %}
+        For the Year Ending December 31, {{ filter_year }}
+      {% else %}
+        All Time
+      {% endif %}
+    </p>
+    <hr>
+  </div>
+
+  <!-- Financial Summary Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card stat-card-success">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-success">
+              <i class="bi bi-arrow-up-circle"></i>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success">Revenue</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ total_revenue|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-cash-stack me-1 text-success"></i>
+            Total Revenue
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="stat-card stat-card-danger">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-danger">
+              <i class="bi bi-arrow-down-circle"></i>
+            </div>
+            <span class="badge bg-danger bg-opacity-10 text-danger">Expenses</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ total_expenses|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-currency-exchange me-1 text-danger"></i>
+            Total Expenses
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="stat-card stat-card-{% if gross_profit >= 0 %}primary{% else %}warning{% endif %}">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-{% if gross_profit >= 0 %}primary{% else %}warning{% endif %}">
+              <i class="bi bi-{% if gross_profit >= 0 %}graph-up-arrow{% else %}graph-down-arrow{% endif %}"></i>
+            </div>
+            <span class="badge bg-{% if gross_profit >= 0 %}primary{% else %}warning{% endif %} bg-opacity-10 text-{% if gross_profit >= 0 %}primary{% else %}warning{% endif %}">Net</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ gross_profit|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-{% if gross_profit >= 0 %}trophy me-1 text-primary{% else %}exclamation-triangle me-1 text-warning{% endif %}"></i>
+            Gross Profit
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue Breakdown -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-graph-up me-2"></i>Revenue Breakdown
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Revenue Source</th>
+                  <th class="text-end">Amount (KSh)</th>
+                  <th class="text-end">Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i class="bi bi-wallet2 text-primary me-2"></i>Wallet Payments</td>
+                  <td class="text-end">{{ wallet_revenue|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if total_revenue > 0 %}
+                      {% widthratio wallet_revenue total_revenue 100 %}%
+                    {% else %}
+                      0%
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><i class="bi bi-cash-coin text-success me-2"></i>Cash Payments</td>
+                  <td class="text-end">{{ cash_revenue|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if total_revenue > 0 %}
+                      {% widthratio cash_revenue total_revenue 100 %}%
+                    {% else %}
+                      0%
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><i class="bi bi-phone text-info me-2"></i>Mpesa Payments</td>
+                  <td class="text-end">{{ mpesa_revenue|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if total_revenue > 0 %}
+                      {% widthratio mpesa_revenue total_revenue 100 %}%
+                    {% else %}
+                      0%
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr class="table-success fw-bold">
+                  <td>Total Revenue</td>
+                  <td class="text-end">{{ total_revenue|floatformat:2 }}</td>
+                  <td class="text-end">100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Breakdown -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-graph-down me-2"></i>Expense Breakdown
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Expense Category</th>
+                  <th class="text-end">Amount (KSh)</th>
+                  <th class="text-end">Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i class="bi bi-cash-coin text-danger me-2"></i>Cash Expenses</td>
+                  <td class="text-end">{{ cash_expenses|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if total_expenses > 0 %}
+                      {% widthratio cash_expenses total_expenses 100 %}%
+                    {% else %}
+                      0%
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td><i class="bi bi-phone text-warning me-2"></i>Mpesa Expenses</td>
+                  <td class="text-end">{{ mpesa_expenses|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if total_expenses > 0 %}
+                      {% widthratio mpesa_expenses total_expenses 100 %}%
+                    {% else %}
+                      0%
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr class="table-danger fw-bold">
+                  <td>Total Expenses</td>
+                  <td class="text-end">{{ total_expenses|floatformat:2 }}</td>
+                  <td class="text-end">100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Performance (only shown when year is filtered) -->
+  {% if filter_year and monthly_data %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-calendar3 me-2"></i>Monthly Performance - {{ filter_year }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th class="text-end">Revenue (KSh)</th>
+                  <th class="text-end">Expenses (KSh)</th>
+                  <th class="text-end">Profit/Loss (KSh)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for month in monthly_data %}
+                <tr>
+                  <td>{{ month.month }}</td>
+                  <td class="text-end">{{ month.revenue|floatformat:2 }}</td>
+                  <td class="text-end">{{ month.expenses|floatformat:2 }}</td>
+                  <td class="text-end {% if month.profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ month.profit|floatformat:2 }}
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr class="table-primary fw-bold">
+                  <td>Total</td>
+                  <td class="text-end">{{ total_revenue|floatformat:2 }}</td>
+                  <td class="text-end">{{ total_expenses|floatformat:2 }}</td>
+                  <td class="text-end {% if gross_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ gross_profit|floatformat:2 }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Financial Summary Statement -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Financial Summary
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+                <tr class="table-light">
+                  <td class="fw-bold">Total Revenue</td>
+                  <td class="text-end">KSh {{ total_revenue|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                  <td class="ps-4">Less: Total Expenses</td>
+                  <td class="text-end">({{ total_expenses|floatformat:2 }})</td>
+                </tr>
+                <tr class="table-{% if gross_profit >= 0 %}success{% else %}danger{% endif %} fw-bold">
+                  <td>Gross Profit / (Loss)</td>
+                  <td class="text-end">KSh {{ gross_profit|floatformat:2 }}</td>
+                </tr>
+                {% if total_revenue > 0 %}
+                <tr class="table-light">
+                  <td class="fw-bold">Profit Margin</td>
+                  <td class="text-end">{% widthratio gross_profit total_revenue 100 %}%</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Footer -->
+  <div class="print-only text-center mt-5 pt-4" style="border-top: 2px solid #dee2e6;">
+    <p class="text-muted mb-0">
+      Generated on {{ "now"|date:"F d, Y" }} at {{ "now"|date:"H:i" }}
+    </p>
+    <p class="text-muted">
+      <small>Cafeteria Management System - Financial Statement</small>
+    </p>
+  </div>
+</div>
+
+<!-- Print Styles -->
+<style>
+  @media print {
+    /* Hide non-essential elements */
+    .no-print,
+    .sidebar,
+    .navbar,
+    nav,
+    .btn,
+    button,
+    .filter-card {
+      display: none !important;
+    }
+    
+    /* Show print-only elements */
+    .print-only {
+      display: block !important;
+    }
+    
+    /* Page setup */
+    @page {
+      size: A4;
+      margin: 1cm;
+    }
+    
+    body {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    
+    /* Ensure content fits on page */
+    .container-fluid {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+    }
+    
+    /* Card styling for print */
+    .card {
+      border: 1px solid #dee2e6 !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+      margin-bottom: 1rem;
+    }
+    
+    .card-header {
+      background-color: #f8f9fa !important;
+      color: #000 !important;
+      border-bottom: 2px solid #dee2e6 !important;
+    }
+    
+    /* Table styling */
+    table {
+      page-break-inside: auto;
+    }
+    
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+    
+    thead {
+      display: table-header-group;
+    }
+    
+    /* Stat cards for print */
+    .stat-card {
+      border: 1px solid #dee2e6 !important;
+      page-break-inside: avoid;
+    }
+    
+    /* Ensure colors are visible */
+    .text-success {
+      color: #198754 !important;
+    }
+    
+    .text-danger {
+      color: #dc3545 !important;
+    }
+    
+    .text-primary {
+      color: #0d6efd !important;
+    }
+    
+    .bg-success {
+      background-color: #d1e7dd !important;
+    }
+    
+    .bg-danger {
+      background-color: #f8d7da !important;
+    }
+    
+    .bg-primary {
+      background-color: #cfe2ff !important;
+    }
+  }
+  
+  /* Screen-only: hide print elements */
+  @media screen {
+    .print-only {
+      display: none;
+    }
+  }
+</style>
+
+{% include "reports/stats_styles.html" %}
+{% endblock content %}

@@ -34,3 +34,14 @@ class WalletRechargeLog(AbstractBaseModel):
 
     def __str__(self):
         return self.student.registration_number
+    
+
+
+class OrderPayment(AbstractBaseModel):
+    student = models.ForeignKey("students.Student", on_delete=models.SET_NULL, null=True)
+    order = models.ForeignKey("orders.Order", on_delete=models.SET_NULL, null=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.student.registration_number

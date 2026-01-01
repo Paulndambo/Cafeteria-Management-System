@@ -1,194 +1,436 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="JAWAKA Cafeteria Management System - Secure Login">
+    <meta name="author" content="JAWAKA Cafeteria">
+    <title>Login | JAWAKA Cafeteria</title>
 
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="JAWAKA Cafeteria Management System">
-        <title>LOGIN | JAWAKA CAFETERIA</title>
+    <!-- Stylesheets -->
+    <link href="{% static 'forms/css/app.css' %}" rel="stylesheet">
+    <link href="{% static 'dashboard.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <link href="{% static 'forms/css/app.css' %}" rel="stylesheet">
-        <link href="{% static 'dashboard.css' %}" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
         
-        <style>
-            body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: 'Inter', sans-serif;
+        /* Animated background shapes */
+        .decoration-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decoration-shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -150px;
+            animation-delay: 0s;
+        }
+        
+        .decoration-shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 2s;
+        }
+        
+        .decoration-shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 10%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
             }
-            
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+        
+        /* Login container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            padding: 1rem;
+        }
+        
+        /* Login card */
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: none;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Login header */
+        .login-header {
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        
+        .login-header .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        .login-header i {
+            font-size: 2.5rem;
+        }
+        
+        .login-header h3 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        /* Login body */
+        .login-body {
+            padding: 2.5rem 2rem;
+        }
+        
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-text h5 {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-text p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        /* Form controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .form-label i {
+            color: #6366f1;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .form-control-lg {
+            border-radius: 0.75rem;
+            border: 2px solid #e5e7eb;
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .form-control-lg:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+        
+        .form-control-lg::placeholder {
+            color: #9ca3af;
+        }
+        
+        /* Remember me and forgot password */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        
+        .form-check-input {
+            width: 1.125rem;
+            height: 1.125rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .forgot-password {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        
+        /* Login button */
+        .btn-login {
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        /* Error/Success messages */
+        .alert {
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            padding: 1.5rem 2rem;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .login-footer p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 576px) {
             .login-container {
-                position: relative;
-                z-index: 1;
-            }
-            
-            .login-card {
-                background: white;
-                border-radius: 1.5rem;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                border: none;
-                overflow: hidden;
+                padding: 0.5rem;
             }
             
             .login-header {
-                background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-                padding: 2rem;
-                text-align: center;
-                color: white;
-            }
-            
-            .login-header i {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-                opacity: 0.9;
-            }
-            
-            .login-header h3 {
-                font-weight: 700;
-                margin: 0;
-                font-size: 1.75rem;
+                padding: 2rem 1.5rem;
             }
             
             .login-body {
-                padding: 2rem;
+                padding: 2rem 1.5rem;
             }
             
-            .form-control-lg {
-                border-radius: 0.75rem;
-                border: 2px solid #e5e7eb;
-                padding: 0.875rem 1.25rem;
-                transition: all 0.3s ease;
-            }
-            
-            .form-control-lg:focus {
-                border-color: #6366f1;
-                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            }
-            
-            .btn-login {
-                background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-                border: none;
-                border-radius: 0.75rem;
-                padding: 0.875rem 2rem;
-                font-weight: 600;
-                font-size: 1rem;
-                color: white;
-                width: 100%;
-                transition: all 0.3s ease;
-            }
-            
-            .btn-login:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
-            }
-            
-            .form-label {
-                font-weight: 500;
-                color: #374151;
-                margin-bottom: 0.5rem;
-            }
-            
-            .form-check-label {
-                color: #6b7280;
-                font-size: 0.875rem;
-            }
-            
-            .forgot-password {
-                color: #6366f1;
-                text-decoration: none;
-                font-size: 0.875rem;
-                transition: color 0.3s ease;
-            }
-            
-            .forgot-password:hover {
-                color: #4f46e5;
+            .login-header h3 {
+                font-size: 1.5rem;
             }
             
             .decoration-shape {
-                position: absolute;
-                width: 200px;
-                height: 200px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.1);
-                z-index: 0;
+                display: none;
             }
-            
-            .decoration-shape-1 {
-                top: -100px;
-                right: -100px;
-            }
-            
-            .decoration-shape-2 {
-                bottom: -100px;
-                left: -100px;
-            }
-        </style>
-    </head>
+        }
+    </style>
+</head>
 
-    <body>
-        <div class="decoration-shape decoration-shape-1"></div>
-        <div class="decoration-shape decoration-shape-2"></div>
-        
-        <main class="d-flex w-100 login-container">
-            <div class="container d-flex flex-column">
-                <div class="row vh-100">
-                    <div class="col-sm-10 col-md-8 col-lg-5 mx-auto d-table h-100">
-                        <div class="d-table-cell align-middle">
-                            <div class="card login-card fade-in">
-                                <div class="login-header">
-                                    <i class="bi bi-cup-hot-fill"></i>
-                                    <h3>JAWAKA CAFETERIA</h3>
-                                    <p class="mb-0 mt-2" style="opacity: 0.9;">Management System</p>
-                                </div>
-                                <div class="login-body">
-                                    <form action="" method="POST">
-                                        {% csrf_token %}
-                                        <div class="mb-4">
-                                            <label class="form-label">
-                                                <i class="bi bi-person-fill me-2"></i>Username
-                                            </label>
-                                            <input class="form-control form-control-lg" type="text" name="username"
-                                                placeholder="Enter your username" required />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">
-                                                <i class="bi bi-lock-fill me-2"></i>Password
-                                            </label>
-                                            <input class="form-control form-control-lg" type="password"
-                                                name="password" placeholder="Enter your password" required />
-                                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <label class="form-check mb-0">
-                                                    <input class="form-check-input" type="checkbox" value="remember-me"
-                                                        name="remember-me" checked>
-                                                    <span class="form-check-label">
-                                                        Remember me
-                                                    </span>
-                                                </label>
-                                                <a href="#" class="forgot-password">Forgot password?</a>
-                                            </div>
-                                        </div>
-                                        <div class="text-center mt-4">
-                                            <button type="submit" class="btn btn-login">
-                                                <i class="bi bi-box-arrow-in-right me-2"></i>
-                                                LOGIN
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+<body>
+    <!-- Animated background shapes -->
+    <div class="decoration-shape decoration-shape-1"></div>
+    <div class="decoration-shape decoration-shape-2"></div>
+    <div class="decoration-shape decoration-shape-3"></div>
+    
+    <!-- Login container -->
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <div class="icon-wrapper">
+                    <i class="bi bi-cup-hot-fill"></i>
+                </div>
+                <h3>JAWAKA CAFETERIA</h3>
+                <p>Management System</p>
+            </div>
+            
+            <!-- Body -->
+            <div class="login-body">
+                <div class="welcome-text">
+                    <h5>Welcome Back!</h5>
+                    <p>Please login to your account to continue</p>
+                </div>
+                
+                <!-- Display error messages if any -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Login form -->
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-person-fill me-2"></i>Username
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                class="form-control form-control-lg" 
+                                type="text" 
+                                name="username"
+                                placeholder="Enter your username" 
+                                required 
+                                autofocus
+                            />
                         </div>
                     </div>
-                </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-lock-fill me-2"></i>Password
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                class="form-control form-control-lg" 
+                                type="password"
+                                name="password" 
+                                placeholder="Enter your password" 
+                                required
+                            />
+                        </div>
+                        
+                        <div class="form-options">
+                            <label class="form-check">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    name="remember-me"
+                                    checked
+                                />
+                                <span class="form-check-label">Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-password">Forgot password?</a>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        LOGIN
+                    </button>
+                </form>
             </div>
-        </main>
-        <script src="{% static 'forms/js/app.js' %}"></script>
-    </body>
-
+            
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>&copy; {{ "now"|date:"Y" }} JAWAKA Cafeteria. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="{% static 'forms/js/app.js' %}"></script>
+</body>
 </html>

@@ -785,3 +785,86 @@ def monthly_stats(request: HttpRequest):
         'available_years': available_years,
     }
     return render(request, "reports/monthly_stats.html", context)
+
+
+def financial_statement(request: HttpRequest):
+    # Get filter parameter
+    filter_year = request.GET.get('year')
+    
+    # Initialize querysets
+    orders_qs = Order.objects.all()
+    expenses_qs = Expense.objects.all()
+    sales_report_qs = DailySalesReport.objects.all()
+    sales_data_qs = SalesReport.objects.filter(sold_or_spoiled="Sold")
+    
+    # Apply year filter
+    if filter_year:
+        orders_qs = orders_qs.filter(year=int(filter_year))
+        expenses_qs = expenses_qs.filter(year=filter_year)
+        start_date = datetime(int(filter_year), 1, 1).date()
+        end_date = datetime(int(filter_year), 12, 31).date()
+        sales_report_qs = sales_report_qs.filter(created__date__gte=start_date, created__date__lte=end_date)
+        sales_data_qs = sales_data_qs.filter(created__date__gte=start_date, created__date__lte=end_date)
+    
+    # Revenue breakdown
+    total_revenue = sales_report_qs.aggregate(total=Sum('amount'))['total'] or 0
+    wallet_revenue = sales_report_qs.filter(payment_method="Wallet").aggregate(total=Sum('amount'))['total'] or 0
+    cash_revenue = sales_report_qs.filter(payment_method="Cash").aggregate(total=Sum('amount'))['total'] or 0
+    mpesa_revenue = sales_report_qs.filter(payment_method="Mpesa").aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Expense breakdown by category (if you have categories)
+    total_expenses = expenses_qs.aggregate(total=Sum('amount'))['total'] or 0
+    cash_expenses = expenses_qs.filter(payment_method="Cash").aggregate(total=Sum('amount'))['total'] or 0
+    mpesa_expenses = expenses_qs.filter(payment_method="Mpesa").aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Monthly breakdown
+    monthly_data = []
+    if filter_year:
+        for month_num in range(1, 13):
+            month_name = calendar.month_name[month_num]
+            month_start = datetime(int(filter_year), month_num, 1).date()
+            last_day = calendar.monthrange(int(filter_year), month_num)[1]
+            month_end = datetime(int(filter_year), month_num, last_day).date()
+            
+            month_revenue = DailySalesReport.objects.filter(
+                created__date__gte=month_start,
+                created__date__lte=month_end
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            
+            month_expenses = Expense.objects.filter(
+                expense_date__gte=month_start,
+                expense_date__lte=month_end
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            
+            month_profit = month_revenue - month_expenses
+            
+            monthly_data.append({
+                'month': month_name,
+                'revenue': month_revenue,
+                'expenses': month_expenses,
+                'profit': month_profit
+            })
+    
+    # Calculate totals and profit
+    gross_profit = total_revenue - total_expenses
+    
+    # Get available years
+    available_years = list(Order.objects.values_list('year', flat=True).distinct().exclude(year__isnull=True).order_by('-year'))
+    if not available_years:
+        available_years = [date.today().year]
+    
+    context = {
+        'filter_year': filter_year,
+        'available_years': available_years,
+        'total_revenue': total_revenue,
+        'wallet_revenue': wallet_revenue,
+        'cash_revenue': cash_revenue,
+        'mpesa_revenue': mpesa_revenue,
+        'total_expenses': total_expenses,
+        'cash_expenses': cash_expenses,
+        'mpesa_expenses': mpesa_expenses,
+        'gross_profit': gross_profit,
+        'monthly_data': monthly_data,
+    }
+    
+    return render(request, "reports/financial_statement.html", context)

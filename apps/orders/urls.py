@@ -1,6 +1,9 @@
 from django.urls import path
 
-from apps.orders.apis.views import SessionCreateAPIView
+from apps.orders.apis.views import (
+    SessionCreateAPIView, AddToCartAPIView, IncreaseQuantityAPIView,
+    DecreaseQuantityAPIView, RemoveFromCartAPIView
+)
 from apps.orders.views import (add_to_cart, clear_order_items,
                                clear_student_from_pos, confirm_order,
                                confirm_overpaid_order,
@@ -15,7 +18,13 @@ urlpatterns = [
     path("", orders, name="orders"),
     path("edit-order/", edit_order, name="edit-order"),
     path("delete-order/", delete_order, name="delete-order"),
+    
+    # API endpoints
     path("create-session/", SessionCreateAPIView.as_view(), name="create-session"),
+    path("api/add-to-cart/", AddToCartAPIView.as_view(), name="api-add-to-cart"),
+    path("api/increase-quantity/", IncreaseQuantityAPIView.as_view(), name="api-increase-quantity"),
+    path("api/decrease-quantity/", DecreaseQuantityAPIView.as_view(), name="api-decrease-quantity"),
+    path("api/remove-from-cart/", RemoveFromCartAPIView.as_view(), name="api-remove-from-cart"),
 
     path("recharge-wallet-at-order/", recharge_student_wallet_at_order, name="recharge-wallet-order"),
 
