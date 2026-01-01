@@ -9,7 +9,8 @@ from django.utils import timezone
 from apps.core.models import Expense, QuotaGroup
 from apps.orders.models import Order
 from apps.reports.models import DailySalesReport
-from apps.students.models import Student, StudentWallet
+from apps.students.models import Student
+from apps.wallets.models import StudentWallet
 from apps.users.models import User
 from apps.core.constants import get_month_name, format_date
 
@@ -132,9 +133,6 @@ def home(request):
         created__range=[start_date, end_date], payment_method="Cash"
     ).values_list("amount", flat=True)))
 
-    print("Mpesa: ", mpesa_sales_this_week)
-    print("Cash: ", cash_sales_this_week)
-    print("Wallet: ", wallet_sales_this_week)
     ### Data This Month
     mpesa_sales_this_month = sum(list(DailySalesReport.objects.filter(
         created__month=date_today.month, 

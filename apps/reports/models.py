@@ -21,6 +21,8 @@ class DailySalesReport(AbstractBaseModel):
     order = order = models.ForeignKey("orders.Order", on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=255, choices=PAYMENT_METHODS)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
+    month = models.CharField(max_length=255, null=True)
+    year = models.CharField(max_length=4, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -33,6 +35,8 @@ class SalesReport(AbstractBaseModel):
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     sold_or_spoiled = models.CharField(max_length=255, choices=SOLD_OR_SPOILED_CHOICES, null=True)
     quantity = models.FloatField(default=0)
+    month = models.CharField(max_length=255, null=True)
+    year = models.CharField(max_length=4, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -43,6 +47,8 @@ class GeneralisedReportData(AbstractBaseModel):
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     sold_or_spoiled = models.CharField(max_length=255, choices=SOLD_OR_SPOILED_CHOICES, null=True)
     quantity = models.FloatField(default=0)
+    month = models.CharField(max_length=255, null=True)
+    year = models.CharField(max_length=4, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -55,6 +61,8 @@ class DailySalesReportData(AbstractBaseModel):
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     sold_or_spoiled = models.CharField(max_length=255, choices=SOLD_OR_SPOILED_CHOICES, null=True)
     quantity = models.FloatField(default=0)
+    month = models.CharField(max_length=255, null=True)
+    year = models.CharField(max_length=4, null=True)
 
     def __str__(self):
         return str(self.id)

@@ -29,22 +29,45 @@
     </div>
 
     <div class="col-3">
-        <form method="POST" id="downloadForm">
+        <form method="POST" id="downloadItemSalesForm">
           {% csrf_token %}
           <div class="input-group mb-3">
             <div class="row">
               <div class="col">
-                <input type="text" class="form-control" hidden id="action_type" name="action_type" value="export">
+                <input type="text" class="form-control" hidden id="item_action_type" name="action_type" value="export_item_sales">
               </div>
               <div class="col-4">
-                <input type="date" hidden class="form-control" id="starting_date" name="starting_date">
+                <input type="date" hidden class="form-control" id="item_starting_date" name="starting_date">
               </div>
               <div class="col-4">
-                  <input type="date" hidden class="form-control" id="ending_date" name="ending_date">
+                  <input type="date" hidden class="form-control" id="item_ending_date" name="ending_date">
                 </div>
               
               <div class="col">
-                <button class="btn btn-success">Export</button>
+                <button class="btn btn-success">Export Item Sales</button>
+              </div>
+            </div>
+            
+          </div>
+          
+        </form>
+
+        <form method="POST" id="downloadPaymentForm">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <div class="row">
+              <div class="col">
+                <input type="text" class="form-control" hidden id="payment_action_type" name="action_type" value="export_payment_method">
+              </div>
+              <div class="col-4">
+                <input type="date" hidden class="form-control" id="payment_starting_date" name="starting_date">
+              </div>
+              <div class="col-4">
+                  <input type="date" hidden class="form-control" id="payment_ending_date" name="ending_date">
+                </div>
+              
+              <div class="col">
+                <button class="btn btn-info">Export Payment Report</button>
               </div>
             </div>
             
@@ -120,9 +143,15 @@
   }
 
   function loadFormData() {
-    var form = document.getElementById('downloadForm');
-    form.elements['starting_date'].value = sessionStorage.getItem('start_date') || '';
-    form.elements['ending_date'].value = sessionStorage.getItem('end_date') || '';
+    // Load data for item sales form
+    var itemForm = document.getElementById('downloadItemSalesForm');
+    itemForm.elements['starting_date'].value = sessionStorage.getItem('start_date') || '';
+    itemForm.elements['ending_date'].value = sessionStorage.getItem('end_date') || '';
+    
+    // Load data for payment method form
+    var paymentForm = document.getElementById('downloadPaymentForm');
+    paymentForm.elements['starting_date'].value = sessionStorage.getItem('start_date') || '';
+    paymentForm.elements['ending_date'].value = sessionStorage.getItem('end_date') || '';
   }
 
     // Load form data from sessionStorage when the DOM content is loaded

@@ -24,45 +24,47 @@
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 70px;
             
-            /* Enhanced Church Color Palette */
-            --church-primary: #1e3a8a;          /* Deep Professional Blue */
-            --church-secondary: #0f766e;        /* Teal for balance */
-            --church-accent: #d97706;           /* Warm Amber/Gold */
-            --church-light-accent: #fef3c7;     /* Soft Amber highlight */
-            --church-cream: #f8fafc;            /* Clean light background */
-            --church-ivory: #ffffff;            /* Pure White */
-            --church-dark: #1e293b;             /* Rich dark text */
-            --church-deep-blue: #0c4a6e;        /* Deeper blue for depth */
-            --church-blue-gold: #f59e0b;        /* Bright amber accent */
-            --church-stone: #e2e8f0;            /* Soft gray borders */
-            --church-light: #f1f5f9;            /* Light slate */
-            --church-white: #fefefe;            /* Off-white */
-            --church-gold: #fef3c7;             /* Soft gold background */
+            /* Modern POS Color Palette */
+            --pos-primary: #0891b2;             /* Cyan - Main brand color */
+            --pos-primary-dark: #0e7490;        /* Darker cyan */
+            --pos-primary-light: #06b6d4;       /* Lighter cyan */
+            --pos-secondary: #6366f1;           /* Indigo - Secondary actions */
+            --pos-accent: #14b8a6;              /* Teal - Accent highlights */
+            --pos-success: #10b981;             /* Emerald - Success states */
+            --pos-warning: #f59e0b;             /* Amber - Warnings */
+            --pos-danger: #ef4444;              /* Red - Alerts/Delete */
+            --pos-info: #3b82f6;                /* Blue - Information */
+            --pos-dark: #0f172a;                /* Slate - Dark text */
+            --pos-light: #f8fafc;               /* Very light gray */
+            --pos-border: #e2e8f0;              /* Slate border */
+            --pos-card-bg: #ffffff;             /* Pure white cards */
+            --pos-hover: #f1f5f9;               /* Hover background */
             
-            /* Semantic Colors with Church Theme */
-            --primary-color: var(--church-primary);
-            --secondary-color: var(--church-secondary);
-            --accent-color: var(--church-accent);
-            --success-color: #10b981;           /* Modern Emerald Green */
-            --warning-color: #f59e0b;           /* Vibrant Amber */
-            --danger-color: #ef4444;            /* Clear Red */
-            --info-color: #3b82f6;              /* Bright Blue */
+            /* Semantic Colors with POS Theme */
+            --primary-color: var(--pos-primary);
+            --secondary-color: var(--pos-secondary);
+            --accent-color: var(--pos-accent);
+            --success-color: var(--pos-success);
+            --warning-color: var(--pos-warning);
+            --danger-color: var(--pos-danger);
+            --info-color: var(--pos-info);
             
             /* Background and Shadow Colors */
-            --light-bg: var(--church-cream);
-            --card-shadow: 0 0.15rem 1.75rem 0 rgba(44, 62, 80, 0.15);
-            --church-shadow: rgba(44, 62, 80, 0.1);
-            --church-shadow-deep: rgba(51, 51, 51, 0.2);
+            --light-bg: var(--pos-light);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --pos-shadow: rgba(8, 145, 178, 0.15);
+            --pos-shadow-deep: rgba(8, 145, 178, 0.25);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 50%, var(--church-gold) 100%);
-            color: var(--church-dark);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
+            color: var(--pos-dark);
             position: relative;
+            min-height: 100vh;
         }
 
-        /* Add subtle church-themed background pattern with new color tones */
+        /* Add subtle POS-themed background pattern */
         body::before {
             content: '';
             position: fixed;
@@ -70,6 +72,9 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(8, 145, 178, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
             pointer-events: none;
             z-index: -1;
         }
@@ -79,45 +84,43 @@
             min-height: 100vh;
         }
 
-        /* Church-themed utility classes */
-        .text-church-primary { color: var(--church-primary) !important; }
-        .text-church-secondary { color: var(--church-secondary) !important; }
-        .text-church-accent { color: var(--church-accent) !important; }
-        .text-church-cream { color: var(--church-cream) !important; }
-        .text-church-dark { color: var(--church-dark) !important; }
-        .text-church-success { color: var(--success-color) !important; }
-        .text-church-warning { color: var(--warning-color) !important; }
-        .text-church-danger { color: var(--danger-color) !important; }
+        /* POS-themed utility classes */
+        .text-pos-primary { color: var(--pos-primary) !important; }
+        .text-pos-secondary { color: var(--pos-secondary) !important; }
+        .text-pos-accent { color: var(--pos-accent) !important; }
+        .text-pos-success { color: var(--pos-success) !important; }
+        .text-pos-warning { color: var(--pos-warning) !important; }
+        .text-pos-danger { color: var(--pos-danger) !important; }
+        .text-pos-dark { color: var(--pos-dark) !important; }
         
-        .bg-church-primary { background-color: var(--church-primary) !important; }
-        .bg-church-secondary { background-color: var(--church-secondary) !important; }
-        .bg-church-accent { background-color: var(--church-accent) !important; }
-        .bg-church-cream { background-color: var(--church-cream) !important; }
-        .bg-church-ivory { background-color: var(--church-ivory) !important; }
-        .bg-church-stone { background-color: var(--church-stone) !important; }
+        .bg-pos-primary { background-color: var(--pos-primary) !important; }
+        .bg-pos-secondary { background-color: var(--pos-secondary) !important; }
+        .bg-pos-accent { background-color: var(--pos-accent) !important; }
+        .bg-pos-light { background-color: var(--pos-light) !important; }
+        .bg-pos-card { background-color: var(--pos-card-bg) !important; }
+        .bg-pos-hover { background-color: var(--pos-hover) !important; }
 
-        /* Church-themed borders */
-        .border-church-primary { border-color: var(--church-primary) !important; }
-        .border-church-accent { border-color: var(--church-accent) !important; }
-        .border-church-stone { border-color: var(--church-stone) !important; }
-        .text-church-gold { color: var(--church-gold) !important; }
+        /* POS-themed borders */
+        .border-pos-primary { border-color: var(--pos-primary) !important; }
+        .border-pos-accent { border-color: var(--pos-accent) !important; }
+        .border-pos-border { border-color: var(--pos-border) !important; }
 
-        /* Church-themed shadows */
-        .shadow-church { box-shadow: 0 4px 20px var(--church-shadow) !important; }
-        .shadow-church-deep { box-shadow: 0 8px 30px var(--church-shadow-deep) !important; }
+        /* POS-themed shadows */
+        .shadow-pos { box-shadow: 0 4px 20px var(--pos-shadow) !important; }
+        .shadow-pos-deep { box-shadow: 0 8px 30px var(--pos-shadow-deep) !important; }
 
         /* Sidebar */
         #sidebar {
             width: var(--sidebar-width);
-            background: linear-gradient(180deg, #1e40af 0%, var(--church-deep-blue) 100%);
-            box-shadow: 4px 0 20px rgba(30, 58, 138, 0.15);
+            background: linear-gradient(180deg, var(--pos-primary) 0%, var(--pos-primary-dark) 100%);
+            box-shadow: 4px 0 20px rgba(8, 145, 178, 0.2);
             transition: all 0.3s;
             position: fixed;
             height: 100vh;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(217, 119, 6, 0.2);
+            border-right: 3px solid var(--pos-accent);
         }
 
         #sidebar.collapsed {
@@ -126,9 +129,9 @@
 
         #sidebar .sidebar-header {
             padding: 20px;
-            background: linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
-            flex-shrink: 0; /* Prevents header from shrinking */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(20, 184, 166, 0.1) 100%);
+            flex-shrink: 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
             text-align: center;
         }
 
@@ -136,9 +139,10 @@
             color: #ffffff;
             font-weight: 700;
             margin: 0;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
         }
 
         #sidebar .sidebar-nav {
@@ -185,17 +189,18 @@
         }
 
         #sidebar ul li a:hover {
-            background: rgba(217, 119, 6, 0.15);
-            border-left: 3px solid var(--church-accent);
+            background: rgba(20, 184, 166, 0.2);
+            border-left: 4px solid var(--pos-accent);
             color: #ffffff;
             transform: translateX(5px);
         }
 
         #sidebar ul li a.active {
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.15) 100%);
-            border-left: 3px solid var(--church-accent);
+            background: linear-gradient(90deg, rgba(20, 184, 166, 0.3) 0%, rgba(20, 184, 166, 0.15) 100%);
+            border-left: 4px solid var(--pos-accent);
             color: #ffffff;
             font-weight: 600;
+            box-shadow: inset 0 0 10px rgba(20, 184, 166, 0.2);
         }
 
         #sidebar .icon {
@@ -263,10 +268,10 @@
 
 
         .card-stat {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-            border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.08);
-            border: 1px solid rgba(226, 232, 240, 0.5) !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+            border-radius: 0.875rem;
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.12);
+            border: 2px solid rgba(226, 232, 240, 0.6) !important;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -278,13 +283,14 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--church-primary) 0%, var(--church-accent) 50%, var(--church-secondary) 100%);
+            height: 4px;
+            background: linear-gradient(90deg, var(--pos-primary) 0%, var(--pos-accent) 50%, var(--pos-secondary) 100%);
         }
 
         .card-stat:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(8, 145, 178, 0.2);
+            border-color: var(--pos-primary);
         }
 
         .card-stat .card-body {
@@ -292,15 +298,18 @@
         }
 
         .card-stat .card-title {
-            color: var(--church-primary);
-            font-weight: 600;
+            color: var(--pos-primary);
+            font-weight: 700;
             margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
         }
 
         .card-stat .card-text {
-            color: var(--church-dark);
-            font-size: 1.1rem;
-            font-weight: 600;
+            color: var(--pos-dark);
+            font-size: 1.25rem;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
@@ -356,14 +365,14 @@
         }
 
         .search-input input:focus {
-            border-color: var(--church-accent);
-            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+            border-color: var(--pos-primary);
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.15);
             background: white;
             outline: none;
         }
 
         .search-input input:focus + i {
-            color: var(--church-accent);
+            color: var(--pos-primary);
             opacity: 1;
         }
 
@@ -372,11 +381,11 @@
         }
 
         .table-card {
-            border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.08);
-            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0.875rem;
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.12);
+            background: rgba(255, 255, 255, 0.98);
             margin: 1rem 0;
-            border: 1px solid rgba(226, 232, 240, 0.5);
+            border: 2px solid rgba(226, 232, 240, 0.6);
         }
 
         .table-toolbar {
@@ -386,8 +395,8 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            border-bottom: 2px solid var(--church-stone);
-            background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-bottom: 3px solid var(--pos-primary);
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
         }
 
         .table-container {
@@ -399,27 +408,30 @@
         }
 
         .data-table th {
-            font-weight: 600;
-            border-bottom: 2px solid var(--church-accent);
+            font-weight: 700;
+            border-bottom: 3px solid var(--pos-primary);
             padding: 1rem;
-            color: var(--church-primary);
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(217, 119, 6, 0.03) 100%);
+            color: var(--pos-primary);
+            background: linear-gradient(135deg, rgba(8, 145, 178, 0.08) 0%, rgba(20, 184, 166, 0.05) 100%);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
         }
 
         .data-table th i {
             margin-left: 0.5rem;
-            color: var(--church-accent);
-            opacity: 0.7;
+            color: var(--pos-accent);
+            opacity: 0.8;
         }
 
         .data-table tbody tr {
             transition: all 0.2s ease;
-            border-bottom: 1px solid var(--church-stone);
+            border-bottom: 1px solid var(--pos-border);
         }
 
         .data-table tbody tr:hover {
-            background-color: rgba(217, 119, 6, 0.05);
-            transform: scale(1.005);
+            background: linear-gradient(90deg, rgba(8, 145, 178, 0.06) 0%, rgba(8, 145, 178, 0.03) 100%);
+            transform: translateX(2px);
         }
 
         /* Borders everywhere */
@@ -566,7 +578,7 @@
         .stats-icon {
             font-size: 3rem;
             opacity: 0.15;
-            background: linear-gradient(135deg, var(--church-primary) 0%, var(--church-accent) 100%);
+            background: linear-gradient(135deg, var(--pos-primary) 0%, var(--pos-accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -574,8 +586,8 @@
         }
         
         .card-stat:hover .stats-icon {
-            opacity: 0.25;
-            transform: scale(1.1);
+            opacity: 0.3;
+            transform: scale(1.15) rotate(-5deg);
         }
 
         
@@ -759,12 +771,12 @@
 
         /* Enhanced page headers */
         .page-header {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
-            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+            border-radius: 0.875rem;
             padding: 2rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(226, 232, 240, 0.6);
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.08);
+            border: 2px solid rgba(226, 232, 240, 0.7);
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.12);
             position: relative;
             overflow: hidden;
         }
@@ -776,48 +788,51 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--church-primary) 0%, var(--church-accent) 50%, var(--church-secondary) 100%);
+            background: linear-gradient(90deg, var(--pos-primary) 0%, var(--pos-accent) 50%, var(--pos-secondary) 100%);
         }
 
         .page-header h1 {
-            color: var(--church-primary);
+            color: var(--pos-primary);
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
         .page-header p {
-            color: var(--church-dark);
+            color: var(--pos-dark);
             margin-bottom: 0;
             opacity: 0.8;
         }
 
         /* Button styling */
         .btn-primary {
-            background: linear-gradient(135deg, var(--church-primary) 0%, var(--church-deep-blue) 100%);
-            border-color: var(--church-primary);
-            color: var(--church-cream);
-            font-weight: 500;
+            background: linear-gradient(135deg, var(--pos-primary) 0%, var(--pos-primary-light) 100%);
+            border-color: var(--pos-primary);
+            color: white;
+            font-weight: 600;
             transition: all 0.3s ease;
+            border: none;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--church-deep-blue) 0%, var(--church-primary) 100%);
-            border-color: var(--church-accent);
-            color: var(--church-light-accent);
+            background: linear-gradient(135deg, var(--pos-primary-dark) 0%, var(--pos-primary) 100%);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px var(--church-shadow);
+            box-shadow: 0 6px 20px rgba(8, 145, 178, 0.3);
         }
 
         .btn-secondary {
-            background: var(--church-stone);
-            border-color: var(--church-stone);
-            color: var(--church-dark);
+            background: linear-gradient(135deg, var(--pos-secondary) 0%, #818cf8 100%);
+            border-color: var(--pos-secondary);
+            color: white;
+            font-weight: 600;
+            border: none;
         }
 
         .btn-secondary:hover {
-            background: var(--church-secondary);
-            border-color: var(--church-secondary);
-            color: var(--church-dark);
+            background: linear-gradient(135deg, #4f46e5 0%, var(--pos-secondary) 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
         }
 
         .btn-success {

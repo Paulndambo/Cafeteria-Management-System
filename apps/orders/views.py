@@ -17,7 +17,9 @@ from apps.orders.models import (Order, OrderItem, TemporaryCustomerOrderItem,
 from apps.reports.mixins import DailyReportMixin
 from apps.reports.models import (DailySalesReport, GeneralisedReportData,
                                  SalesReport)
-from apps.students.models import Student, StudentWallet, WalletRechargeLog
+from apps.students.models import Student
+from apps.wallets.models import StudentWallet, WalletRechargeLog
+from apps.core.constants import get_month_name
 
 from .utils import determin_meal_time
 
@@ -84,8 +86,7 @@ def pos_home(request):
     students_list = Student.objects.all()
     quotas_generated = True
 
-    boarding_student_wallets = StudentWallet.objects.filter(
-        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+    boarding_student_wallets = StudentWallet.objects.filter(student__status="Active").exclude(modified__date=date_today)
 
     print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
 
@@ -135,8 +136,7 @@ def pos(request):
 
     quotas_generated = True
 
-    boarding_student_wallets = StudentWallet.objects.filter(
-        student__student_type="Boarder", student__status="Active").exclude(modified__date=date_today)
+    boarding_student_wallets = StudentWallet.objects.filter(student__status="Active").exclude(modified__date=date_today)
 
     print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
 
@@ -176,11 +176,7 @@ def pos(request):
             student=student, user=user).values_list("price", flat=True))
 
         
-
-        menus = menus_list.exclude(
-            id__in=list(TemporaryOrderItem.objects.filter(
-                student=student, user=user).values_list('menu_item_id', flat=True))
-        ).filter(quantity__gt=0)
+        menus = menus_list.filter(quantity__gt=0)
 
         extra_amount = order_value - student.studentwallet.balance
 
@@ -195,7 +191,7 @@ def pos(request):
             is_walk_in_student = True
 
         elif student.user.first_name != "Walk-In":
-            if student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
+            if student.studentwallet.balance > 1000 or student.studentwallet.balance < 0:
                 flag_irregularity = True
                 
 
@@ -204,11 +200,11 @@ def pos(request):
 
                 total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
 
-                if total_orders_today + student.studentwallet.balance > 350:
+                if total_orders_today + student.studentwallet.balance > 1000:
                     flag_irregularity = True
                 else:
                     flag_irregularity = False
-            elif student.studentwallet.balance > 350 or student.studentwallet.balance < 0:
+            elif student.studentwallet.balance > 1000 or student.studentwallet.balance < 0:
                 flag_irregularity = True
 
 
@@ -223,7 +219,6 @@ def pos(request):
             "student": student,
             "menus": menus,
             "items": items,
-            #"page_obj": page_obj,
             "order_value": order_value,
             "extra_amount": extra_amount,
             "students": students,
@@ -244,6 +239,9 @@ def confirm_order(request, student_id=None, *args, **kwargs):
     student = Student.objects.get(id=student_id)
     meal_time = determin_meal_time()
 
+    month_name = get_month_name(datetime.now().month)
+    year = datetime.now().year
+
     order_value = sum(TemporaryOrderItem.objects.filter(
         student=student, user=user).values_list("price", flat=True))
 
@@ -253,7 +251,9 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         total_cost=order_value,
         meal_time=meal_time,
         served_by=user,
-        payment_method="Wallet"
+        payment_method="Wallet",
+        month=month_name,
+        year=year
     )
 
     items = TemporaryOrderItem.objects.filter(
@@ -268,7 +268,9 @@ def confirm_order(request, student_id=None, *args, **kwargs):
             user=user,
             item=order_item.menu_item,
             quantity=order_item.quantity,
-            price=order_item.price
+            price=order_item.price,
+            month=month_name,
+            year=year
         ))
 
     order_items = OrderItem.objects.bulk_create(order_items_list)
@@ -277,7 +279,6 @@ def confirm_order(request, student_id=None, *args, **kwargs):
         menu_item = Menu.objects.get(id=order_item.item.id)
         menu_item.quantity -= order_item.quantity
         menu_item.save()
-
      
         SalesReport.objects.create(
             order=order_item.order,
@@ -298,7 +299,6 @@ def confirm_order(request, student_id=None, *args, **kwargs):
     student.studentwallet.total_spend_today += order_value
     student.studentwallet.save()
 
-   
 
     Menu.objects.update(added_to_cart=False)
     TemporaryOrderItem.objects.filter(user=user, student=student).delete()
@@ -315,9 +315,12 @@ def confirm_overpaid_order(request):
         amount = Decimal(request.POST.get("amount"))
         student_id = int(request.POST.get("student_id"))
 
+        month_name = get_month_name(datetime.now().month)
+        year = datetime.now().year
+
         student = Student.objects.get(id=student_id)
 
-        recharge_log = WalletRechargeLog.objects.create(
+        WalletRechargeLog.objects.create(
             student=student,
             wallet=student.studentwallet,
             recharge_method=recharge_method,
@@ -340,7 +343,9 @@ def confirm_overpaid_order(request):
                 total_cost=order_value,
                 meal_time=meal_time,
                 served_by=user, 
-                payment_method="Wallet And Cash"
+                payment_method="Wallet And Cash",
+                month=month_name,
+                year=year
             )
         elif recharge_method.lower() == "mpesa":
             order = Order.objects.create(
@@ -349,7 +354,9 @@ def confirm_overpaid_order(request):
                 total_cost=order_value,
                 meal_time=meal_time,
                 served_by=user, 
-                payment_method="Wallet And Mpesa"
+                payment_method="Wallet And Mpesa",
+                month=month_name,
+                year=year
             )
         else:
             print(f"Recharge Method: {recharge_method} Was not found")
@@ -366,7 +373,9 @@ def confirm_overpaid_order(request):
                 user=user,
                 item=order_item.menu_item,
                 quantity=order_item.quantity,
-                price=order_item.price
+                price=order_item.price,
+                month=month_name,
+                year=year
             ))
 
         order_items = OrderItem.objects.bulk_create(order_items_list)

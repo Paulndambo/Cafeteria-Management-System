@@ -1,0 +1,503 @@
+{% extends "new_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid fade-in">
+  <!-- Header Section -->
+  <div class="dashboard-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-3">
+          <div class="header-icon-wrapper">
+            <i class="bi bi-calendar-day"></i>
+          </div>
+          <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">Daily Statistics</h1>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar3 me-1"></i>
+              Statistics filtered by single date
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-card mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">
+        <i class="bi bi-funnel me-2"></i>Filter by Date
+      </h5>
+      <form method="GET" action="{% url 'daily-stats' %}" class="row g-3">
+        <div class="col-md-4">
+          <label for="date" class="form-label">Select Date</label>
+          <input type="date" class="form-control" id="date" name="date" value="{{ filter_date }}">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100 me-2">
+            <i class="bi bi-search me-1"></i>Apply Filter
+          </button>
+          <a href="{% url 'daily-stats' %}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i>
+          </a>
+        </div>
+      </form>
+      {% if filter_date %}
+      <div class="mt-3">
+        <span class="badge bg-info">
+          <i class="bi bi-info-circle me-1"></i>
+          Showing stats for {{ filter_date }}
+        </span>
+      </div>
+      {% endif %}
+      
+      <!-- Export Buttons -->
+      <div class="row g-3 mt-3">
+        <div class="col-12">
+          <h6 class="mb-2">
+            <i class="bi bi-download me-2"></i>Export Reports
+          </h6>
+        </div>
+        <div class="col-md-6">
+          <form method="POST" action="{% url 'daily-stats' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action_type" value="export_item_sales">
+            <input type="hidden" name="filter_date" value="{{ filter_date|default:'' }}">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Item Sales Report
+            </button>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <form method="POST" action="{% url 'daily-stats' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action_type" value="export_payment_method">
+            <input type="hidden" name="filter_date" value="{{ filter_date|default:'' }}">
+            <button type="submit" class="btn btn-info w-100">
+              <i class="bi bi-file-earmark-bar-graph me-1"></i>Export Payment Method Report
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-primary">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-primary">
+              <i class="bi bi-cart-check-fill"></i>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">Total</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ total_orders }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-bag-check me-1 text-success"></i>
+            Total Orders
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-success">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-success">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success">KSh</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ total_sales|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-graph-up me-1 text-success"></i>
+            Total Sales
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-danger">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-danger">
+              <i class="bi bi-currency-exchange"></i>
+            </div>
+            <span class="badge bg-danger bg-opacity-10 text-danger">KSh</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ total_expenses|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-graph-down me-1 text-danger"></i>
+            Total Expenses
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-{% if net_profit >= 0 %}success{% else %}warning{% endif %}">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-{% if net_profit >= 0 %}success{% else %}warning{% endif %}">
+              <i class="bi bi-{% if net_profit >= 0 %}trending-up{% else %}trending-down{% endif %}"></i>
+            </div>
+            <span class="badge bg-{% if net_profit >= 0 %}success{% else %}warning{% endif %} bg-opacity-10 text-{% if net_profit >= 0 %}success{% else %}warning{% endif %}">KSh</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ net_profit|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-{% if net_profit >= 0 %}arrow-up-circle{% else %}arrow-down-circle{% endif %} me-1 text-{% if net_profit >= 0 %}success{% else %}warning{% endif %}"></i>
+            Net Profit/Loss
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Breakdown -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="section-header mb-3">
+        <h4 class="section-title">
+          <i class="bi bi-list-check me-2"></i>
+          Orders Breakdown
+        </h4>
+        <p class="section-subtitle text-muted">Order statistics by status</p>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-info">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-info">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <span class="badge bg-info bg-opacity-10 text-info">Processed</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ orders_processed }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-check2 me-1 text-info"></i>
+            Processed Orders
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-warning">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-warning">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <span class="badge bg-warning bg-opacity-10 text-warning">Pending</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ orders_pending }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-hourglass-split me-1 text-warning"></i>
+            Pending Orders
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-danger">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-danger">
+              <i class="bi bi-x-circle-fill"></i>
+            </div>
+            <span class="badge bg-danger bg-opacity-10 text-danger">Cancelled</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ orders_cancelled }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-x-octagon me-1 text-danger"></i>
+            Cancelled Orders
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card stat-card-primary">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-primary">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">Average</span>
+          </div>
+          <h3 class="stat-value mb-1">KSh {{ avg_order_value|floatformat:2 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-graph-up-arrow me-1 text-primary"></i>
+            Average Order Value
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Breakdown -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="section-header mb-3">
+        <h4 class="section-title">
+          <i class="bi bi-graph-up-arrow me-2"></i>
+          Sales Breakdown by Payment Method
+        </h4>
+        <p class="section-subtitle text-muted">Revenue distribution across payment channels</p>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-wallet">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-wallet2 me-2"></i>
+                Wallet Sales
+              </h5>
+              <p class="sales-card-subtitle mb-0">Digital wallet payments</p>
+            </div>
+            <div class="sales-card-icon bg-primary">
+              <i class="bi bi-wallet2"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total">
+            <h2 class="sales-total-value">KSh {{ wallet_sales|floatformat:2 }}</h2>
+            {% if total_sales > 0 %}
+            <div class="progress mt-2" style="height: 8px;">
+              <div class="progress-bar bg-primary" role="progressbar" 
+                   style="width: {% widthratio wallet_sales total_sales 100 %}%"></div>
+            </div>
+            <small class="text-muted">
+              {% widthratio wallet_sales total_sales 100 %}% of total sales
+            </small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-cash">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-cash-coin me-2"></i>
+                Cash Sales
+              </h5>
+              <p class="sales-card-subtitle mb-0">Physical cash payments</p>
+            </div>
+            <div class="sales-card-icon bg-success">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total">
+            <h2 class="sales-total-value">KSh {{ cash_sales|floatformat:2 }}</h2>
+            {% if total_sales > 0 %}
+            <div class="progress mt-2" style="height: 8px;">
+              <div class="progress-bar bg-success" role="progressbar" 
+                   style="width: {% widthratio cash_sales total_sales 100 %}%"></div>
+            </div>
+            <small class="text-muted">
+              {% widthratio cash_sales total_sales 100 %}% of total sales
+            </small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sales-card sales-card-mpesa">
+        <div class="sales-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="sales-card-title mb-1">
+                <i class="bi bi-phone me-2"></i>
+                Mpesa Sales
+              </h5>
+              <p class="sales-card-subtitle mb-0">Mobile money payments</p>
+            </div>
+            <div class="sales-card-icon bg-info">
+              <i class="bi bi-phone"></i>
+            </div>
+          </div>
+        </div>
+        <div class="sales-card-body">
+          <div class="sales-total">
+            <h2 class="sales-total-value">KSh {{ mpesa_sales|floatformat:2 }}</h2>
+            {% if total_sales > 0 %}
+            <div class="progress mt-2" style="height: 8px;">
+              <div class="progress-bar bg-info" role="progressbar" 
+                   style="width: {% widthratio mpesa_sales total_sales 100 %}%"></div>
+            </div>
+            <small class="text-muted">
+              {% widthratio mpesa_sales total_sales 100 %}% of total sales
+            </small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses Breakdown -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="section-header mb-3">
+        <h4 class="section-title">
+          <i class="bi bi-receipt-cutoff me-2"></i>
+          Expenses Breakdown
+        </h4>
+        <p class="section-subtitle text-muted">Expense distribution by payment method</p>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="expense-card expense-card-cash">
+        <div class="expense-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="expense-card-title mb-1">
+                <i class="bi bi-cash-coin me-2"></i>
+                Cash Expenses
+              </h5>
+              <p class="expense-card-subtitle mb-0">Cash payments</p>
+            </div>
+            <div class="expense-card-icon bg-danger">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+          </div>
+        </div>
+        <div class="expense-card-body">
+          <h2 class="expense-value">KSh {{ cash_expenses|floatformat:2 }}</h2>
+          {% if total_expenses > 0 %}
+          <div class="progress mt-2" style="height: 8px;">
+            <div class="progress-bar bg-danger" role="progressbar" 
+                 style="width: {% widthratio cash_expenses total_expenses 100 %}%"></div>
+          </div>
+          <small class="text-muted">
+            {% widthratio cash_expenses total_expenses 100 %}% of total expenses
+          </small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="expense-card expense-card-mpesa">
+        <div class="expense-card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="expense-card-title mb-1">
+                <i class="bi bi-phone me-2"></i>
+                Mpesa Expenses
+              </h5>
+              <p class="expense-card-subtitle mb-0">Mobile money payments</p>
+            </div>
+            <div class="expense-card-icon bg-warning">
+              <i class="bi bi-phone"></i>
+            </div>
+          </div>
+        </div>
+        <div class="expense-card-body">
+          <h2 class="expense-value">KSh {{ mpesa_expenses|floatformat:2 }}</h2>
+          {% if total_expenses > 0 %}
+          <div class="progress mt-2" style="height: 8px;">
+            <div class="progress-bar bg-warning" role="progressbar" 
+                 style="width: {% widthratio mpesa_expenses total_expenses 100 %}%"></div>
+          </div>
+          <small class="text-muted">
+            {% widthratio mpesa_expenses total_expenses 100 %}% of total expenses
+          </small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Statistics -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="section-header mb-3">
+        <h4 class="section-title">
+          <i class="bi bi-box-seam me-2"></i>
+          Items Statistics
+        </h4>
+        <p class="section-subtitle text-muted">Inventory and sales item metrics</p>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="stat-card stat-card-success">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-success">
+              <i class="bi bi-check2-square"></i>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success">Sold</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ total_items_sold|floatformat:0 }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-bag-check me-1 text-success"></i>
+            Total Items Sold
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="stat-card stat-card-danger">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-danger">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <span class="badge bg-danger bg-opacity-10 text-danger">Spoiled</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ total_items_spoiled }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-x-octagon me-1 text-danger"></i>
+            Items Spoiled
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="stat-card stat-card-info">
+        <div class="stat-card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="stat-icon-wrapper stat-icon-info">
+              <i class="bi bi-collection"></i>
+            </div>
+            <span class="badge bg-info bg-opacity-10 text-info">Unique</span>
+          </div>
+          <h3 class="stat-value mb-1">{{ unique_items_sold }}</h3>
+          <p class="stat-label mb-0">
+            <i class="bi bi-list-ul me-1 text-info"></i>
+            Unique Items Sold
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "reports/stats_styles.html" %}
+{% endblock content %}
+

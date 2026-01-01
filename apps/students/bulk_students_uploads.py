@@ -1,4 +1,5 @@
-from apps.students.models import Student, StudentWallet
+from apps.students.models import Student
+from apps.wallets.models import StudentWallet
 from apps.users.models import User
 
 students_list = [

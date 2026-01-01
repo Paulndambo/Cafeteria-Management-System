@@ -15,7 +15,7 @@ from apps.reports.models import SalesReport
 date_today = datetime.now().date()
 # Create your views here.
 def menus(request):
-    menus = Menu.objects.all()
+    menus = Menu.objects.all().order_by("-created")
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -39,7 +39,7 @@ def new_menu_item(request):
         item = request.POST.get("item")
         price = request.POST.get("price")
         quantity = request.POST.get("quantity")
-        image = request.FILES["image"]
+        image = request.FILES.get("image")
 
         Menu.objects.create(
             item=item,
