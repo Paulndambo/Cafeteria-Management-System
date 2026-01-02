@@ -28,14 +28,14 @@
         <table class="table data-table table-sm">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
-              <th scope="col">Date</th>
-              <th scope="col">Student</th>
-              <th scope="col">Daily Limit</th>
-              <th scope="col">Spend Today</th>
-              <th scope="col">Balance</th>
-              <th scope="col">Quota Generated?</th>
-              
+                  <th scope="col">#</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Student</th>
+                  <th scope="col">Daily Limit</th>
+                  <th scope="col">Spend Today</th>
+                  <th scope="col">Balance</th>
+                  <th scope="col">Quota Generated?</th>
+                  <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -60,11 +60,11 @@
               <td>
                 {{student_wallet.today_quota_generated}}
               </td>
-              <!--
+              {% if student_wallet.student.student_type == "Prepaid" %}
               <td><a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rechargeWalletModal{{student_wallet.id}}">Recharge</a></td>
-
+              {% endif %}
             {% include "modals/recharge_wallet.html" %}
-            -->
+            
             </tr> 
             {% endfor %}
             </tbody>

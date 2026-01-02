@@ -1,64 +1,96 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 
 {% block content %}
-<div class="row">
+<!-- Student Details Section -->
+<div class="row mb-4">
+  <div class="col-12">
     <h3>Student Details</h3>
     <hr/>
-    <div class="col">
-        <p>Name: {{student.user.name}}</p>
-        <p>Reg. Number: {{student.registration_number}}</p>
-    </div>
-    <div class="col">
-        <p>Wallet Balance: {{student.wallet_balance}}</p>
-        <p>Total Orders: {{student.total_orders}}</p>
-    </div>
-</div>
-<hr/>
-<div class="row">
-    <h3>Student Orders</h3>
+  </div>
 </div>
 
-<hr/>
-      <div class="table-responsive small">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Created</th>
-              <th scope="col">Served By</th>
-              <th scope="col">Student</th>
-              <th scope="col">Cost</th>
-              <th scope="col">Meal Time</th>
-              <th scope="col">Status</th>
-              <th scope="col">Payment Method</th>
-              <th scope="col" colspan="3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for order in page_obj %}
-            <tr>
-              <td>{{order.id}}</td>
-              <td>{{order.created}}</td>
-              <td>{{order.served_by}}</td>
-              <td>{{order.student}}</td>
-              <td>{{order.total_cost}}</td>
-              <td>{{order.meal_time}}</td>
-              <td>{{order.status}}</td>
-              <td>{{order.payment_method}}</td>
-              <td>
-                <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}"><i class="bi bi-eye-fill"></i></a>
-              </td>
-              <td><a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">Void</a></td>
-              <td><a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">Print</a></td>
-            </tr>
-            {% include "orders/void_order.html" %}
-            {% include "orders/order_items.html" %}
-            
-            {% endfor %}
+<div class="row mb-4">
+  <div class="col-md-6">
+    <p><strong>Name:</strong> {{ student.user.name }}</p>
+    <p><strong>Reg. Number:</strong> {{ student.registration_number }}</p>
+  </div>
+  <div class="col-md-6">
+    <p><strong>Wallet Balance:</strong> {{ student.wallet_balance }}</p>
+    <p><strong>Total Orders:</strong> {{ student.total_orders }}</p>
+  </div>
+</div>
 
-          </tbody>
+<!-- Student Orders Section -->
+<div class="table-card">
+    <div class="row py-3 px-2">
+        <div class="col">
+            <h3 class="fw-bold">Student Orders</h3>
+        </div>
+        
+    </div>
+ 
+    <div class="loader" id="loader"></div>
+
+    <!-- Table Container -->
+    <div class="table-container px-2">
+        <table class="table data-table table-sm">
+            <thead>
+                <tr>
+                  <th scope="col">#</th>
+                <th scope="col">Created</th>
+                <th scope="col">Served By</th>
+                <th scope="col">Cost</th>
+                <th scope="col">Meal Time</th>
+                <th scope="col">Status</th>
+                <th scope="col">Payment Method</th>
+                <th scope="col" colspan="3">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for order in page_obj %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created }}</td>
+            <td>{{ order.served_by }}</td>
+            <td>{{ order.total_cost }}</td>
+            <td>{{ order.meal_time }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.payment_method }}</td>
+            <td>
+              <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderItemsModal{{ order.id }}">
+                <i class="bi bi-eye-fill"></i>
+              </a>
+            </td>
+            <td>
+              <a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#voidOrderModal{{ order.id }}">
+                Void
+              </a>
+            </td>
+            <td>
+              <a href="{% url 'print-order' order.id %}" class="btn btn-warning btn-sm">
+                Print
+              </a>
+            </td>
+          </tr>
+          {% include "orders/void_order.html" %}
+          {% include "orders/order_items.html" %}
+          {% endfor %}
+            </tbody>
         </table>
-        <div>
+    </div>
+
+     <!-- Table Footer with Pagination -->
+    <div class="table-footer">
+        <div class="page-info">
+            Showing 
+            {{ page_obj.start_index }} 
+            to 
+            {{ page_obj.end_index }} 
+            of 
+            {{ paginator.count }} 
+            entries
+        </div>
+      <div>
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
               {% if page_obj.has_previous %}   
@@ -71,5 +103,6 @@
             </ul>
           </nav>
         </div>
-      </div>
+    </div>
+</div>
 {% endblock content %}

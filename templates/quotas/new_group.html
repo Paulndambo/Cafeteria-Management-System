@@ -8,7 +8,7 @@
            <form action="{% url 'new-quota-group' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                  <div class="row mb-3">
+                <div class="row mb-4">
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label fw-bold">Group Name</label>
                   <input
@@ -19,9 +19,19 @@
                     required
                   />
                 </div>
-                
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
+                <div class="col">
+                  <label for="student_type" class="form-label fw-bold">Student Type</label>
+                  <select class="form-select" id="student_type" name="student_type" required>
+                    <option value="" selected disabled>Select Student Type</option>
+                    {% for type in student_types %}
+                      <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                </div>
+                <div class="row mb-4">
                   <div class="col">
                     <label for="exampleInputPassword1" class="form-label fw-bold">Amount</label>
                     <input

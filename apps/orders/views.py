@@ -177,7 +177,7 @@ def pos(request: HttpRequest):
             student=student, user=user).values_list("price", flat=True))
 
         
-        menus = menus_list.filter(added_to_cart=False)
+        menus = menus_list
 
         extra_amount = order_value - student.studentwallet.balance
 

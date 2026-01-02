@@ -15,7 +15,7 @@ urlpatterns = [
     path("edit-student/", edit_student, name="edit-student"),
     path("upload-students/", upload_students, name="upload-students"),
     path("students-finder/", students_finder, name="students-finder"),
-    path("students/<int:student_id>/", student_details, name="student-details"),
+    path("<int:student_id>/", student_details, name="student-details"),
     path("search-student/", search_student, name="search-student"),
     path("set-zero-balance/<int:student_id>/", turn_balance_to_zero, name="set-zero-balance"),
 ]

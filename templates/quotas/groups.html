@@ -6,9 +6,7 @@
         <div class="col">
             <h3 class="fw-bold">QUOTA GROUPS</h3>
         </div>
-        <div class="col">
-            <input type="text" class="form-control" name="first_name" id="first_name" placeholder="ID Number">
-        </div>
+        
         <div class="col">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newQuotaGroupModal">Add Group</button>
           </div>
@@ -22,7 +20,8 @@
             <thead>
                 <tr>
               <th scope="col">#</th>
-              <th scope="col">Name</th>
+                <th scope="col">Group Name</th>
+                <th scope="col">Student Type</th>
               <th scope="col">Amount</th>
               <th scope="col" colspan="2">Actions</th>
             </tr>
@@ -32,6 +31,7 @@
             <tr>
               <td>{{group.id}}</td>
               <td>{{group.name}}</td>
+            <td>{{group.student_type}}</td>
               <td>{{group.amount}}</td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editQuotaGroupModal{{ group.id }}">Edit</a></td>
             </tr>

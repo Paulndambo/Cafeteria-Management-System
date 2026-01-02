@@ -236,6 +236,7 @@ def quota_groups(request):
 
     context = {
         "groups": quota_groups,
+        "student_types": ["Prepaid", "Boarder", "One-Time"]
     }
 
     return render(request, "quotas/groups.html", context)
@@ -245,10 +246,12 @@ def new_quota_group(request):
     if request.method == "POST":
         name = request.POST.get("name")
         amount = Decimal(request.POST.get("amount"))
+        student_type = request.POST.get("student_type")
 
-        quota_group = QuotaGroup.objects.create(
+        QuotaGroup.objects.create(
             name=name,
-            amount=amount
+            amount=amount,
+            student_type=student_type
         )
         return redirect("quota-groups")
 
@@ -260,10 +263,12 @@ def edit_quota_group(request):
         quota_group_id = int(request.POST.get("group_id"))
         name = request.POST.get("name")
         amount = Decimal(request.POST.get("amount"))
+        student_type = request.POST.get("student_type")
 
         quota_group = QuotaGroup.objects.get(id=quota_group_id)
         quota_group.name = name
         quota_group.amount = amount
+        quota_group.student_type = student_type
         quota_group.save()
         
 

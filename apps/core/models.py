@@ -52,6 +52,7 @@ class Expense(AbstractBaseModel):
 
 class QuotaGroup(AbstractBaseModel):
     name = models.CharField(max_length=255)
+    student_type = models.CharField(max_length=255, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     
 

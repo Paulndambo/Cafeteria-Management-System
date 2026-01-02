@@ -1,8 +1,8 @@
 import csv
 import io  # Import the io module
-import json
+
 from datetime import datetime
-from decimal import Decimal
+
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,6 +15,7 @@ from apps.students.models import Student
 from apps.wallets.models import StudentWallet
 from apps.users.models import User
 from apps.core.models import QuotaGroup
+from django.http import HttpRequest
 
 date_today = datetime.now().date()
 # Create your views here.
@@ -23,7 +24,7 @@ def students_finder(request):
     return render(request, "students_finder.html", {"students": students})
 
 @login_required(login_url="/users/login/")
-def students(request):
+def students(request: HttpRequest):
     students = Student.objects.all().order_by("-created")
 
     if request.method == "POST":
@@ -37,7 +38,7 @@ def students(request):
             Q(user__username__icontains=registration_number)
         ).order_by("-created")
     
-    paginator = Paginator(students, 8)
+    paginator = Paginator(students, 15)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
@@ -50,7 +51,7 @@ def students(request):
 
 
 @login_required(login_url="/users/login/")
-def activate_deactivate_student(request, student_id=None):
+def activate_deactivate_student(request: HttpRequest, student_id: int):
     student = Student.objects.get(id=student_id)
     if student.status == "Active":
         student.status = "Deactivated"
@@ -61,7 +62,7 @@ def activate_deactivate_student(request, student_id=None):
 
 
 @login_required(login_url="/users/login/")
-def delete_student(request):
+def delete_student(request: HttpRequest):
     if request.method == "POST":
         student_id = request.POST.get("student_id")
         student = Student.objects.filter(id=student_id).first()
@@ -75,7 +76,7 @@ def delete_student(request):
 
 @login_required(login_url="/users/login/")
 @transaction.atomic
-def new_student(request):
+def new_student(request: HttpRequest):
     if request.method == 'POST':
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
@@ -116,7 +117,7 @@ def new_student(request):
                 quota_group=quota_group,
                 student_type=quota_group.name,
                 credit_limit=quota_group.amount,
-                status="Active"
+                status="Active",
             )
 
             StudentWallet.objects.create(
@@ -134,7 +135,7 @@ def new_student(request):
 
 
 @login_required(login_url="/users/login/")
-def edit_student(request):
+def edit_student(request: HttpRequest):
     if request.method == 'POST':
         try:
             student_id = request.POST.get("student_id")
@@ -147,6 +148,7 @@ def edit_student(request):
                 phone_number = request.POST.get("phone_number")
                 registration_number = request.POST.get("reg_number")
                 quota_group_id = request.POST.get("quota_group")
+                
 
                 quota_group = QuotaGroup.objects.get(id=quota_group_id)
 
@@ -191,7 +193,7 @@ def handle_uploaded_file(file):
     return [dict(zip(keys, values)) for values in data[1:]]
    
 
-def upload_students(request):
+def upload_students(request: HttpRequest):
     if request.method == "POST":
         
         res = handle_uploaded_file(request.FILES['student_file'])
@@ -216,24 +218,23 @@ def upload_students(request):
 
                 student = Student.objects.create(
                     user=user,
-                    student_type=x.get("student_type").capitalize(),
+                    student_type=x.get("student_type"),
                     registration_number=x.get("reg_number"),
                     status=x.get("status"),
                     credit_limit=x.get("credit_limit")
                 )
-                wallet = StudentWallet.objects.create(
+                StudentWallet.objects.create(
                     student=student,
                     balance = x.get("credit_limit") if x.get("status") == "Active" else 0
                 )
                 print("Student Created Successfully!!!!")
-
         return redirect("students")
 
         
     return render(request, "students/upload_students.html")
 
 
-def student_details(request, student_id=None):
+def student_details(request: HttpRequest, student_id: int):
     student = Student.objects.get(id=student_id)
     orders = student.studentorders.all().order_by("-created")
 
@@ -250,7 +251,7 @@ def student_details(request, student_id=None):
 
 
 
-def search_student(request):
+def search_student(request: HttpRequest):
     if request.method == 'POST':
         reg_number = request.POST.get('reg_number')
         print(f"Student Reg. Number: {reg_number}")
@@ -271,7 +272,7 @@ def search_student(request):
     return redirect("customer-order")
 
 
-def turn_balance_to_zero(request, student_id=None):
+def turn_balance_to_zero(request: HttpRequest, student_id: int):
     student = Student.objects.get(id=student_id)
     student.studentwallet.balance = 0
     student.studentwallet.save()

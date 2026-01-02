@@ -11,7 +11,7 @@
 
                 <input type="hidden" name="group_id" id="group_id" value="{{ group.id }}">
                 
-                  <div class="row mb-3">
+                  <div class="row mb-4">
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label fw-bold">Group Name</label>
                   <input
@@ -23,9 +23,19 @@
                     required
                   />
                 </div>
-                
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
+                <div class="col">
+                  <label for="student_type" class="form-label fw-bold">Student Type</label>
+                  <select class="form-select" id="student_type" name="student_type" required>
+                    <option value="" selected disabled>Select Student Type</option>
+                    {% for type in student_types %}
+                      <option value="{{ type }}" {% if type == group.student_type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                </div>
+                <div class="row mb-4">
                   <div class="col">
                     <label for="exampleInputPassword1" class="form-label fw-bold">Amount</label>
                     <input
