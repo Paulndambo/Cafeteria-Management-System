@@ -3,16 +3,40 @@
 {% block content %}
 <div class="table-card">
     <div class="row py-3 px-2">
-        <div class="col">
+        <div class="col-md-3">
             <h3 class="fw-bold">EXPENSES</h3>
         </div>
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Search..." 
-            id="searchInput" value="{{ search_query }}">
+        <div class="col-md-9">
+            <form method="GET" action="{% url 'expenses' %}" class="row g-2">
+                <div class="col-md-3">
+                    <input type="date" class="form-control" name="start_date" 
+                           placeholder="Start Date" value="{{ start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" name="end_date" 
+                           placeholder="End Date" value="{{ end_date }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'expenses' %}" class="btn btn-outline-secondary w-100">Clear</a>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-success w-100" onclick="exportToCSV()">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="col">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newExpenseModal">Record Expense</button>
-          </div>
+    </div>
+    
+    <div class="row py-2 px-2">
+        <div class="col-md-12 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newExpenseModal">
+                <i class="bi bi-plus-circle"></i> Record Expense
+            </button>
+        </div>
     </div>
  
     <div class="loader" id="loader"></div>
@@ -71,16 +95,37 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
               {% if page_obj.has_previous %}   
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Previous</a></li>
               {% endif %}
               <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
               {% if page_obj.has_next %}    
-              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a></li>
               {% endif %}   
             </ul>
           </nav>
         </div>
     </div>
 </div>
+
+<script>
+function exportToCSV() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDate = urlParams.get('start_date') || '';
+    const endDate = urlParams.get('end_date') || '';
+    
+    let exportUrl = '{% url "export-expenses-csv" %}';
+    const params = new URLSearchParams();
+    
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    if (params.toString()) {
+        exportUrl += '?' + params.toString();
+    }
+    
+    window.location.href = exportUrl;
+}
+</script>
+
 {% include "expenses/new_expense.html" %}
 {% endblock content %}

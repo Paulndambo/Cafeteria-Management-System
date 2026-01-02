@@ -1119,7 +1119,7 @@
         <div class="action-buttons" id="actionButtons">
           {% if order_value > student.wallet_balance %}
           <a class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
-            <i class="bi bi-cash-coin"></i> Pay Cash/Mpesa
+            <i class="bi bi-cash-coin"></i> Pay KSh {{ extra_amount|floatformat:2 }}
           </a>
           <a href="{% url 'clear-order-items' selected_student.id %}" class="btn btn-danger btn-lg">
             <i class="bi bi-trash"></i> Clear
@@ -1436,6 +1436,33 @@ const recordSelection = async() => {
           return null;
       }
 
+      // Update payment modal with calculated amounts
+      function updatePaymentModalAmount(orderTotal, walletBalance, amountToPay) {
+          // Update order total in modal
+          const orderTotalElements = document.querySelectorAll('#rechargeWalletAtOrderModal .payment-breakdown .d-flex:first-child span:last-child');
+          if (orderTotalElements.length > 0) {
+              orderTotalElements[0].textContent = `KSh ${orderTotal.toFixed(2)}`;
+          }
+          
+          // Update wallet balance in modal
+          const walletBalanceElements = document.querySelectorAll('#rechargeWalletAtOrderModal .payment-breakdown .d-flex:nth-child(2) span:last-child');
+          if (walletBalanceElements.length > 0) {
+              walletBalanceElements[0].textContent = `- KSh ${walletBalance.toFixed(2)}`;
+          }
+          
+          // Update amount to pay in modal (highlighted)
+          const amountToPayElements = document.querySelectorAll('#rechargeWalletAtOrderModal .payment-breakdown .d-flex:last-child span:last-child');
+          if (amountToPayElements.length > 0) {
+              amountToPayElements[0].textContent = `KSh ${amountToPay}`;
+          }
+          
+          // Update the input field
+          const amountInput = document.querySelector('#rechargeWalletAtOrderModal #amount');
+          if (amountInput) {
+              amountInput.value = amountToPay;
+          }
+      }
+
       // Show toast notification
       function showToast(message, type = 'success') {
           const toast = document.createElement('div');
@@ -1471,10 +1498,16 @@ const recordSelection = async() => {
               const walletBalance = parseFloat(walletBalanceText.replace('KSh', '').trim());
               
               if (data.order_value > walletBalance) {
+                  // Calculate amount to pay (order total - wallet balance)
+                  const amountToPay = (data.order_value - walletBalance).toFixed(2);
+                  
+                  // Update the modal's amount field
+                  updatePaymentModalAmount(data.order_value, walletBalance, amountToPay);
+                  
                   // Show pay with cash/mpesa button
                   actionButtonsContainer.innerHTML = `
                       <a class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#rechargeWalletAtOrderModal">
-                          <i class="bi bi-cash-coin"></i> Pay Cash/Mpesa
+                          <i class="bi bi-cash-coin"></i> Pay KSh ${amountToPay}
                       </a>
                       <a href="/orders/clear-order-items/${studentId}/" class="btn btn-danger btn-lg">
                           <i class="bi bi-trash"></i> Clear

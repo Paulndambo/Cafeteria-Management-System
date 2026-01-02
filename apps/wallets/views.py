@@ -32,7 +32,7 @@ def student_wallets(request):
             Q(student__user__last_name__icontains=reg_number)
         )
 
-    paginator = Paginator(wallets, 10)
+    paginator = Paginator(wallets, 15)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {

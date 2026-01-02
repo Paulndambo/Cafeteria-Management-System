@@ -192,7 +192,7 @@ def pos(request: HttpRequest):
             is_walk_in_student = True
 
         elif student.user.first_name != "Walk-In":
-            if student.studentwallet.balance > 1000 or student.studentwallet.balance < 0:
+            if student.studentwallet.balance > 10000 or student.studentwallet.balance < 0:
                 flag_irregularity = True
                 
 
@@ -201,11 +201,11 @@ def pos(request: HttpRequest):
 
                 total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
 
-                if total_orders_today + student.studentwallet.balance > 1000:
+                if total_orders_today + student.studentwallet.balance > 10000:
                     flag_irregularity = True
                 else:
                     flag_irregularity = False
-            elif student.studentwallet.balance > 1000 or student.studentwallet.balance < 0:
+            elif student.studentwallet.balance > 10000 or student.studentwallet.balance < 0:
                 flag_irregularity = True
 
 

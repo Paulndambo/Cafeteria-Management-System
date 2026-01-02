@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
+import csv
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
@@ -17,7 +19,17 @@ from apps.core.constants import get_month_name, format_date
 date_today = datetime.now().date()
 # Create your views here.
 def expenses(request):
-    expenses = Expense.objects.all()
+    expenses = Expense.objects.all().order_by('-expense_date')
+    
+    # Get filter parameters
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Apply date filters if provided
+    if start_date:
+        expenses = expenses.filter(expense_date__gte=start_date)
+    if end_date:
+        expenses = expenses.filter(expense_date__lte=end_date)
     
     paginator = Paginator(expenses, 10)
     page_number = request.GET.get("page")
@@ -26,7 +38,9 @@ def expenses(request):
     context = {
         "expenses": expenses,
         "page_obj": page_obj,
-        "payment_methods": ["Mpesa", "Cash"]
+        "payment_methods": ["Mpesa", "Cash"],
+        "start_date": start_date or '',
+        "end_date": end_date or '',
     }
 
     return render(request, "expenses/expenses.html", context)
@@ -87,6 +101,56 @@ def delete_expense(request):
 
         return redirect("expenses")
     return render(request, "expenses/delete_expense.html")
+
+
+def export_expenses_csv(request):
+    """Export expenses to CSV file with optional date filtering"""
+    expenses = Expense.objects.all().order_by('-expense_date')
+    
+    # Get filter parameters
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Apply date filters if provided
+    if start_date:
+        expenses = expenses.filter(expense_date__gte=start_date)
+    if end_date:
+        expenses = expenses.filter(expense_date__lte=end_date)
+    
+    # Create the HttpResponse object with CSV header
+    response = HttpResponse(content_type='text/csv')
+    
+    # Generate filename with date range if applicable
+    if start_date and end_date:
+        filename = f'Expenses_{start_date}_to_{end_date}.csv'
+    elif start_date:
+        filename = f'Expenses_from_{start_date}.csv'
+    elif end_date:
+        filename = f'Expenses_until_{end_date}.csv'
+    else:
+        filename = f'Expenses_{date_today}.csv'
+    
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    # Create CSV writer
+    writer = csv.writer(response)
+    
+    # Write header row
+    writer.writerow(['ID', 'Expense Name', 'Amount', 'Payment Method', 'Date', 'Month', 'Year'])
+    
+    # Write data rows
+    for expense in expenses:
+        writer.writerow([
+            expense.id,
+            expense.title,
+            expense.amount,
+            expense.payment_method,
+            expense.expense_date,
+            expense.month,
+            expense.year
+        ])
+    
+    return response
 
 
 @login_required(login_url="/users/login/")
