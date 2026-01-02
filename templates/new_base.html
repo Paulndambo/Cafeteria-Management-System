@@ -921,9 +921,13 @@
 </head>
 <body>
     <div class="wrapper">
-        
-        {% include "includes/new_sidebar.html" %}
-        
+        {% if request.user.is_authenticated and request.user.role == "admin" %}
+            {% include "includes/new_sidebar.html" %}
+        {% elif request.user.is_authenticated and request.user.role == "cashier" %}
+            {% include "includes/cashier_sidebar.html" %}
+        {% elif request.user.is_authenticated and request.user.role == "chef" %}
+            {% include "includes/kitchen_sidebar.html" %}
+        {% endif %}
 
         <div id="content" class="fade-in-up">
             {% block content %}

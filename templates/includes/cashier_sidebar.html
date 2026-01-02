@@ -1,0 +1,71 @@
+<nav id="sidebar">
+    <div class="sidebar-header d-flex justify-content-between align-items-center">
+        <span class="text-white link-text fw-bold">JAWAKA POS</span>
+        <button class="hamburger" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-nav">
+        <ul class="list-unstyled">
+
+            <!-- Dashboard -->
+            <li>
+                <a href="/" class="nav-link">
+                    <i class="fas fa-tachometer-alt icon"></i>
+                    <span class="link-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'place-order' %}" class="nav-link">
+                    <i class="fas fa-cash-register icon"></i>
+                    <span class="link-text">POS</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'students' %}" class="nav-link">
+                    <i class="fas fa-user-graduate icon"></i>
+                    <span class="link-text">Students</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="{% url 'orders' %}" class="nav-link">
+                    <i class="fas fa-shopping-bag icon"></i>
+                    <span class="link-text">Orders</span>
+                </a>
+            </li>
+
+            
+            <!-- Reports -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-chart-line icon"></i>
+                    <span class="link-text">Reports</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="{% url 'summary-stats' %}" class="nav-link"><i class="fas fa-chart-pie me-2"></i> Summary Stats</a></li>
+                    <li><a href="{% url 'daily-stats' %}" class="nav-link"><i class="fas fa-calendar-day me-2"></i> Daily Reports</a></li>
+                    <li><a href="{% url 'weekly-stats' %}" class="nav-link"><i class="fas fa-calendar-week me-2"></i> Weekly Reports</a></li>
+                    <li><a href="{% url 'monthly-stats' %}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Monthly Reports</a></li>
+                    <li><a href="{% url 'financial-statement' %}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Financial Statements</a></li>
+                </ul>
+            </li>
+            
+          
+            <!-- Profile -->
+            <li>
+                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-user-circle icon"></i>
+                    <span class="link-text">Profile</span>
+                    <i class="fas fa-angle-down ms-auto small opacity-75"></i>
+                </a>
+                <ul class="collapse submenu">
+                    <li><a href="{% url 'logout' %}" class="nav-link"><i class="fas fa-right-from-bracket me-2"></i> Logout</a></li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+</nav>
