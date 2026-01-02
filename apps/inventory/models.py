@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django.utils import timezone
+from decimal import Decimal
 
 from apps.core.constants import UNIT_CHOICES
 from apps.core.models import AbstractBaseModel
@@ -16,9 +17,9 @@ class Supplier(AbstractBaseModel):
     postal_address = models.CharField(max_length=255, null=True)
     town = models.CharField(max_length=255, null=True)
     country = models.CharField(max_length=255, null=True)
-    amount_owed = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-    total_paid = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-    total_supplies_cost = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    amount_owed = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
+    total_paid = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
+    total_supplies_cost = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
 
     def __str__(self):
         return self.name
@@ -35,8 +36,8 @@ class SupplyLog(AbstractBaseModel):
     payment_method = models.CharField(max_length=255, null=True)
     total_cost = models.DecimalField(max_digits=100, decimal_places=2)
     supply_unit = models.CharField(max_length=255, null=True)
-    amount_paid = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-    amount_due = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    amount_paid = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
+    amount_due = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
 
 
     def __str__(self):
@@ -47,9 +48,9 @@ class Inventory(AbstractBaseModel):
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, related_name="supplies")
     name = models.CharField(max_length=255)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    selling_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=0)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=Decimal('0'))
     unit = models.CharField(max_length=255, choices=UNIT_CHOICES)
-    stock = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    stock = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0'))
     payment_method = models.CharField(max_length=255, null=True)
 
     def __str__(self):

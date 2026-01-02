@@ -6,6 +6,10 @@ cd /Users/dabolabs/Desktop/dabolabs/SchoolCafeteria
 # Activate your virtual environment if you are using one
 source /Users/dabolabs/Desktop/dabolabs/dabolabsenv/bin/activate
 
+# Database migrations
+python manage.py makemigrations &
+python manage.py migrate &
+
 # Run the Django development server
 python manage.py runserver 0.0.0.0:8000 &
 

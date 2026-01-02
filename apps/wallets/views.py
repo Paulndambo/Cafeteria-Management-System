@@ -1,26 +1,18 @@
-import csv
-import io  # Import the io module
-import json
 from datetime import datetime
 from decimal import Decimal
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
-from apps.students.models import Student
 from apps.wallets.models import StudentWallet, WalletRechargeLog
-from apps.users.models import User
-from apps.core.models import QuotaGroup
-
+from django.http import HttpRequest
 date_today = datetime.now().date()
 # Create your views here.
 
 @login_required(login_url="/users/login/")
-def student_wallets(request):
+def student_wallets(request: HttpRequest):
     wallets = StudentWallet.objects.all()
 
     if request.method == "POST":
@@ -43,7 +35,7 @@ def student_wallets(request):
 
 
 @login_required(login_url="/users/login/")
-def recharge_student_wallet(request):
+def recharge_student_wallet(request: HttpRequest):
     if request.method == "POST":
         wallet_id = request.POST.get("wallet_id")
         recharge_method = request.POST.get("recharge_method")
@@ -67,8 +59,10 @@ def recharge_student_wallet(request):
 
 
 @login_required(login_url="/users/login/")
-def generate_daily_quota(request):
-    student_wallets = StudentWallet.objects.filter(student__status="Active")
+def generate_daily_quota(request: HttpRequest):
+    student_wallets = StudentWallet.objects.filter(student__status="Active").filter(
+        student_type__isin=["Prepaid", "One-Time"]
+    )
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")

@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import models
 
 from apps.core.models import AbstractBaseModel
+from decimal import Decimal
 
 date_today = datetime.now().date()
 
@@ -25,7 +26,7 @@ class Student(AbstractBaseModel):
     registration_number = models.CharField(max_length=255)
     status = models.CharField(max_length=255, choices=STUDENT_STATUS)
     added_on = models.DateField(null=True)
-    credit_limit = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    credit_limit = models.DecimalField(max_digits=100, decimal_places=2, default=Decimal('0'))
     quota_group = models.ForeignKey("core.QuotaGroup", on_delete=models.SET_NULL, null=True, blank=True)
 
 
