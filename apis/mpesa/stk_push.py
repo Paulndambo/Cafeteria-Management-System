@@ -1,6 +1,6 @@
 import requests
 
-BACKEND_URL = "https://731c07707248.ngrok-free.app"
+BACKEND_URL = "https://1a437d21ed22.ngrok-free.app"
 MPESA_BASE_URL = "https://sandbox.safaricom.co.ke"
 MPESA_SANDBOX_URL = f"{MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest"
 MPESA_AUTH_URL = f"{MPESA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials"

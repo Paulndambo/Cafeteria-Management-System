@@ -60,9 +60,7 @@ def recharge_student_wallet(request: HttpRequest):
 
 @login_required(login_url="/users/login/")
 def generate_daily_quota(request: HttpRequest):
-    student_wallets = StudentWallet.objects.filter(student__status="Active").filter(
-        student_type__isin=["Prepaid", "One-Time"]
-    )
+    student_wallets = StudentWallet.objects.filter(student__student_type="Boarder")
 
     if not student_wallets:
         print("Quotas for all students for today have been generated!!!")
@@ -75,6 +73,8 @@ def generate_daily_quota(request: HttpRequest):
         if student_wallet.student.status == "Deactivated":
             student_wallet.balance = 0
             student_wallet.save()
+            student_wallet.student.credit_limit = 0
+            student_wallet.student.save()
         else:
             student_wallet.balance = student_wallet.student.quota_group.amount
             student_wallet.save()

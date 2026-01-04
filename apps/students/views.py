@@ -115,7 +115,7 @@ def new_student(request: HttpRequest):
                 registration_number=registration_number,
                 user=user,
                 quota_group=quota_group,
-                student_type=quota_group.name,
+                student_type=quota_group.student_type,
                 credit_limit=quota_group.amount,
                 status="Active",
             )
@@ -165,7 +165,7 @@ def edit_student(request: HttpRequest):
                 Student.objects.filter(id=student_id).update(
                     registration_number=registration_number,
                     quota_group=quota_group,
-                    student_type=quota_group.name,
+                    student_type=quota_group.student_type,
                     credit_limit=quota_group.amount
                 )
 

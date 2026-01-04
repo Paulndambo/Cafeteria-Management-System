@@ -137,11 +137,12 @@ def pos(request: HttpRequest):
 
     quotas_generated = True
 
-    boarding_student_wallets = StudentWallet.objects.filter(student__status="Active").exclude(modified__date=date_today)
+    boarding_student_wallets = StudentWallet.objects.filter(student__status="Active", student__student_type="Boarder").exclude(modified__date=date_today)
 
     print(f"Quotas Not Generated: {boarding_student_wallets.count()}")
 
     if boarding_student_wallets.count() >= 1:
+        print(f"Boarding Students Wallets Still Pending")
         quotas_generated = False
 
     student = Student.objects.get(user__first_name='Walk-In')
@@ -181,32 +182,20 @@ def pos(request: HttpRequest):
 
         extra_amount = order_value - student.studentwallet.balance
 
-        student_orders = Order.objects.filter(student=student, created__date=date_today)
 
-        if student.user.first_name == "Walk-In" and student.studentwallet.balance > 0:
+        if student.student_type == "One-Time" and student.studentwallet.balance > 0:
             flag_irregularity = True
             is_walk_in_student = True
 
-        if student.user.first_name == "Walk-In" and student.studentwallet.balance < 0:
+        elif student.student_type == "One-Time" and student.studentwallet.balance < 0:
             flag_irregularity = True
-            is_walk_in_student = True
 
-        elif student.user.first_name != "Walk-In":
-            if student.studentwallet.balance > 10000 or student.studentwallet.balance < 0:
+        elif student.student_type == "Boarder":
+            if student.studentwallet.balance > student.quota_group.amount or student.studentwallet.balance < 0:
                 flag_irregularity = True
-                
-
-            elif student_orders:
-                total_orders_today = 0
-
-                total_orders_today = sum(list(student_orders.values_list("total_cost", flat=True)))
-
-                if total_orders_today + student.studentwallet.balance > 10000:
-                    flag_irregularity = True
-                else:
-                    flag_irregularity = False
-            elif student.studentwallet.balance > 10000 or student.studentwallet.balance < 0:
-                flag_irregularity = True
+        
+        elif student.student_type == "Prepaid" and student.studentwallet.balance < 0:
+            flag_irregularity = True
 
 
         if request.method == "POST":

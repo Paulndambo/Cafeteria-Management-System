@@ -51,7 +51,7 @@
                 {% endif %}
               </td>
               {% if student_wallet.student.student_type == "Boarder" %}
-              <td>Kes. 350</td>
+              <td>{{student_wallet.student.credit_limit}}</td>
               {% else %}
               <td>No Limit</td>
               {% endif %}
